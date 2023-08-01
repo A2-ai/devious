@@ -1,6 +1,6 @@
 package main
 
-import "uppercut/cmd"
+import "devious/cmd"
 
 func main() {
 	cmd.Execute()
