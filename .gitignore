@@ -1,2 +1,5 @@
 # Build files
 devious
+
+# Config files
+.devious
