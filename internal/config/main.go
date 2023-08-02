@@ -13,7 +13,7 @@ type Config struct {
 	StorageDir string `yaml:"storage-dir"`
 }
 
-var ConfigFileName = ".devious"
+var ConfigFileName = ".dvs.yaml"
 
 func Load() (Config, error) {
 	// Create a new file at git root
