@@ -12,7 +12,7 @@ func isGitRepository(dir string) bool {
 }
 
 // Gets the nearest repository root of the supplied dir, or an error if the dir is not contained within a git repository
-func GetRepositoryRoot(dir string) (string, error) {
+func getRepositoryRoot(dir string) (string, error) {
 	// Check if the current directory is a git repository
 	if isGitRepository(dir) {
 		return dir, nil
@@ -27,5 +27,16 @@ func GetRepositoryRoot(dir string) (string, error) {
 	}
 
 	// Recursively call this function with the parent directory
-	return GetRepositoryRoot(parentDir)
+	return getRepositoryRoot(parentDir)
+}
+
+func GetRootDir() (string, error) {
+	// Start at the current working directory
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+
+	// Get the repository root
+	return getRepositoryRoot(cwd)
 }

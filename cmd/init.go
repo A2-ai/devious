@@ -1,16 +1,14 @@
 package cmd
 
 import (
+	"devious/internal/config"
 	"devious/internal/git"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v3"
 )
-
-type Config struct {
-	StorageDir string `yaml:"storage-dir"`
-}
 
 func runInitCmd(cmd *cobra.Command, args []string) error {
 	// Get the desired storage directory from the command line
@@ -19,27 +17,21 @@ func runInitCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Get the current working directory
-	cwd, err := os.Getwd()
+	// Get repository root
+	gitDir, err := git.GetRootDir()
 	if err != nil {
 		return err
 	}
 
 	// Create a new file at git root
-	gitDir, err := git.GetRepositoryRoot(cwd)
-	if err != nil {
-		return err
-	}
-
-	// Create a new file at git root
-	dvsFile, err := os.Create(gitDir + "/.devious")
+	dvsFile, err := os.Create(filepath.Join(gitDir, config.ConfigFileName))
 	if err != nil {
 		return err
 	}
 	defer dvsFile.Close()
 
 	// Create config
-	config := Config{
+	config := config.Config{
 		StorageDir: storageDir,
 	}
 
