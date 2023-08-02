@@ -9,8 +9,14 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"github.com/zeebo/blake3"
 	"golang.org/x/exp/slog"
+	"gopkg.in/yaml.v3"
 )
+
+type Metadata struct {
+	FileHash [32]byte
+}
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
@@ -25,37 +31,38 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Create metadata file
-	metadataFile, err := os.Create(filePath + config.ConfigFileName)
-	if err != nil {
-		return err
-	}
-	defer metadataFile.Close()
-
-	// Write metadata to file
-	_, err = metadataFile.Write([]byte("metadata lorem ipsum"))
+	// Load the conf
+	conf, err := config.Load()
 	if err != nil {
 		return err
 	}
 
-	// Load the config
-	config, err := config.Load()
-	if err != nil {
-		return err
-	}
-
-	// Open source and destination files
+	// Open source file
 	src, err := os.Open(filePath)
 	if err != nil {
 		return err
 	}
 	defer src.Close()
 
-	dstPath := filepath.Join(config.StorageDir, filepath.Base(filePath))
+	// Create destination file
+	fileHash := blake3.Sum256([]byte(filePath))
+	relativeDstPath := fmt.Sprintf("%x", fileHash)
+
+	dstPath := filepath.Join(conf.StorageDir, relativeDstPath)
+
 	dst, err := os.Create(dstPath)
-	if err != nil {
+
+	// Create the directory if it doesn't exist
+	// Return if there was an error other than the directory not existing
+	if err == os.ErrNotExist {
+		err = os.MkdirAll(filepath.Dir(dstPath), 0755)
+		if err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
 	}
+
 	defer dst.Close()
 
 	// Copy the file to the storage directory
@@ -73,6 +80,21 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	defer ignoreFile.Close()
+
+	// Create + write metadata file
+	metadata := Metadata{
+		FileHash: fileHash,
+	}
+
+	metadataYaml, err := yaml.Marshal(metadata)
+	if err != nil {
+		return err
+	}
+
+	err = os.WriteFile(filePath+config.ConfigFileName, metadataYaml, 0644)
+	if err != nil {
+		return err
+	}
 
 	_, err = ignoreFile.WriteString("\n\n# Devious entry\n/" + filepath.Base(filePath))
 	return err
