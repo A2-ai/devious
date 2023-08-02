@@ -3,6 +3,7 @@ package cmd
 import (
 	"devious/internal/config"
 	"devious/internal/git"
+	"encoding/gob"
 	"fmt"
 	"io"
 	"os"
@@ -11,12 +12,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/zeebo/blake3"
 	"golang.org/x/exp/slog"
-	"gopkg.in/yaml.v3"
 )
 
 type Metadata struct {
-	FileHash [32]byte
+	FileHash string `yaml:"file-hash"`
 }
+
+var storageFileExtension = ".dvsfile"
+var metaFileExtension = ".dvsmeta"
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
@@ -45,10 +48,9 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	defer src.Close()
 
 	// Create destination file
-	fileHash := blake3.Sum256([]byte(filePath))
-	relativeDstPath := fmt.Sprintf("%x", fileHash)
+	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(filePath)))
 
-	dstPath := filepath.Join(conf.StorageDir, relativeDstPath)
+	dstPath := filepath.Join(conf.StorageDir, fileHash) + storageFileExtension
 
 	dst, err := os.Create(dstPath)
 
@@ -74,27 +76,26 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		slog.String("filesize", fmt.Sprintf("%1.2f MB", float64(copiedBytes)/1000000)),
 		slog.String("from", filePath), slog.String("to", dstPath))
 
+	// Create + write metadata file
+	metadataFile, err := os.Create(filePath + metaFileExtension)
+	if err != nil {
+		return err
+	}
+	defer metadataFile.Close()
+
+	err = gob.NewEncoder(metadataFile).Encode(Metadata{
+		FileHash: fileHash,
+	})
+	if err != nil {
+		return err
+	}
+
 	// Add file to gitignore
 	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 	defer ignoreFile.Close()
-
-	// Create + write metadata file
-	metadata := Metadata{
-		FileHash: fileHash,
-	}
-
-	metadataYaml, err := yaml.Marshal(metadata)
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(filePath+config.ConfigFileName, metadataYaml, 0644)
-	if err != nil {
-		return err
-	}
 
 	_, err = ignoreFile.WriteString("\n\n# Devious entry\n/" + filepath.Base(filePath))
 	return err
