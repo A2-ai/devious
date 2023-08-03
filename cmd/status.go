@@ -17,7 +17,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		metaPaths, err := meta.GetMetaFiles(gitDir)
+		metaPaths, err := meta.GetAllMetaFiles(gitDir)
 		if err != nil {
 			return err
 		}

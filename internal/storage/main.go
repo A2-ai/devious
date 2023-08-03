@@ -1,3 +1,3 @@
 package storage
 
-var StorageFileExtension = ".dvsfile"
+var FileExtension = ".dvsfile"

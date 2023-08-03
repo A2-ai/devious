@@ -10,6 +10,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+// Copies a file from the source path to the destination path
 func Copy(srcPath string, destPath string, conf config.Config) error {
 	// Open source file
 	src, err := os.Open(srcPath)

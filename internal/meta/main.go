@@ -2,6 +2,7 @@ package meta
 
 import (
 	"encoding/gob"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -14,6 +15,7 @@ type Metadata struct {
 	FileHash string `yaml:"file-hash"`
 }
 
+// Creates a metadata file
 func CreateFile(metadata Metadata, filePath string) (err error) {
 	metadataFile, err := os.Create(filePath + FileExtension)
 	if err != nil {
@@ -31,33 +33,53 @@ func CreateFile(metadata Metadata, filePath string) (err error) {
 	return nil
 }
 
-func LoadFile(filePath string) (metadata Metadata, err error) {
-	metadataFile, err := os.Open(filePath)
+// Loads a metadata file
+func LoadFile(path string) (metadata Metadata, err error) {
+	metadataFile, err := os.Open(path)
 	if err != nil {
-		slog.Error("No metadata for file", slog.String("path", filePath))
+		slog.Error("No metadata for file", slog.String("path", path))
 		return metadata, err
 	}
 
 	err = gob.NewDecoder(metadataFile).Decode(&metadata)
 	if err != nil {
-		slog.Error("Failed to decode metadata", slog.String("path", filePath))
+		slog.Error("Failed to decode metadata", slog.String("path", path))
 		return metadata, err
 	}
 
 	return metadata, nil
 }
 
-// Gets a list of all meta file paths in the directory recursively
+// Gets a list of all meta file paths in the directory
 func GetMetaFiles(dir string) (metaFiles []string, err error) {
 	metaFiles = make([]string, 0)
-	err = filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	dirEntries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, dirEntry := range dirEntries {
+		// Check if the file is a meta file
+		if filepath.Ext(dirEntry.Name()) == FileExtension {
+			metaFiles = append(metaFiles, filepath.Join(dir, dirEntry.Name()[0:len(dirEntry.Name())-len(FileExtension)]))
+		}
+	}
+
+	return metaFiles, nil
+}
+
+// Gets a list of all meta file paths in the directory recursively
+func GetAllMetaFiles(dir string) (metaFiles []string, err error) {
+	metaFiles = make([]string, 0)
+	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
 		// Check if the file is a meta file
 		if filepath.Ext(path) == FileExtension {
-			metaFiles = append(metaFiles, path)
+			// strip extension
+			metaFiles = append(metaFiles, path[0:len(path)-len(FileExtension)])
 		}
 
 		return nil
