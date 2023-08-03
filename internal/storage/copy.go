@@ -13,7 +13,11 @@ import (
 func Copy(srcPath string, destPath string, conf config.Config) error {
 	// Open source file
 	src, err := os.Open(srcPath)
-	if err != nil {
+	if err == os.ErrNotExist {
+		slog.Error("File does not exist", slog.String("path", srcPath))
+		return err
+	} else if err != nil {
+		slog.Error("Failed to open file", slog.String("path", srcPath))
 		return err
 	}
 	defer src.Close()
@@ -26,9 +30,11 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 	if err == os.ErrNotExist {
 		err = os.MkdirAll(filepath.Dir(destPath), 0755)
 		if err != nil {
+			slog.Error("Failed to create directory", slog.String("path", filepath.Dir(destPath)))
 			return err
 		}
 	} else if err != nil {
+		slog.Error("Failed to create file", slog.String("path", destPath))
 		return err
 	}
 
@@ -38,6 +44,7 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 	slog.Info("Copying file...")
 	copiedBytes, err := io.Copy(dst, src)
 	if err != nil {
+		slog.Error("Failed to copy file", slog.String("path", srcPath))
 		return err
 	}
 	slog.Info("Copied file",

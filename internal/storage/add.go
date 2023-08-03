@@ -15,7 +15,7 @@ import (
 func Add(filePath string, conf config.Config, gitDir string) error {
 	// Create file hash
 	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(filePath)))
-	slog.Info("Created file hash", slog.String("hash", fileHash), slog.String("file-path", filePath))
+	slog.Debug("Created file hash", slog.String("hash", fileHash), slog.String("file-path", filePath))
 
 	dstPath := filepath.Join(conf.StorageDir, fileHash) + StorageFileExtension
 
