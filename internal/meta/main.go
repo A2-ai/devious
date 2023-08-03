@@ -1,7 +1,7 @@
 package meta
 
 import (
-	"encoding/gob"
+	"encoding/json"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -24,7 +24,7 @@ func CreateFile(metadata Metadata, filePath string) (err error) {
 	}
 	defer metadataFile.Close()
 
-	err = gob.NewEncoder(metadataFile).Encode(metadata)
+	err = json.NewEncoder(metadataFile).Encode(metadata)
 	if err != nil {
 		slog.Error("Failed to encode metadata", slog.String("path", filePath))
 		return err
@@ -40,7 +40,7 @@ func LoadFile(path string) (metadata Metadata, err error) {
 		return metadata, err
 	}
 
-	err = gob.NewDecoder(metadataFile).Decode(&metadata)
+	err = json.NewDecoder(metadataFile).Decode(&metadata)
 	if err != nil {
 		slog.Error("Failed to decode metadata", slog.String("path", path))
 		return metadata, err
