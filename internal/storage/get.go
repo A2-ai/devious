@@ -2,26 +2,14 @@ package storage
 
 import (
 	"devious/internal/config"
-	"encoding/gob"
-	"os"
+	"devious/internal/meta"
 	"path/filepath"
-
-	"golang.org/x/exp/slog"
 )
 
 func Get(localPath string, conf config.Config, gitDir string) error {
 	/// Get metadata of specified file
-	metadataFile, err := os.Open(localPath + MetaFileExtension)
+	metadata, err := meta.LoadFile(localPath + meta.FileExtension)
 	if err != nil {
-		slog.Error("No metadata for file", slog.String("path", localPath))
-		return err
-	}
-
-	// Decode metadata
-	var metadata Metadata
-	err = gob.NewDecoder(metadataFile).Decode(&metadata)
-	if err != nil {
-		slog.Error("Failed to decode metadata", slog.String("path", localPath))
 		return err
 	}
 

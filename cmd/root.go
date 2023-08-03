@@ -34,7 +34,7 @@ func getRootCmd() *cobra.Command {
 	// Add commands
 	cmd.AddCommand(getAddCmd())
 	cmd.AddCommand(getRemoveCmd())
-	cmd.AddCommand(getListCmd())
+	cmd.AddCommand(getStatusCmd())
 	cmd.AddCommand(getGetCmd())
 	cmd.AddCommand(getInitCmd())
 

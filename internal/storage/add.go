@@ -3,9 +3,8 @@ package storage
 import (
 	"devious/internal/config"
 	"devious/internal/git"
-	"encoding/gob"
+	"devious/internal/meta"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/zeebo/blake3"
@@ -23,15 +22,10 @@ func Add(filePath string, conf config.Config, gitDir string) error {
 	Copy(filePath, dstPath, conf)
 
 	// Create + write metadata file
-	metadataFile, err := os.Create(filePath + MetaFileExtension)
-	if err != nil {
-		return err
-	}
-	defer metadataFile.Close()
-
-	err = gob.NewEncoder(metadataFile).Encode(Metadata{
+	metadata := meta.Metadata{
 		FileHash: fileHash,
-	})
+	}
+	err := meta.CreateFile(metadata, filePath)
 	if err != nil {
 		return err
 	}
