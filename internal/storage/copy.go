@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/zeebo/blake3"
 	"golang.org/x/exp/slog"
 )
 
@@ -20,17 +19,12 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 	defer src.Close()
 
 	// Create destination file
-	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(destPath)))
-	slog.Info("Created file hash", slog.String("hash", fileHash))
-
-	dstPath := filepath.Join(conf.StorageDir, fileHash) + StorageFileExtension
-
-	dst, err := os.Create(dstPath)
+	dst, err := os.Create(destPath)
 
 	// Create the directory if it doesn't exist
 	// Return if there was an error other than the directory not existing
 	if err == os.ErrNotExist {
-		err = os.MkdirAll(filepath.Dir(dstPath), 0755)
+		err = os.MkdirAll(filepath.Dir(destPath), 0755)
 		if err != nil {
 			return err
 		}
@@ -48,7 +42,7 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 	}
 	slog.Info("Copied file",
 		slog.String("filesize", fmt.Sprintf("%1.2f MB", float64(copiedBytes)/1000000)),
-		slog.String("from", srcPath), slog.String("to", dstPath))
+		slog.String("from", srcPath), slog.String("to", destPath))
 
 	return nil
 }

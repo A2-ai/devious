@@ -1,7 +1,6 @@
 package config
 
 import (
-	"devious/internal/git"
 	"os"
 	"path/filepath"
 
@@ -15,13 +14,7 @@ type Config struct {
 
 var ConfigFileName = ".dvs.yaml"
 
-func Load() (Config, error) {
-	// Create a new file at git root
-	gitDir, err := git.GetRootDir()
-	if err != nil {
-		return Config{}, err
-	}
-
+func Load(gitDir string) (Config, error) {
 	// Read the config file
 	configFileContents, err := os.ReadFile(filepath.Join(gitDir, ConfigFileName))
 	if err != nil {
@@ -35,7 +28,7 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 
-	slog.Info("Loaded config", slog.String("storage-dir", config.StorageDir))
+	slog.Debug("Loaded config", slog.String("storage-dir", config.StorageDir))
 
 	return config, nil
 }

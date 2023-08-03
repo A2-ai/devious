@@ -16,7 +16,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Load the conf
-	conf, err := config.Load()
+	conf, err := config.Load(gitDir)
 	if err != nil {
 		return err
 	}
