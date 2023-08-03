@@ -3,33 +3,14 @@ package cmd
 import (
 	"devious/internal/config"
 	"devious/internal/git"
-	"encoding/gob"
-	"fmt"
-	"io"
-	"os"
-	"path/filepath"
+	"devious/internal/storage"
 
 	"github.com/spf13/cobra"
-	"github.com/zeebo/blake3"
-	"golang.org/x/exp/slog"
 )
-
-type Metadata struct {
-	FileHash string `yaml:"file-hash"`
-}
-
-var storageFileExtension = ".dvsfile"
-var metaFileExtension = ".dvsmeta"
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
 	gitDir, err := git.GetRootDir()
-	if err != nil {
-		return err
-	}
-
-	// Get desired file
-	filePath, err := cmd.Flags().GetString("file")
 	if err != nil {
 		return err
 	}
@@ -40,74 +21,20 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Open source file
-	src, err := os.Open(filePath)
-	if err != nil {
-		return err
-	}
-	defer src.Close()
-
-	// Create destination file
-	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(filePath)))
-	slog.Info("Created file hash", slog.String("hash", fileHash))
-
-	dstPath := filepath.Join(conf.StorageDir, fileHash) + storageFileExtension
-
-	dst, err := os.Create(dstPath)
-
-	// Create the directory if it doesn't exist
-	// Return if there was an error other than the directory not existing
-	if err == os.ErrNotExist {
-		err = os.MkdirAll(filepath.Dir(dstPath), 0755)
-		if err != nil {
-			return err
-		}
-	} else if err != nil {
-		return err
+	// For each file, add it to the storage
+	for _, filePath := range args {
+		storage.Add(filePath, conf, gitDir)
 	}
 
-	defer dst.Close()
-
-	// Copy the file to the storage directory
-	slog.Info("Copying file...")
-	copiedBytes, err := io.Copy(dst, src)
-	if err != nil {
-		return err
-	}
-	slog.Info("Copied file to storage",
-		slog.String("filesize", fmt.Sprintf("%1.2f MB", float64(copiedBytes)/1000000)),
-		slog.String("from", filePath), slog.String("to", dstPath))
-
-	// Create + write metadata file
-	metadataFile, err := os.Create(filePath + metaFileExtension)
-	if err != nil {
-		return err
-	}
-	defer metadataFile.Close()
-
-	err = gob.NewEncoder(metadataFile).Encode(Metadata{
-		FileHash: fileHash,
-	})
-	if err != nil {
-		return err
-	}
-
-	// Add file to gitignore
-	err = git.AddToGitIgnore(gitDir, dstPath)
-
-	return err
+	return nil
 }
 
 func getAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add",
-		Short: "Add a file to storage",
+		Use:   "add <file> <another-file> ...",
+		Short: "Add file(s) to storage",
 		RunE:  runAddCmd,
 	}
-
-	cmd.Flags().StringP("file", "f", "", "The file to add to storage")
-	cmd.MarkFlagFilename("file")
-	cmd.MarkFlagRequired("file")
 
 	return cmd
 }

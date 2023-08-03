@@ -7,7 +7,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func AddToGitIgnore(gitDir string, filePath string) error {
+func AddToIgnore(gitDir string, filePath string) error {
 	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
