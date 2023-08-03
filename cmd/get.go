@@ -3,6 +3,7 @@ package cmd
 import (
 	"devious/internal/config"
 	"devious/internal/git"
+	"devious/internal/log"
 	"devious/internal/meta"
 	"devious/internal/storage"
 	"os"
@@ -20,7 +21,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	// Load the conf
 	conf, err := config.Load(gitDir)
 	if err != nil {
-		return err
+		log.ThrowNotInitialized()
 	}
 
 	var filesToGet []string

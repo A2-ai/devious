@@ -3,11 +3,10 @@ package cmd
 import (
 	"devious/internal/config"
 	"devious/internal/git"
+	"devious/internal/log"
 	"devious/internal/storage"
-	"os"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
 )
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
@@ -20,9 +19,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Load the conf
 	conf, err := config.Load(gitDir)
 	if err != nil {
-		slog.Error("Devious is not initialized")
-		slog.Error("Run `dvs init <storage-path>` to initialize")
-		os.Exit(1)
+		log.ThrowNotInitialized()
 	}
 
 	// Get flags

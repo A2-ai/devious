@@ -16,3 +16,9 @@ func SetGlobalLogLevel(level slog.Level) {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 }
+
+func ThrowNotInitialized() {
+	slog.Error("Devious is not initialized")
+	slog.Error("Run `dvs init <storage-path>` to initialize")
+	os.Exit(1)
+}
