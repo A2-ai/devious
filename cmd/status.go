@@ -23,7 +23,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		for _, metaPath := range metaPaths {
-			metadata, err := meta.LoadFile(metaPath)
+			metadata, err := meta.LoadFile(metaPath + meta.FileExtension)
 			if err != nil {
 				return err
 			}
