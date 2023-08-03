@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"devious/internal/git"
-	"devious/internal/meta"
+	"dvs/internal/git"
+	"dvs/internal/meta"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"

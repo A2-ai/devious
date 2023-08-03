@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"devious/internal/config"
-	"devious/internal/meta"
+	"dvs/internal/config"
+	"dvs/internal/meta"
 	"path/filepath"
 )
 

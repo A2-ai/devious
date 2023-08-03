@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"devious/internal/log"
+	"dvs/internal/log"
 	"os"
 
 	"github.com/spf13/cobra"

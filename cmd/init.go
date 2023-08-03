@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"devious/internal/config"
-	"devious/internal/git"
+	"dvs/internal/config"
+	"dvs/internal/git"
 	"os"
 	"path/filepath"
 

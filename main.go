@@ -1,6 +1,6 @@
 package main
 
-import "devious/cmd"
+import "dvs/cmd"
 
 func main() {
 	cmd.Execute()

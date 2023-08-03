@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"devious/internal/config"
+	"dvs/internal/config"
 	"fmt"
 	"io"
 	"os"

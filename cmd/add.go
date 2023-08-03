@@ -1,10 +1,10 @@
 package cmd
 
 import (
-	"devious/internal/config"
-	"devious/internal/git"
-	"devious/internal/log"
-	"devious/internal/storage"
+	"dvs/internal/config"
+	"dvs/internal/git"
+	"dvs/internal/log"
+	"dvs/internal/storage"
 
 	"github.com/spf13/cobra"
 )
