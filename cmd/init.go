@@ -14,6 +14,13 @@ import (
 func runInitCmd(cmd *cobra.Command, args []string) error {
 	storageDir := args[0]
 
+	// Convert storage dir to absolute path
+	storageDir, err := filepath.Abs(storageDir)
+	if err != nil {
+		slog.Error("Failed to convert to absolute path", slog.String("path", storageDir))
+		return err
+	}
+
 	// Get repository root
 	gitDir, err := git.GetRootDir()
 	if err != nil {
