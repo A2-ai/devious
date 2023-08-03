@@ -9,7 +9,7 @@ import (
 // Gets a file from storage
 func Get(path string, conf config.Config, gitDir string) error {
 	/// Get metadata of specified file
-	metadata, err := meta.LoadFile(path + meta.FileExtension)
+	metadata, err := meta.LoadFile(path)
 	if err != nil {
 		return err
 	}

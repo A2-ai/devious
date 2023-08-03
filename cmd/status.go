@@ -9,6 +9,8 @@ import (
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
+	var metaPaths []string
+
 	// If no arguments are provided, get the status of all files in the current git repository
 	if len(args) == 0 {
 		// Get git dir
@@ -17,19 +19,24 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		metaPaths, err := meta.GetAllMetaFiles(gitDir)
+		metaPaths, err = meta.GetAllMetaFiles(gitDir)
 		if err != nil {
 			return err
 		}
 
-		for _, metaPath := range metaPaths {
-			metadata, err := meta.LoadFile(metaPath + meta.FileExtension)
-			if err != nil {
-				return err
-			}
+		slog.Info("Total devious files", slog.Int("count", len(metaPaths)))
+	} else {
+		metaPaths = args
+	}
 
-			slog.Info("File status", slog.String("path", metaPath), slog.String("hash", metadata.FileHash))
+	for _, metaPath := range metaPaths {
+		metadata, err := meta.LoadFile(metaPath)
+		if err != nil {
+			slog.Warn("File not in devious", slog.String("path", metaPath))
+			return err
 		}
+
+		slog.Info("File status", slog.String("path", metaPath), slog.String("hash", metadata.FileHash))
 	}
 
 	return nil
