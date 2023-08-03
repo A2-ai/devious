@@ -3,7 +3,26 @@ package git
 import (
 	"os"
 	"path/filepath"
+
+	"golang.org/x/exp/slog"
 )
+
+func AddToGitIgnore(gitDir string, filePath string) error {
+	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+	defer ignoreFile.Close()
+
+	_, err = ignoreFile.WriteString("\n\n# Devious entry\n/" + filepath.Base(filePath))
+	if err != nil {
+		return err
+	}
+
+	slog.Debug("Added file to gitignore", slog.String("git-dir", gitDir), slog.String("file", filePath))
+
+	return err
+}
 
 // Checks if the supplied path
 func isGitRepository(dir string) bool {
@@ -38,5 +57,12 @@ func GetRootDir() (string, error) {
 	}
 
 	// Get the repository root
-	return getRepositoryRoot(cwd)
+	repoRoot, err := getRepositoryRoot(cwd)
+	if err != nil {
+		return "", err
+	}
+
+	slog.Debug("Found git repository at", slog.String("root", repoRoot))
+
+	return repoRoot, nil
 }

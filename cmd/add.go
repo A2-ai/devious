@@ -49,6 +49,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 	// Create destination file
 	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(filePath)))
+	slog.Info("Created file hash", slog.String("hash", fileHash))
 
 	dstPath := filepath.Join(conf.StorageDir, fileHash) + storageFileExtension
 
@@ -68,6 +69,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	defer dst.Close()
 
 	// Copy the file to the storage directory
+	slog.Info("Copying file...")
 	copiedBytes, err := io.Copy(dst, src)
 	if err != nil {
 		return err
@@ -91,13 +93,8 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Add file to gitignore
-	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_APPEND|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	defer ignoreFile.Close()
+	err = git.AddToGitIgnore(gitDir, dstPath)
 
-	_, err = ignoreFile.WriteString("\n\n# Devious entry\n/" + filepath.Base(filePath))
 	return err
 }
 

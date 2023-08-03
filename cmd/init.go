@@ -7,15 +7,12 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v3"
 )
 
 func runInitCmd(cmd *cobra.Command, args []string) error {
-	// Get the desired storage directory from the command line
-	storageDir, err := cmd.Flags().GetString("storage-dir")
-	if err != nil {
-		return err
-	}
+	storageDir := args[0]
 
 	// Get repository root
 	gitDir, err := git.GetRootDir()
@@ -47,19 +44,18 @@ func runInitCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	slog.Info("Initialized devious", slog.String("storage-dir", storageDir))
+
 	return nil
 }
 
 func getInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "init",
-		Short: "Initialize devious",
+		Use:   "init <storage-dir>",
+		Short: "Initialize devious in the current git repository with the provided storage directory",
+		Args:  cobra.ExactArgs(1),
 		RunE:  runInitCmd,
 	}
-
-	cmd.Flags().StringP("storage-dir", "d", "", "The directory where devious will store managed files")
-	cmd.MarkFlagDirname("storage-dir")
-	cmd.MarkFlagRequired("storage-dir")
 
 	return cmd
 }
