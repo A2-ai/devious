@@ -56,7 +56,8 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 func getAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "add <file> <another-file> <glob-pattern> ...",
-		Short: "Add file(s) to storage",
+		Short: "Adds file(s) to storage",
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  runAddCmd,
 	}
 

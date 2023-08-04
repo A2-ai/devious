@@ -1,5 +1,5 @@
 # 👺 Devious
-Devious is a large file linker that allows you to store large files outside of your git repository. This allows you to version control your large files without having to worry about the size of your repository.
+A file linker that enables you to work with large files while keeping them under version control.
 
 ## 🪄 Usage
 The CLI is invoked with `dvs` which stands for data versioning system. You can find the downloads for the CLI on the releases page.

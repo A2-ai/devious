@@ -72,8 +72,9 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 func getGetCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get",
-		Short: "Get a file from storage",
+		Use:   "get <file> <another-file> ...",
+		Short: "Gets file(s) from storage",
+		Long:  `Gets file(s) from storage. If no arguments are provided, get all files in the current directory.`,
 		RunE:  runGetCmd,
 	}
 
