@@ -32,7 +32,7 @@ func Add(path string, conf config.Config, gitDir string, dry bool) error {
 	}
 
 	// Add file to gitignore
-	err = git.AddToIgnore(gitDir, dstPath, dry)
+	err = git.AddIgnoreEntry(gitDir, path, dry)
 
 	return err
 }

@@ -10,7 +10,13 @@ import (
 
 // Gets a file path relative to the repository root
 func GetRelativePath(repoRoot string, filePath string) string {
-	return strings.TrimPrefix(filePath, repoRoot)
+	absPath, err := filepath.Abs(filePath)
+	if err != nil {
+		slog.Error("Failed to get absolute path", slog.String("path", filePath))
+		return ""
+	}
+
+	return strings.TrimPrefix(absPath, repoRoot)
 }
 
 // Checks if the supplied path

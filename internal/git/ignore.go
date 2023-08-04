@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func AddToIgnore(gitDir string, path string, dry bool) error {
+func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Get relative path
 	relativePath := GetRelativePath(gitDir, path)
 
