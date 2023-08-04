@@ -7,7 +7,7 @@ import (
 )
 
 // Gets a file from storage
-func Get(path string, conf config.Config, gitDir string) error {
+func Get(path string, conf config.Config, gitDir string, dry bool) error {
 	/// Get metadata of specified file
 	metadata, err := meta.LoadFile(path)
 	if err != nil {
@@ -18,7 +18,7 @@ func Get(path string, conf config.Config, gitDir string) error {
 	storagePath := filepath.Join(conf.StorageDir, metadata.FileHash) + FileExtension
 
 	// Copy file to destination
-	Copy(storagePath, path, conf)
+	Copy(storagePath, path, conf, dry)
 
 	return nil
 }

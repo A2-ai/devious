@@ -7,19 +7,26 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func AddToIgnore(gitDir string, filePath string) error {
-	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_APPEND|os.O_WRONLY, 0644)
+func AddToIgnore(gitDir string, filePath string, dry bool) error {
+	// Open the gitignore file, creating one if it doesn't exist
+	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
+		slog.Error("Failed to open .gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 	defer ignoreFile.Close()
+
+	if dry {
+		slog.Debug("Dry run: adding file to gitignore", slog.String("git-dir", gitDir), slog.String("file", filePath))
+		return nil
+	}
+
+	slog.Debug("Adding file to gitignore", slog.String("git-dir", gitDir), slog.String("file", filePath))
 
 	_, err = ignoreFile.WriteString("\n\n# Devious entry\n/" + filepath.Base(filePath))
 	if err != nil {
 		return err
 	}
-
-	slog.Debug("Added file to gitignore", slog.String("git-dir", gitDir), slog.String("file", filePath))
 
 	return err
 }

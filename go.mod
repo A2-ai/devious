@@ -3,6 +3,7 @@ module dvs
 go 1.20
 
 require (
+	github.com/dustin/go-humanize v1.0.1
 	github.com/lmittmann/tint v0.3.4
 	github.com/spf13/cobra v1.7.0
 	github.com/zeebo/blake3 v0.2.3

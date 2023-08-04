@@ -24,17 +24,23 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 		log.ThrowNotInitialized()
 	}
 
+	// Get flags
+	recurse, err := cmd.Flags().GetBool("recurse")
+	if err != nil {
+		return err
+	}
+
+	dry, err := cmd.Flags().GetBool("dry")
+	if err != nil {
+		return err
+	}
+
 	var filesToGet []string
 
 	// If no arguments are provided, get all files in the current directory
 	if len(args) == 0 {
 		// Get current directory
 		wd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-
-		recurse, err := cmd.Flags().GetBool("recurse")
 		if err != nil {
 			return err
 		}
@@ -58,7 +64,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// Get each file from storage
 	for _, path := range filesToGet {
-		storage.Get(path, conf, gitDir)
+		storage.Get(path, conf, gitDir, dry)
 	}
 
 	return nil
@@ -72,6 +78,7 @@ func getGetCmd() *cobra.Command {
 	}
 
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")
+	cmd.Flags().BoolP("dry", "d", false, "run without actually getting files")
 
 	return cmd
 }
