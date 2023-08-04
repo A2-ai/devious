@@ -2,16 +2,16 @@ package storage
 
 import (
 	"dvs/internal/config"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/dustin/go-humanize"
 	"golang.org/x/exp/slog"
 )
 
 // Copies a file from the source path to the destination path
-func Copy(srcPath string, destPath string, conf config.Config) error {
+func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
 	// Open source file
 	src, err := os.Open(srcPath)
 	if err == os.ErrNotExist {
@@ -24,7 +24,10 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 	defer src.Close()
 
 	// Create destination file
-	dst, err := os.Create(destPath)
+	var dst *os.File
+	if !dry {
+		dst, err = os.Create(destPath)
+	}
 
 	// Create the directory if it doesn't exist
 	// Return if there was an error other than the directory not existing
@@ -41,16 +44,30 @@ func Copy(srcPath string, destPath string, conf config.Config) error {
 
 	defer dst.Close()
 
-	// Copy the file
-	slog.Info("Copying file...")
-	copiedBytes, err := io.Copy(dst, src)
+	// Calculate file size in MB
+	srcStat, err := src.Stat()
 	if err != nil {
-		slog.Error("Failed to copy file", slog.String("path", srcPath))
+		slog.Error("Failed to get file info", slog.String("path", srcPath))
 		return err
 	}
+	fileSize := uint64(srcStat.Size())
+
+	// Copy the file
+	if !dry {
+		slog.Info("Copying file...")
+		_, err := io.Copy(dst, src)
+		if err != nil {
+			slog.Error("Failed to copy file", slog.String("path", srcPath))
+			return err
+		}
+	} else {
+		slog.Info("Dry run: copying file...")
+	}
+
 	slog.Info("Copied file",
-		slog.String("filesize", fmt.Sprintf("%1.2f MB", float64(copiedBytes)/1000000)),
-		slog.String("from", srcPath), slog.String("to", destPath))
+		slog.String("from", srcPath),
+		slog.String("to", destPath),
+		slog.String("filesize", humanize.Bytes(fileSize)))
 
 	return nil
 }

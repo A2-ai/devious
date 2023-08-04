@@ -24,6 +24,12 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		log.ThrowNotInitialized()
 	}
 
+	// Get flags
+	dry, err := cmd.Flags().GetBool("dry")
+	if err != nil {
+		return err
+	}
+
 	// Add each path to storage
 	for _, path := range args {
 		// if the path is a glob, get all files that match the glob
@@ -35,12 +41,12 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			}
 
 			for _, file := range files {
-				storage.Add(file, conf, gitDir)
+				storage.Add(file, conf, gitDir, dry)
 			}
 
 			continue
 		} else {
-			storage.Add(path, conf, gitDir)
+			storage.Add(path, conf, gitDir, dry)
 		}
 	}
 
@@ -55,6 +61,7 @@ func getAddCmd() *cobra.Command {
 	}
 
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")
+	cmd.Flags().BoolP("dry", "d", false, "run without actually adding files")
 
 	return cmd
 }
