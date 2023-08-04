@@ -28,6 +28,11 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	dry, err := cmd.Flags().GetBool("dry")
+	if err != nil {
+		return err
+	}
+
 	var filesToAdd []string
 
 	// If all, add all files in the current directory
@@ -62,7 +67,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 	// Add each file to storage
 	for _, path := range filesToAdd {
-		storage.Add(path, conf, gitDir)
+		storage.Add(path, conf, gitDir, dry)
 	}
 
 	return nil
@@ -77,6 +82,7 @@ func getAddCmd() *cobra.Command {
 
 	cmd.Flags().BoolP("all", "a", false, "include all files in the current directory")
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")
+	cmd.Flags().BoolP("dry", "d", false, "run without actually adding files")
 
 	return cmd
 }

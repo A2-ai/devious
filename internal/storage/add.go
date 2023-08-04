@@ -12,7 +12,7 @@ import (
 )
 
 // Adds a file to storage
-func Add(path string, conf config.Config, gitDir string) error {
+func Add(path string, conf config.Config, gitDir string, dry bool) error {
 	// Create file hash
 	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(path)))
 	slog.Debug("Generated file hash", slog.String("hash", fileHash), slog.String("file", path))
@@ -20,13 +20,13 @@ func Add(path string, conf config.Config, gitDir string) error {
 	dstPath := filepath.Join(conf.StorageDir, fileHash) + FileExtension
 
 	// Copy the file to the storage directory
-	Copy(path, dstPath, conf)
+	Copy(path, dstPath, conf, dry)
 
 	// Create + write metadata file
 	metadata := meta.Metadata{
 		FileHash: fileHash,
 	}
-	err := meta.CreateFile(metadata, path)
+	err := meta.CreateFile(metadata, path, dry)
 	if err != nil {
 		return err
 	}

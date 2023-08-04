@@ -16,13 +16,16 @@ type Metadata struct {
 }
 
 // Creates a metadata file
-func CreateFile(metadata Metadata, filePath string) (err error) {
-	metadataFile, err := os.Create(filePath + fileExtension)
-	if err != nil {
-		slog.Error("Failed to create metadata file", slog.String("path", filePath))
-		return err
+func CreateFile(metadata Metadata, filePath string, dry bool) (err error) {
+	var metadataFile *os.File
+	if dry {
+		metadataFile, err = os.Create(filePath + fileExtension)
+		if err != nil {
+			slog.Error("Failed to create metadata file", slog.String("path", filePath))
+			return err
+		}
+		defer metadataFile.Close()
 	}
-	defer metadataFile.Close()
 
 	err = json.NewEncoder(metadataFile).Encode(metadata)
 	if err != nil {
