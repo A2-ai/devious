@@ -2,11 +2,11 @@ package storage
 
 import (
 	"dvs/internal/config"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 
+	"github.com/dustin/go-humanize"
 	"golang.org/x/exp/slog"
 )
 
@@ -50,7 +50,7 @@ func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
 		slog.Error("Failed to get file info", slog.String("path", srcPath))
 		return err
 	}
-	fileSize := float64(srcStat.Size()) / 1000000 // 1 MB = 1000000 bytes
+	fileSize := uint64(srcStat.Size())
 
 	// Copy the file
 	if !dry {
@@ -67,7 +67,7 @@ func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
 	slog.Info("Copied file",
 		slog.String("from", srcPath),
 		slog.String("to", destPath),
-		slog.String("filesize", fmt.Sprintf("%1.2f MB", fileSize)))
+		slog.String("filesize", humanize.Bytes(fileSize)))
 
 	return nil
 }
