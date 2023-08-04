@@ -7,7 +7,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func SetGlobalLogLevel(level slog.Level) {
+func ConfigureGlobalLogger(level slog.Level) {
 	opts := &tint.Options{
 		Level: level,
 		// TimeFormat: time.RFC822,

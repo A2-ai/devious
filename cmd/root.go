@@ -22,7 +22,7 @@ func getRootCmd() *cobra.Command {
 			} else {
 				logLevel = slog.LevelInfo
 			}
-			log.SetGlobalLogLevel(logLevel)
+			log.ConfigureGlobalLogger(logLevel)
 
 			return nil
 		},
@@ -32,11 +32,11 @@ func getRootCmd() *cobra.Command {
 	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
 
 	// Add commands
-	cmd.AddCommand(getAddCmd())
-	cmd.AddCommand(getRemoveCmd())
-	cmd.AddCommand(getStatusCmd())
-	cmd.AddCommand(getGetCmd())
 	cmd.AddCommand(getInitCmd())
+	cmd.AddCommand(getStatusCmd())
+	cmd.AddCommand(getAddCmd())
+	cmd.AddCommand(getGetCmd())
+	cmd.AddCommand(getRemoveCmd())
 
 	return cmd
 }
