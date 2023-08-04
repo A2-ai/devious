@@ -40,6 +40,7 @@ func getRemoveCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "remove <file> <another-file> ...",
 		Short: "Remove file(s) from storage and devious",
+		Args:  cobra.MinimumNArgs(1),
 		RunE:  runRemoveCmd,
 	}
 

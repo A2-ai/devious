@@ -15,6 +15,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 	/// Get metadata of specified file
 	metadata, err := meta.LoadFile(path)
 	if err != nil {
+		slog.Error("No metadata found for file", slog.String("path", path))
 		return err
 	}
 
@@ -25,6 +26,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 	if !dry {
 		err = os.Remove(storagePath)
 		if err != nil {
+			slog.Error("Failed to remove file from storage", slog.String("path", storagePath))
 			return err
 		}
 		slog.Info("Removed file from storage", slog.String("path", storagePath))
