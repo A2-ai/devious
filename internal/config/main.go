@@ -14,9 +14,9 @@ type Config struct {
 
 var ConfigFileName = ".dvs.yaml"
 
-func Read(gitDir string) (Config, error) {
+func Read(rootDir string) (Config, error) {
 	// Read the config file
-	configFileContents, err := os.ReadFile(filepath.Join(gitDir, ConfigFileName))
+	configFileContents, err := os.ReadFile(filepath.Join(rootDir, ConfigFileName))
 	if err != nil {
 		return Config{}, err
 	}
