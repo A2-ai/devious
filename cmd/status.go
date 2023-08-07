@@ -4,6 +4,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/meta"
 
+	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
 )
@@ -36,7 +37,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		slog.Info("File status", slog.String("path", metaPath), slog.String("hash", metadata.FileHash))
+		slog.Info("File status", slog.String("path", metaPath), slog.String("hash", metadata.FileHash), slog.String("size", humanize.Bytes(metadata.FileSize)))
 	}
 
 	return nil

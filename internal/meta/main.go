@@ -13,6 +13,7 @@ var FileExtension = ".dvsmeta"
 
 type Metadata struct {
 	FileHash string `yaml:"file-hash"`
+	FileSize uint64 `yaml:"file-size"`
 }
 
 // Creates a metadata file

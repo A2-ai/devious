@@ -5,6 +5,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/meta"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/zeebo/blake3"
@@ -20,19 +21,36 @@ func Add(path string, conf config.Config, gitDir string, dry bool) error {
 	dstPath := filepath.Join(conf.StorageDir, fileHash) + FileExtension
 
 	// Copy the file to the storage directory
-	Copy(path, dstPath, conf, dry)
+	err := Copy(path, dstPath, conf, dry)
+	if err != nil {
+		return err
+	}
+
+	// Get file size
+	fileInfo, err := os.Stat(path)
+	var fileSize uint64
+	if err != nil {
+		slog.Warn("Failed to get file info", slog.String("path", path))
+		fileSize = 0
+	} else {
+		fileSize = uint64(fileInfo.Size())
+	}
 
 	// Create + write metadata file
 	metadata := meta.Metadata{
 		FileHash: fileHash,
+		FileSize: fileSize,
 	}
-	err := meta.CreateFile(metadata, path, dry)
+	err = meta.CreateFile(metadata, path, dry)
 	if err != nil {
 		return err
 	}
 
 	// Add file to gitignore
 	err = git.AddIgnoreEntry(gitDir, path, dry)
+	if err != nil {
+		return err
+	}
 
-	return err
+	return nil
 }
