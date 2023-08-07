@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"dvs/internal/config"
 	"io"
 	"os"
 	"path/filepath"
@@ -11,7 +10,7 @@ import (
 )
 
 // Copies a file from the source path to the destination path
-func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
+func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
 	src, err := os.Open(srcPath)
 	if err == os.ErrNotExist {
