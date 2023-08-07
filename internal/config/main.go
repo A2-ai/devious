@@ -14,7 +14,7 @@ type Config struct {
 
 var ConfigFileName = ".dvs.yaml"
 
-func Load(gitDir string) (Config, error) {
+func Read(gitDir string) (Config, error) {
 	// Read the config file
 	configFileContents, err := os.ReadFile(filepath.Join(gitDir, ConfigFileName))
 	if err != nil {
@@ -31,4 +31,32 @@ func Load(gitDir string) (Config, error) {
 	slog.Debug("Loaded config", slog.String("storage-dir", config.StorageDir))
 
 	return config, nil
+}
+
+func Write(config Config, gitDir string) error {
+	// Create config file
+	dvsFile, err := os.Create(filepath.Join(gitDir, ConfigFileName))
+	if err != nil {
+		slog.Error("Failed to create config file", slog.String("storage-dir", config.StorageDir))
+		return err
+	}
+	defer dvsFile.Close()
+
+	// Convert config to YAML
+	configYaml, err := yaml.Marshal(config)
+	if err != nil {
+		slog.Error("Failed to convert config to YAML", slog.String("storage-dir", config.StorageDir))
+		return err
+	}
+
+	// Write the default config to the file as YAML
+	_, err = dvsFile.Write([]byte(configYaml))
+	if err != nil {
+		slog.Error("Failed to write config", slog.String("storage-dir", config.StorageDir))
+		return err
+	}
+
+	slog.Info("Wrote config", slog.String("storage-dir", config.StorageDir))
+
+	return nil
 }

@@ -48,12 +48,14 @@ func GetRootDir() (string, error) {
 	// Start at the current working directory
 	cwd, err := os.Getwd()
 	if err != nil {
+		slog.Error("Failed to get current working directory")
 		return "", err
 	}
 
 	// Get the repository root
 	repoRoot, err := getRepositoryRoot(cwd)
 	if err != nil {
+		slog.Error("Failed to get repository root")
 		return "", err
 	}
 
