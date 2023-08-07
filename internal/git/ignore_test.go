@@ -55,14 +55,3 @@ func TestAddIgnoreEntryDuplicateEntry(t *testing.T) {
 		t.Error("Expected file contents to be unchanged")
 	}
 }
-
-func TestRemoveIgnoreEntry(t *testing.T) {
-	// tests := map[string]struct {
-	// 	input struct {
-	// 		gitDir string
-	// 		path   string
-	// 		dry    bool
-	// 	}
-	// 	expected int
-	// }
-}
