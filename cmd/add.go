@@ -41,12 +41,12 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			}
 
 			for _, file := range files {
-				storage.Add(file, conf, gitDir, dry)
+				storage.Add(file, conf.StorageDir, gitDir, dry)
 			}
 
 			continue
 		} else {
-			storage.Add(path, conf, gitDir, dry)
+			storage.Add(path, conf.StorageDir, gitDir, dry)
 		}
 	}
 
