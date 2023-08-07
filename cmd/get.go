@@ -19,7 +19,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Load the conf
-	conf, err := config.Load(gitDir)
+	conf, err := config.Read(gitDir)
 	if err != nil {
 		log.ThrowNotInitialized()
 	}

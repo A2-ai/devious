@@ -8,17 +8,60 @@ import (
 
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
-	"gopkg.in/yaml.v3"
 )
 
-func runInitCmd(cmd *cobra.Command, args []string) error {
-	storageDir := args[0]
+var defaultDirPermissions = os.FileMode(0766)
 
-	// Convert storage dir to absolute path
-	storageDir, err := filepath.Abs(storageDir)
+func runInitCmd(cmd *cobra.Command, args []string) error {
+	// Get storage directory as absolute path
+	storageDir, err := filepath.Abs(args[0])
 	if err != nil {
-		slog.Error("Failed to convert to absolute path", slog.String("path", storageDir))
+		slog.Error("Failed to convert destination to absolute path", slog.String("path", storageDir))
 		return err
+	}
+
+	// Check storage dir permissions, and create if it doesn't exist
+	fileInfo, err := os.Stat(storageDir)
+	if err != nil {
+		slog.Info("Creating storage directory", slog.String("path", storageDir), slog.String("permissions", defaultDirPermissions.String()))
+
+		// Create storage dir
+		err = os.MkdirAll(storageDir, defaultDirPermissions)
+		if err != nil {
+			slog.Error("Failed to create storage directory", slog.String("path", storageDir))
+			os.Exit(1)
+			return err
+		}
+		fileInfo, err = os.Stat(storageDir)
+		if err != nil {
+			os.Exit(1)
+			return err
+		}
+	}
+
+	// Ensure destination is a directory
+	if !fileInfo.IsDir() {
+		slog.Error("Destination is not a directory", slog.String("path", storageDir))
+		os.Exit(1)
+		return err
+	}
+
+	// Ensure storage dir has write permissions
+	if fileInfo.Mode().Perm()&0200 == 0 {
+		slog.Error("Destination does not have write permissions", slog.String("path", storageDir))
+		os.Exit(1)
+		return err
+	}
+
+	// Warn if not empty
+	dir, err := os.ReadDir(storageDir)
+	if err != nil {
+		slog.Error("Failed to read storage directory", slog.String("path", storageDir))
+		os.Exit(1)
+		return err
+	}
+	if len(dir) > 0 {
+		slog.Warn("Storage directory isn't empty", slog.String("path", storageDir))
 	}
 
 	// Get repository root
@@ -27,31 +70,14 @@ func runInitCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Create a new file at git root
-	dvsFile, err := os.Create(filepath.Join(gitDir, config.ConfigFileName))
-	if err != nil {
-		return err
-	}
-	defer dvsFile.Close()
-
-	// Create config
-	config := config.Config{
+	// Write config
+	err = config.Write(config.Config{
 		StorageDir: storageDir,
-	}
-
-	// Convert config to YAML
-	configYaml, err := yaml.Marshal(config)
+	}, gitDir)
 	if err != nil {
+		os.Exit(1)
 		return err
 	}
-
-	// Write the default config to the file as YAML
-	_, err = dvsFile.Write([]byte(configYaml))
-	if err != nil {
-		return err
-	}
-
-	slog.Info("Initialized devious", slog.String("storage-dir", storageDir))
 
 	return nil
 }
