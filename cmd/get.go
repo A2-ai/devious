@@ -64,7 +64,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// Get each file from storage
 	for _, path := range filesToGet {
-		storage.Get(path, conf, gitDir, dry)
+		storage.Get(path, conf.StorageDir, gitDir, dry)
 	}
 
 	return nil
