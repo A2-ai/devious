@@ -2,7 +2,6 @@ package storage
 
 import (
 	"dvs/internal/config"
-	"dvs/internal/git"
 	"os"
 	"path/filepath"
 
@@ -11,7 +10,7 @@ import (
 
 var defaultDirPermissions = os.FileMode(0766)
 
-func Init(storageDir string) error {
+func Init(rootDir string, storageDir string) error {
 	// Get storage directory as absolute path
 	storageDir, err := filepath.Abs(storageDir)
 	if err != nil {
@@ -52,16 +51,10 @@ func Init(storageDir string) error {
 		}
 	}
 
-	// Get repository root
-	gitDir, err := git.GetRootDir()
-	if err != nil {
-		return err
-	}
-
 	// Write config
 	err = config.Write(config.Config{
 		StorageDir: storageDir,
-	}, gitDir)
+	}, rootDir)
 	if err != nil {
 		return err
 	}

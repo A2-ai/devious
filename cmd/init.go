@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"dvs/internal/git"
 	"dvs/internal/storage"
 	"os"
 
@@ -8,7 +9,15 @@ import (
 )
 
 func runInitCmd(cmd *cobra.Command, args []string) error {
-	err := storage.Init(args[0])
+	// Get git root
+	gitDir, err := git.GetRootDir()
+	if err != nil {
+		os.Exit(1)
+		return err
+	}
+
+	// Initialize
+	err = storage.Init(gitDir, args[0])
 	if err != nil {
 		os.Exit(1)
 		return err

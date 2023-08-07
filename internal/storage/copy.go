@@ -37,7 +37,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 			return err
 		}
 	} else if err != nil {
-		slog.Error("Failed to create file", slog.String("path", destPath))
+		slog.Error("Failed to create copy destination file", slog.String("path", destPath))
 		return err
 	}
 
