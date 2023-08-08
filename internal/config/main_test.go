@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestSanityCheck(t *testing.T) {
+func TestReadWriteSanity(t *testing.T) {
 	// Create temp directory
 	tempDir, err := os.MkdirTemp(".", "temp")
 	if err != nil {
@@ -27,6 +27,22 @@ func TestSanityCheck(t *testing.T) {
 
 	_, err = Read(tempDir)
 	if err != nil {
+		t.Error(err)
+	}
+}
+
+func TestReadWriteInvalidDir(t *testing.T) {
+	// Ensure write fails
+	err := Write(Config{
+		StorageDir: "test",
+	}, "nonexistent")
+	if err == nil {
+		t.Error(err)
+	}
+
+	// Ensure read fails
+	_, err = Read("nonexistent")
+	if err == nil {
 		t.Error(err)
 	}
 }

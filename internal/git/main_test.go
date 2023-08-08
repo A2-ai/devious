@@ -142,4 +142,13 @@ func TestGetRootDir(t *testing.T) {
 	if repoRoot != tempDirAbs {
 		t.Error("Expected repository root to be tempDir, got", repoRoot)
 	}
+
+	// Get repository root
+	repoRoot2, err := GetNearestRepoDir(filePath)
+	if err != nil {
+		t.Error(err)
+	}
+	if repoRoot2 != tempDirAbs {
+		t.Error("Expected repository root to be tempDir, got", repoRoot2)
+	}
 }
