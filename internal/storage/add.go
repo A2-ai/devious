@@ -1,20 +1,19 @@
 package storage
 
 import (
+	"dvs/internal/file"
 	"dvs/internal/git"
 	"dvs/internal/meta"
-	"fmt"
 	"path/filepath"
-
-	"github.com/zeebo/blake3"
-	"golang.org/x/exp/slog"
 )
 
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(localPath)))
-	slog.Debug("Generated file hash", slog.String("hash", fileHash), slog.String("file", localPath))
+	fileHash, err := file.GetFileHash(localPath)
+	if err != nil {
+		return fileHash, err
+	}
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
