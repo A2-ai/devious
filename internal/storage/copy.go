@@ -26,10 +26,7 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
 	srcFile, err := os.Open(srcPath)
-	if err == os.ErrNotExist {
-		slog.Error("File does not exist", slog.String("path", srcPath))
-		return err
-	} else if err != nil {
+	if err != nil {
 		slog.Error("Failed to open file", slog.String("path", srcPath))
 		return err
 	}
@@ -49,29 +46,24 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		total: srcSizeHuman,
 	})
 
-	// Create destination file
-	var dst *os.File
-	if !dry {
-		dst, err = os.Create(destPath)
-	}
-
-	// Create the directory if it doesn't exist
-	// Return if there was an error other than the directory not existing
-	if err == os.ErrNotExist {
-		err = os.MkdirAll(filepath.Dir(destPath), 0755)
-		if err != nil {
-			slog.Error("Failed to create directory", slog.String("path", filepath.Dir(destPath)))
-			return err
-		}
-	} else if err != nil {
-		slog.Error("Failed to create copy destination file", slog.String("path", destPath))
+	// Ensure destination exists
+	err = os.MkdirAll(filepath.Dir(destPath), 0755)
+	if err != nil {
+		slog.Error("Failed to create directory", slog.String("path", filepath.Dir(destPath)))
 		return err
 	}
 
-	defer dst.Close()
-
-	// Copy the file
+	var dst *os.File
 	if !dry {
+		// Create destination file
+		dst, err = os.Create(destPath)
+		if err != nil {
+			slog.Error("Failed to create copy destination file", slog.String("path", destPath))
+			return err
+		}
+		defer dst.Close()
+
+		// Copy the file
 		_, err := io.Copy(dst, src)
 		os.Stdout.Write([]byte("\n"))
 		if err != nil {
