@@ -11,7 +11,10 @@ import (
 
 func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Get relative path
-	ignoreEntry := GetRelativePath(gitDir, path)
+	ignoreEntry, err := GetRelativePath(gitDir, path)
+	if err != nil {
+		return err
+	}
 
 	// Open the gitignore file, creating one if it doesn't exist
 	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
@@ -51,7 +54,10 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 
 func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Get relative path
-	ignoreEntry := GetRelativePath(gitDir, path)
+	ignoreEntry, err := GetRelativePath(gitDir, path)
+	if err != nil {
+		return err
+	}
 
 	// Open the gitignore file
 	// if the gitignore file doesn't exist, there's nothing to do

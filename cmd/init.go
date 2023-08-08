@@ -10,7 +10,7 @@ import (
 
 func runInitCmd(cmd *cobra.Command, args []string) error {
 	// Get git root
-	gitDir, err := git.GetRootDir()
+	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
 		os.Exit(1)
 		return err
