@@ -33,11 +33,11 @@ func Read(rootDir string) (Config, error) {
 	return config, nil
 }
 
-func Write(config Config, gitDir string) error {
+func Write(config Config, dir string) error {
 	// Create config file
-	dvsFile, err := os.Create(filepath.Join(gitDir, ConfigFileName))
+	dvsFile, err := os.Create(filepath.Join(dir, ConfigFileName))
 	if err != nil {
-		slog.Error("Failed to create config file", slog.String("storage-dir", config.StorageDir))
+		slog.Error("Failed to create config file", slog.String("dir", dir))
 		return err
 	}
 	defer dvsFile.Close()
@@ -45,18 +45,18 @@ func Write(config Config, gitDir string) error {
 	// Convert config to YAML
 	configYaml, err := yaml.Marshal(config)
 	if err != nil {
-		slog.Error("Failed to convert config to YAML", slog.String("storage-dir", config.StorageDir))
+		slog.Error("Failed to convert config to YAML", slog.String("dir", dir))
 		return err
 	}
 
 	// Write the default config to the file as YAML
 	_, err = dvsFile.Write([]byte(configYaml))
 	if err != nil {
-		slog.Error("Failed to write config", slog.String("storage-dir", config.StorageDir))
+		slog.Error("Failed to write config", slog.String("dir", dir))
 		return err
 	}
 
-	slog.Info("Wrote config", slog.String("storage-dir", config.StorageDir))
+	slog.Info("Wrote config", slog.String("dir", dir))
 
 	return nil
 }

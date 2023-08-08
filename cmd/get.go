@@ -6,14 +6,13 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/meta"
 	"dvs/internal/storage"
-	"os"
 
 	"github.com/spf13/cobra"
 )
 
 func runGetCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
-	gitDir, err := git.GetRootDir()
+	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
 		return err
 	}
@@ -39,21 +38,15 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// If no arguments are provided, get all files in the current directory
 	if len(args) == 0 {
-		// Get current directory
-		wd, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-
 		if recurse {
 			// Get all files in the current directory and subdirectories
-			filesToGet, err = meta.GetAllMetaFiles(wd)
+			filesToGet, err = meta.GetAllMetaFiles(".")
 			if err != nil {
 				return err
 			}
 		} else {
 			// Get all files in the current directory
-			filesToGet, err = meta.GetMetaFiles(wd)
+			filesToGet, err = meta.GetMetaFiles(".")
 			if err != nil {
 				return err
 			}
@@ -64,7 +57,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// Get each file from storage
 	for _, path := range filesToGet {
-		storage.Get(path, conf, gitDir, dry)
+		storage.Get(path, conf.StorageDir, gitDir, dry)
 	}
 
 	return nil

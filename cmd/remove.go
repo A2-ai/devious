@@ -11,7 +11,7 @@ import (
 
 func runRemoveCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
-	gitDir, err := git.GetRootDir()
+	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
 		return err
 	}

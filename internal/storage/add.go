@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"dvs/internal/config"
 	"dvs/internal/git"
 	"dvs/internal/meta"
 	"fmt"
@@ -12,25 +11,25 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// Adds a file to storage
-func Add(path string, conf config.Config, gitDir string, dry bool) error {
+// Adds a file to storage, returning the file hash
+func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(path)))
-	slog.Debug("Generated file hash", slog.String("hash", fileHash), slog.String("file", path))
+	fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(localPath)))
+	slog.Debug("Generated file hash", slog.String("hash", fileHash), slog.String("file", localPath))
 
-	dstPath := filepath.Join(conf.StorageDir, fileHash) + FileExtension
+	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
 	// Copy the file to the storage directory
-	err := Copy(path, dstPath, conf, dry)
+	err = Copy(localPath, dstPath, dry)
 	if err != nil {
-		return err
+		return fileHash, err
 	}
 
 	// Get file size
-	fileInfo, err := os.Stat(path)
+	fileInfo, err := os.Stat(localPath)
 	var fileSize uint64
 	if err != nil {
-		slog.Warn("Failed to get file info", slog.String("path", path))
+		slog.Warn("Failed to get file info", slog.String("path", localPath))
 		fileSize = 0
 	} else {
 		fileSize = uint64(fileInfo.Size())
@@ -41,16 +40,16 @@ func Add(path string, conf config.Config, gitDir string, dry bool) error {
 		FileHash: fileHash,
 		FileSize: fileSize,
 	}
-	err = meta.CreateFile(metadata, path, dry)
+	err = meta.CreateFile(metadata, localPath, dry)
 	if err != nil {
-		return err
+		return fileHash, err
 	}
 
 	// Add file to gitignore
-	err = git.AddIgnoreEntry(gitDir, path, dry)
+	err = git.AddIgnoreEntry(gitDir, localPath, dry)
 	if err != nil {
-		return err
+		return fileHash, err
 	}
 
-	return nil
+	return fileHash, nil
 }
