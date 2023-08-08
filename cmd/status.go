@@ -14,7 +14,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	// If no arguments are provided, get the status of all files in the current git repository
 	if len(args) == 0 {
 		// Get git dir
-		gitDir, err := git.GetRootDir()
+		gitDir, err := git.GetNearestRepoDir(".")
 		if err != nil {
 			return err
 		}

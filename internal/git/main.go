@@ -8,15 +8,21 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-// Gets a file path relative to the repository root
-func GetRelativePath(repoRoot string, filePath string) string {
-	absPath, err := filepath.Abs(filePath)
+// Gets a file path relative to the root
+func GetRelativePath(rootDir string, filePath string) (string, error) {
+	absRootDir, err := filepath.Abs(rootDir)
 	if err != nil {
-		slog.Error("Failed to get absolute path", slog.String("path", filePath))
-		return ""
+		slog.Error("Failed to get absolute path for root dir", slog.String("path", filePath))
+		return "", err
 	}
 
-	return strings.TrimPrefix(absPath, repoRoot)
+	absFilePath, err := filepath.Abs(filePath)
+	if err != nil {
+		slog.Error("Failed to get absolute path", slog.String("path", filePath))
+		return "", err
+	}
+
+	return strings.TrimPrefix(absFilePath, absRootDir), nil
 }
 
 // Checks if the supplied path
@@ -25,8 +31,8 @@ func isGitRepository(dir string) bool {
 	return err == nil
 }
 
-// Gets the nearest repository root of the supplied dir, or an error if the dir is not contained within a git repository
-func getRepositoryRoot(dir string) (string, error) {
+// Recursively gets the nearest git repository root, given an absolute path
+func getNearestRepoDir(dir string) (string, error) {
 	// Check if the current directory is a git repository
 	if isGitRepository(dir) {
 		return dir, nil
@@ -41,25 +47,18 @@ func getRepositoryRoot(dir string) (string, error) {
 	}
 
 	// Recursively call this function with the parent directory
-	return getRepositoryRoot(parentDir)
+	return getNearestRepoDir(parentDir)
 }
 
-func GetRootDir() (string, error) {
-	// Start at the current working directory
-	cwd, err := os.Getwd()
+// Gets the nearest parent repository root of the supplied directory, or an error if the directory is not contained within a git repository
+func GetNearestRepoDir(dir string) (string, error) {
+	// Get the absolute path of the supplied directory
+	absDir, err := filepath.Abs(dir)
 	if err != nil {
-		slog.Error("Failed to get current working directory")
 		return "", err
 	}
 
-	// Get the repository root
-	repoRoot, err := getRepositoryRoot(cwd)
-	if err != nil {
-		slog.Error("Failed to get repository root")
-		return "", err
-	}
-
-	slog.Debug("Found git repository at", slog.String("root", repoRoot))
-
-	return repoRoot, nil
+	// Get the nearest repository root
+	repoRoot, err := getNearestRepoDir(absDir)
+	return repoRoot, err
 }

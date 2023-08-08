@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"dvs/internal/config"
 	"fmt"
 	"io"
 	"os"
@@ -24,7 +23,7 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 }
 
 // Copies a file from the source path to the destination path
-func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
+func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
 	srcFile, err := os.Open(srcPath)
 	if err == os.ErrNotExist {
@@ -65,7 +64,7 @@ func Copy(srcPath string, destPath string, conf config.Config, dry bool) error {
 			return err
 		}
 	} else if err != nil {
-		slog.Error("Failed to create file", slog.String("path", destPath))
+		slog.Error("Failed to create copy destination file", slog.String("path", destPath))
 		return err
 	}
 

@@ -12,10 +12,10 @@ import (
 // Adapted from https://rosettacode.org/wiki/Remove_lines_from_a_file#Go
 func removeLines(file *os.File, start, n int) (err error) {
 	if start < 1 {
-		return errors.New("Invalid request. Line numbers start at 1.")
+		return errors.New("invalid request: line numbers start at 1")
 	}
 	if n < 0 {
-		return errors.New("invalid request. Negative number to remove.")
+		return errors.New("invalid request: negative number to remove")
 	}
 	var b []byte
 	if b, err = io.ReadAll(file); err != nil {
