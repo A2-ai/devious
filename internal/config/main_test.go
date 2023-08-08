@@ -25,7 +25,7 @@ func TestSanityCheck(t *testing.T) {
 		t.Error(err)
 	}
 
-	_, err = Read("../../")
+	_, err = Read(tempDir)
 	if err != nil {
 		t.Error(err)
 	}
