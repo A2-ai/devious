@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,10 +10,22 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+type WriteProgress struct {
+	bytes uint64
+	total string
+}
+
+func (wp *WriteProgress) Write(p []byte) (int, error) {
+	n := len(p)
+	wp.bytes += uint64(n)
+	os.Stdout.Write([]byte(fmt.Sprint("\033[K\rWriting file... ", humanize.Bytes(wp.bytes), " out of ", wp.total)))
+	return n, nil
+}
+
 // Copies a file from the source path to the destination path
 func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
-	src, err := os.Open(srcPath)
+	srcFile, err := os.Open(srcPath)
 	if err == os.ErrNotExist {
 		slog.Error("File does not exist", slog.String("path", srcPath))
 		return err
@@ -20,7 +33,21 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		slog.Error("Failed to open file", slog.String("path", srcPath))
 		return err
 	}
-	defer src.Close()
+	defer srcFile.Close()
+
+	// Get file size
+	srcStat, err := srcFile.Stat()
+	if err != nil {
+		slog.Error("Failed to get file info", slog.String("path", srcPath))
+		return err
+	}
+	srcSize := uint64(srcStat.Size())
+	srcSizeHuman := humanize.Bytes(srcSize)
+
+	// Wrap source file in progress reader
+	src := io.TeeReader(srcFile, &WriteProgress{
+		total: srcSizeHuman,
+	})
 
 	// Create destination file
 	var dst *os.File
@@ -43,30 +70,20 @@ func Copy(srcPath string, destPath string, dry bool) error {
 
 	defer dst.Close()
 
-	// Calculate file size in MB
-	srcStat, err := src.Stat()
-	if err != nil {
-		slog.Error("Failed to get file info", slog.String("path", srcPath))
-		return err
-	}
-	fileSize := uint64(srcStat.Size())
-
 	// Copy the file
 	if !dry {
-		slog.Info("Copying file...")
 		_, err := io.Copy(dst, src)
+		os.Stdout.Write([]byte("\n"))
 		if err != nil {
 			slog.Error("Failed to copy file", slog.String("path", srcPath))
 			return err
 		}
-	} else {
-		slog.Info("Dry run: copying file...")
 	}
 
 	slog.Info("Copied file",
 		slog.String("from", srcPath),
 		slog.String("to", destPath),
-		slog.String("filesize", humanize.Bytes(fileSize)))
+		slog.String("filesize", srcSizeHuman))
 
 	return nil
 }
