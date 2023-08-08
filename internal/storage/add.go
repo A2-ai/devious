@@ -19,7 +19,10 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
 	// Copy the file to the storage directory
-	Copy(localPath, dstPath, dry)
+	err = Copy(localPath, dstPath, dry)
+	if err != nil {
+		return fileHash, err
+	}
 
 	// Create + write metadata file
 	metadata := meta.Metadata{

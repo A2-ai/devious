@@ -24,6 +24,12 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 
 // Copies a file from the source path to the destination path
 func Copy(srcPath string, destPath string, dry bool) error {
+	// Ignore .. and . paths
+	if srcPath == ".." || srcPath == "." {
+		slog.Error("Invalid source path", slog.String("path", srcPath))
+		return os.ErrInvalid
+	}
+
 	// Open source file
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
