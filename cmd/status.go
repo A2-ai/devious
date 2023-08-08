@@ -3,11 +3,18 @@ package cmd
 import (
 	"dvs/internal/git"
 	"dvs/internal/meta"
+	"fmt"
+	"os"
 
 	"github.com/dustin/go-humanize"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
 )
+
+func rawLog(args ...any) {
+	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
+}
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
 	var metaPaths []string
@@ -30,14 +37,36 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		metaPaths = args
 	}
 
-	for _, metaPath := range metaPaths {
-		metadata, err := meta.LoadFile(metaPath)
+	for _, path := range metaPaths {
+		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
-			slog.Warn("File not in devious", slog.String("path", metaPath))
 			return err
 		}
 
-		slog.Info("File status", slog.String("path", metaPath), slog.String("hash", metadata.FileHash), slog.String("size", humanize.Bytes(metadata.FileSize)))
+		// Get file info
+		metadata, err := meta.LoadFile(path)
+		if err != nil {
+			slog.Warn("File not in devious", slog.String("path", path))
+			return err
+		}
+
+		cGray := color.New(color.Faint)
+
+		// Check if file is available locally
+		fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(localPath)))
+		if metadata.FileHash
+
+		// Determine file tag based on file status
+		var fileTag string
+		if metadata {
+			fileTag = cGray.Sprint("deleted")
+		} else if metadata.IsModified {
+			fileTag = cGray.Sprint("modified")
+		} else {
+			fileTag = cGray.Sprint("unchanged")
+		}
+
+		rawLog("   ", fileTag, cGray.Sprint(humanize.Bytes(metadata.FileSize)))
 	}
 
 	return nil
