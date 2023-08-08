@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"dvs/internal/file"
 	"dvs/internal/git"
+	"dvs/internal/log"
 	"dvs/internal/meta"
-	"fmt"
 	"os"
 
 	"github.com/dustin/go-humanize"
@@ -12,11 +13,9 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-func rawLog(args ...any) {
-	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
-}
-
 func runStatusCmd(cmd *cobra.Command, args []string) error {
+	log.RawLog(color.New(color.Bold).Sprint("👺\n"))
+
 	var metaPaths []string
 
 	// If no arguments are provided, get the status of all files in the current git repository
@@ -31,12 +30,27 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-
-		slog.Info("Total devious files", slog.Int("count", len(metaPaths)))
 	} else {
 		metaPaths = args
 	}
 
+	// Create colors
+	colorFaintBold := color.New(color.Faint, color.Bold)
+	colorFilePulled := color.New(color.FgGreen, color.Bold)
+	colorFileOutdated := color.New(color.FgHiYellow, color.Bold)
+	colorFileNotPulled := color.New(color.FgRed, color.Bold)
+
+	// Track number of files
+	numFilesPulled := 0
+	numFilesOutdated := 0
+	numFilesNotPulled := 0
+
+	// Print info about each file
+	log.RawLog(color.New(color.Bold).Sprint("file info "),
+		colorFilePulled.Sprint("●"), "up to date ",
+		colorFileOutdated.Sprint("●"), "out of date ",
+		colorFileNotPulled.Sprint("●"), "not present ",
+	)
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
@@ -50,24 +64,28 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		cGray := color.New(color.Faint)
-
-		// Check if file is available locally
-		fileHash := fmt.Sprintf("%x", blake3.Sum256([]byte(localPath)))
-		if metadata.FileHash
-
 		// Determine file tag based on file status
-		var fileTag string
-		if metadata {
-			fileTag = cGray.Sprint("deleted")
-		} else if metadata.IsModified {
-			fileTag = cGray.Sprint("modified")
+		var fileStatus string
+		_, statErr := os.Stat(path)
+		fileHash, hashErr := file.GetFileHash(path)
+		if statErr == nil && hashErr == nil && fileHash == metadata.FileHash {
+			fileStatus = colorFilePulled.Sprint("●")
+			numFilesPulled++
+		} else if statErr == nil {
+			fileStatus = colorFileOutdated.Sprint("●")
+			numFilesOutdated++
 		} else {
-			fileTag = cGray.Sprint("unchanged")
+			fileStatus = colorFileNotPulled.Sprint("●")
+			numFilesNotPulled++
 		}
 
-		rawLog("   ", fileTag, cGray.Sprint(humanize.Bytes(metadata.FileSize)))
+		// Print file info
+		log.RawLog("   ", fileStatus, colorFaintBold.Sprint(relPath), " ", color.New(color.Faint).Sprint(humanize.Bytes(metadata.FileSize)))
 	}
+
+	// Print overview
+	log.RawLog(color.New(color.Bold).Sprint("\ntotals"))
+	log.RawLog(colorFilePulled.Sprint(numFilesPulled), "up to date", colorFileOutdated.Sprint(numFilesOutdated), "out of date", colorFileNotPulled.Sprint(numFilesNotPulled), "not present", "\n")
 
 	return nil
 }
