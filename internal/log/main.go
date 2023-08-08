@@ -1,6 +1,7 @@
 package log
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/lmittmann/tint"
@@ -21,4 +22,8 @@ func ThrowNotInitialized() {
 	slog.Error("Devious is not initialized")
 	slog.Error("Run `dvs init <storage-path>` to initialize")
 	os.Exit(1)
+}
+
+func RawLog(args ...any) {
+	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
 }
