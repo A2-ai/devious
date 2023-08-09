@@ -8,25 +8,31 @@ import (
 )
 
 // Creates a metadata file
-func CreateFile(metadata Metadata, filePath string, dry bool) (err error) {
+func Save(metadata Metadata, path string, dry bool) (err error) {
 	var metadataFile *os.File
 	if dry {
-		slog.Debug("Dry run: creating metadata file", slog.String("path", filePath))
+		slog.Debug("Dry run: creating metadata file", slog.String("path", path))
 		return nil
 	}
 
-	slog.Debug("Creating metadata file", slog.String("path", filePath))
+	slog.Debug("Creating metadata file", slog.String("path", path))
 
-	metadataFile, err = os.Create(filePath + FileExtension)
+	metadataFile, err = os.Create(path + FileExtension)
 	if err != nil {
-		slog.Error("Failed to create metadata file", slog.String("path", filePath))
+		slog.Error("Failed to create metadata file", slog.String("path", path))
 		return err
 	}
 	defer metadataFile.Close()
 
-	err = json.NewEncoder(metadataFile).Encode(metadata)
+	jsonBytes, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
-		slog.Error("Failed to encode metadata", slog.String("path", filePath))
+		slog.Error("Failed to encode metadata", slog.String("path", path))
+		return err
+	}
+
+	_, err = metadataFile.Write(jsonBytes)
+	if err != nil {
+		slog.Error("Failed to write metadata", slog.String("path", path))
 		return err
 	}
 
@@ -34,7 +40,7 @@ func CreateFile(metadata Metadata, filePath string, dry bool) (err error) {
 }
 
 // Loads a metadata file
-func LoadFile(path string) (metadata Metadata, err error) {
+func Load(path string) (metadata Metadata, err error) {
 	metadataFile, err := os.Open(path + FileExtension)
 	if err != nil {
 		return metadata, err

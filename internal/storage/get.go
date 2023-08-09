@@ -8,7 +8,7 @@ import (
 // Gets a file from storage
 func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	/// Get metadata of specified file
-	metadata, err := meta.LoadFile(localPath)
+	metadata, err := meta.Load(localPath)
 	if err != nil {
 		return err
 	}
