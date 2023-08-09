@@ -28,6 +28,7 @@ func TestCreateFile(t *testing.T) {
 	// Create metadata file
 	err = Save(Metadata{
 		FileHash: "test",
+		FileSize: 4,
 	}, filePath, false)
 	if err != nil {
 		t.Error(err)
@@ -36,6 +37,7 @@ func TestCreateFile(t *testing.T) {
 	// Create metadata file again
 	err = Save(Metadata{
 		FileHash: "test",
+		FileSize: 4,
 	}, filePath, false)
 	if err != nil {
 		t.Error(err)
@@ -65,6 +67,7 @@ func TestCreateLoadFile(t *testing.T) {
 	// Create metadata file
 	err = Save(Metadata{
 		FileHash: "test",
+		FileSize: 4,
 	}, filePath, false)
 	if err != nil {
 		t.Error(err)
@@ -81,9 +84,22 @@ func TestCreateLoadFile(t *testing.T) {
 		t.Error("Expected file hash to be test")
 	}
 
+	if metadata.FileSize != 4 {
+		t.Error("Expected file size to be 4")
+	}
+
 	// Load metadata file again
 	metadata, err = Load(filePath)
 	if err != nil {
 		t.Error(err)
+	}
+
+	// Check if the metadata is correct
+	if metadata.FileHash != "test" {
+		t.Error("Expected file hash to be test")
+	}
+
+	if metadata.FileSize != 4 {
+		t.Error("Expected file size to be 4")
 	}
 }
