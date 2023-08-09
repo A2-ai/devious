@@ -48,7 +48,6 @@ func Load(path string) (metadata Metadata, err error) {
 
 	err = json.NewDecoder(metadataFile).Decode(&metadata)
 	if err != nil {
-		slog.Error("Failed to decode metadata", slog.String("path", path))
 		return metadata, err
 	}
 

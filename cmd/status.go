@@ -14,8 +14,6 @@ import (
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
-	log.RawLog(color.New(color.Bold).Sprint("👺\n"))
-
 	var metaPaths []string
 
 	// If no arguments are provided, get the status of all files in the current git repository
@@ -85,7 +83,11 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 	// Print overview
 	log.RawLog(color.New(color.Bold).Sprint("\ntotals"))
-	log.RawLog(colorFilePulled.Sprint(numFilesPulled), "up to date", colorFileOutdated.Sprint(numFilesOutdated), "out of date", colorFileNotPulled.Sprint(numFilesNotPulled), "not present", "\n")
+	log.RawLog(
+		colorFilePulled.Sprint(numFilesPulled), "up to date ",
+		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
+		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
+	)
 
 	return nil
 }
@@ -94,7 +96,10 @@ func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status [file]",
 		Short: "Gets the status of devious files in the current git repository, or a specific file if specified",
-		RunE:  runStatusCmd,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runStatusCmd,
 	}
 
 	return cmd

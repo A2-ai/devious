@@ -10,6 +10,8 @@ import (
 )
 
 var ColorGreen = color.New(color.FgGreen).Sprint
+var ColorRed = color.New(color.FgRed).Sprint
+var ColorYellow = color.New(color.FgYellow).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
 func ConfigureGlobalLogger(level slog.Level) {

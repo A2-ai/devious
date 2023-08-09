@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"fmt"
+	"dvs/internal/log"
 	"io"
 	"os"
 	"path/filepath"
@@ -18,7 +18,10 @@ type WriteProgress struct {
 func (wp *WriteProgress) Write(p []byte) (int, error) {
 	n := len(p)
 	wp.bytes += uint64(n)
-	os.Stdout.Write([]byte(fmt.Sprint("\033[K\rWriting file... ", humanize.Bytes(wp.bytes), " out of ", wp.total)))
+
+	log.OverwritePreviousLine()
+	log.RawLog("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
+
 	return n, nil
 }
 
@@ -71,17 +74,16 @@ func Copy(srcPath string, destPath string, dry bool) error {
 
 		// Copy the file
 		_, err := io.Copy(dst, src)
-		os.Stdout.Write([]byte("\n"))
 		if err != nil {
 			slog.Error("Failed to copy file", slog.String("path", srcPath))
 			return err
 		}
+
+		log.OverwritePreviousLine()
+		log.RawLog("    Writing file...", log.ColorGreen("✔"))
 	}
 
-	slog.Info("Copied file",
-		slog.String("from", srcPath),
-		slog.String("to", destPath),
-		slog.String("filesize", srcSizeHuman))
+	log.RawLog("    Cleaning up...")
 
 	return nil
 }
