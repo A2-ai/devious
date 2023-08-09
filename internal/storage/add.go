@@ -14,13 +14,13 @@ import (
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	log.RawLog("Generating hash...")
+	log.RawLog("    Generating hash...")
 	fileHash, err := file.GetFileHash(localPath)
 	if err != nil {
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("Generating hash...", log.ColorGreen("✔\n"))
+	log.RawLog("    Generating hash...", log.ColorGreen("✔\n"))
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
@@ -30,7 +30,7 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("Cleaning up...", log.ColorGreen("✔\n"))
+	log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
