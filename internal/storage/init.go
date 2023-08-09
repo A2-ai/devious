@@ -36,12 +36,6 @@ func Init(rootDir string, storageDir string) error {
 			return err
 		}
 
-		// Ensure destination has write permissions
-		if fileInfo.Mode().Perm()&0200 == 0 {
-			slog.Error("Destination doesn't have write permissions", slog.String("path", storageDir), slog.String("permissions", fileInfo.Mode().Perm().String()))
-			return os.ErrPermission
-		}
-
 		// Warn if destination is not empty
 		dir, err := os.ReadDir(storageDir)
 		if err != nil {
