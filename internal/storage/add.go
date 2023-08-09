@@ -30,7 +30,7 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
+	log.RawLog("    Cleaning up...", log.ColorGreen("✔"))
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
@@ -53,10 +53,13 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	}
 
 	// Add file to gitignore
+	log.RawLog("    Adding file to gitignore...")
 	err = git.AddIgnoreEntry(gitDir, localPath, dry)
 	if err != nil {
 		return fileHash, err
 	}
+	log.OverwritePreviousLine()
+	log.RawLog("    Adding gitignore entry...", log.ColorGreen("✔\n"))
 
 	return fileHash, nil
 }

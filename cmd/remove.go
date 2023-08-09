@@ -5,6 +5,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/log"
 	"dvs/internal/storage"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
@@ -29,8 +30,13 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Remove each path from storage
-	for _, path := range args {
-		storage.Remove(path, conf, gitDir, dry)
+	for i, path := range args {
+		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(args)), " ", log.ColorFile(path))
+
+		err = storage.Remove(path, conf, gitDir, dry)
+		if err != nil {
+			log.RawLog("File is not tracked in devious", log.ColorRed("✘"))
+		}
 	}
 
 	return nil
@@ -41,7 +47,10 @@ func getRemoveCmd() *cobra.Command {
 		Use:   "remove <file> <another-file> ...",
 		Short: "Removes file(s) from storage and devious",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  runRemoveCmd,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runRemoveCmd,
 	}
 
 	cmd.Flags().BoolP("dry", "d", false, "run without actually removing files")
