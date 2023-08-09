@@ -72,6 +72,8 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 		defer dst.Close()
 
+		log.RawLog()
+
 		// Copy the file
 		_, err := io.Copy(dst, src)
 		if err != nil {

@@ -20,7 +20,7 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("    Generating hash...", log.ColorGreen("✔\n"))
+	log.RawLog("    Generating hash...", log.ColorGreen("✔"))
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
