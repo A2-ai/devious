@@ -41,7 +41,7 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		FileHash: fileHash,
 		FileSize: fileSize,
 	}
-	err = meta.CreateFile(metadata, localPath, dry)
+	err = meta.Save(metadata, localPath, dry)
 	if err != nil {
 		return fileHash, err
 	}

@@ -13,7 +13,7 @@ import (
 // Remove a file from storage
 func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 	/// Get metadata of specified file
-	metadata, err := meta.LoadFile(path)
+	metadata, err := meta.Load(path)
 	if err != nil {
 		slog.Error("No metadata found for file", slog.String("path", path))
 		return err

@@ -58,7 +58,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Get file info
-		metadata, err := meta.LoadFile(path)
+		metadata, err := meta.Load(path)
 		if err != nil {
 			slog.Warn("File not in devious", slog.String("path", path))
 			return err
