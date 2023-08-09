@@ -6,8 +6,8 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/storage"
 	"fmt"
+	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/exp/slog"
@@ -35,16 +35,20 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Queue file paths
 	var filesToAdd []string
 	for _, path := range args {
-		// if the path is a glob, get all files that match the glob
-		// otherwise, add the file
-		if strings.Contains(path, "*") {
-			files, err := filepath.Glob(path)
-			if err != nil {
-				slog.Error("Error parsing file glob", slog.String("path", path))
-				continue
-			}
+		globMatches, err := filepath.Glob(path)
+		// If the path is a glob pattern, add all matches
+		// Otherwise, add the path itself
+		if err == nil {
+			for _, match := range globMatches {
+				// Skip directories
+				if fileStat, _ := os.Stat(match); fileStat.IsDir() {
+					slog.Warn("Skipping directory", slog.String("path", match))
+					continue
+				}
 
-			filesToAdd = append(filesToAdd, files...)
+				// Add the file to the queue
+				filesToAdd = append(filesToAdd, match)
+			}
 		} else {
 			filesToAdd = append(filesToAdd, path)
 		}
