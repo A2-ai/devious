@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/lmittmann/tint"
 	"golang.org/x/exp/slog"
 )
+
+var ColorGreen = color.New(color.FgGreen).Sprint
+var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
 func ConfigureGlobalLogger(level slog.Level) {
 	opts := &tint.Options{
@@ -26,4 +30,12 @@ func ThrowNotInitialized() {
 
 func RawLog(args ...any) {
 	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
+}
+
+func PrintLogo() {
+	RawLog("👺 Devious\n")
+}
+
+func OverwritePreviousLine() {
+	os.Stdout.Write([]byte("\033[1A\033[2K"))
 }

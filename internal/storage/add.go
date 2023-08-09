@@ -3,6 +3,7 @@ package storage
 import (
 	"dvs/internal/file"
 	"dvs/internal/git"
+	"dvs/internal/log"
 	"dvs/internal/meta"
 	"os"
 	"path/filepath"
@@ -13,10 +14,13 @@ import (
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
+	log.RawLog("Generating hash...")
 	fileHash, err := file.GetFileHash(localPath)
 	if err != nil {
 		return fileHash, err
 	}
+	log.OverwritePreviousLine()
+	log.RawLog("Generating hash...", log.ColorGreen("✔\n"))
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
@@ -25,6 +29,8 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	if err != nil {
 		return fileHash, err
 	}
+	log.OverwritePreviousLine()
+	log.RawLog("Cleaning up...", log.ColorGreen("✔\n"))
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
