@@ -95,7 +95,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status [file]",
-		Short: "Gets the status of devious files in the current git repository, or a specific file if specified",
+		Short: "Gets the status of files tracked by devious",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},

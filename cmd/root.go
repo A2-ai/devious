@@ -29,7 +29,8 @@ func getRootCmd() *cobra.Command {
 	}
 
 	// Add global flags
-	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "enable verbose logging")
+	cmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "log with more detail")
+	cmd.PersistentFlags().BoolVarP(&verbose, "json", "j", false, "log in JSON format")
 
 	// Add commands
 	cmd.AddCommand(getInitCmd())
