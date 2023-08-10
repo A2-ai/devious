@@ -10,7 +10,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
@@ -52,14 +51,15 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
-			return err
+			log.RawLog(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			continue
 		}
 
 		// Get file info
 		metadata, err := meta.Load(path)
 		if err != nil {
-			slog.Warn("File not in devious", slog.String("path", path))
-			return err
+			log.RawLog(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			continue
 		}
 
 		// Determine file tag based on file status
