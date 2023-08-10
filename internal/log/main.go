@@ -35,7 +35,7 @@ func RawLog(args ...any) {
 }
 
 func PrintLogo() {
-	RawLog("👺 Devious\n")
+	RawLog("🌀 Devious\n")
 }
 
 func OverwritePreviousLine() {

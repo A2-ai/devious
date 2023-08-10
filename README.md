@@ -1,4 +1,4 @@
-# 👺 Devious
+# 🌀 Devious
 A file linker that enables you to work with large files while keeping them under version control.
 
 ## 🪄 Usage

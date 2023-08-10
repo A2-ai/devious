@@ -13,7 +13,7 @@ var verbose bool
 func getRootCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "dvs",
-		Short: "👺 Devious\nA file linker that enables you to work with large files while keeping them under version control.\nSee https://github.com/A2-ai/devious for more information.",
+		Short: "🌀 Devious\nA file linker that enables you to work with large files while keeping them under version control.\nSee https://github.com/A2-ai/devious for more information.",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			// Configure logger
 			var logLevel slog.Level
