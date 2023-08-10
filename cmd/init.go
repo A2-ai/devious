@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"dvs/internal/git"
+	"dvs/internal/log"
 	"dvs/internal/storage"
 	"os"
 
@@ -30,8 +31,12 @@ func getInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init <storage-dir>",
 		Short: "Initializes devious in the current git repository with the provided storage directory",
+		Long:  "Initializes devious in the current git repository with the provided storage directory. The storage directory should be a location accessible by all users of the repository.",
 		Args:  cobra.ExactArgs(1),
-		RunE:  runInitCmd,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runInitCmd,
 	}
 
 	return cmd

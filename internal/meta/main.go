@@ -47,7 +47,6 @@ func GetAllMetaFiles(dir string) (metaFiles []string, err error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

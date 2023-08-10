@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/zeebo/blake3"
-	"golang.org/x/exp/slog"
 )
 
 func GetFileHash(path string) (string, error) {
@@ -17,8 +16,5 @@ func GetFileHash(path string) (string, error) {
 
 	// Hash file contents
 	hash := fmt.Sprintf("%x", blake3.Sum256(fileContents))
-
-	slog.Debug("Generated file hash", slog.String("hash", hash), slog.String("file", path))
-
 	return hash, nil
 }

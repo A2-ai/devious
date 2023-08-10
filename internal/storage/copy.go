@@ -1,7 +1,7 @@
 package storage
 
 import (
-	"fmt"
+	"dvs/internal/log"
 	"io"
 	"os"
 	"path/filepath"
@@ -18,7 +18,10 @@ type WriteProgress struct {
 func (wp *WriteProgress) Write(p []byte) (int, error) {
 	n := len(p)
 	wp.bytes += uint64(n)
-	os.Stdout.Write([]byte(fmt.Sprint("\033[K\rWriting file... ", humanize.Bytes(wp.bytes), " out of ", wp.total)))
+
+	log.OverwritePreviousLine()
+	log.RawLog("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
+
 	return n, nil
 }
 
@@ -33,7 +36,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
-		slog.Error("Failed to open file", slog.String("path", srcPath))
 		return err
 	}
 	defer srcFile.Close()
@@ -41,7 +43,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Get file size
 	srcStat, err := srcFile.Stat()
 	if err != nil {
-		slog.Error("Failed to get file info", slog.String("path", srcPath))
 		return err
 	}
 	srcSize := uint64(srcStat.Size())
@@ -55,7 +56,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Ensure destination exists
 	err = os.MkdirAll(filepath.Dir(destPath), 0755)
 	if err != nil {
-		slog.Error("Failed to create directory", slog.String("path", filepath.Dir(destPath)))
 		return err
 	}
 
@@ -64,24 +64,23 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		// Create destination file
 		dst, err = os.Create(destPath)
 		if err != nil {
-			slog.Error("Failed to create copy destination file", slog.String("path", destPath))
 			return err
 		}
 		defer dst.Close()
 
+		log.RawLog()
+
 		// Copy the file
 		_, err := io.Copy(dst, src)
-		os.Stdout.Write([]byte("\n"))
 		if err != nil {
-			slog.Error("Failed to copy file", slog.String("path", srcPath))
 			return err
 		}
+
+		log.OverwritePreviousLine()
+		log.RawLog("    Writing file...", log.ColorGreen("✔"))
 	}
 
-	slog.Info("Copied file",
-		slog.String("from", srcPath),
-		slog.String("to", destPath),
-		slog.String("filesize", srcSizeHuman))
+	log.RawLog("    Cleaning up...")
 
 	return nil
 }

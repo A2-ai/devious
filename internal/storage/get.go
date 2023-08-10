@@ -2,6 +2,7 @@ package storage
 
 import (
 	"dvs/internal/meta"
+	"errors"
 	"path/filepath"
 )
 
@@ -10,7 +11,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	/// Get metadata of specified file
 	metadata, err := meta.Load(localPath)
 	if err != nil {
-		return err
+		return errors.New("failed to load metadata")
 	}
 
 	// Get storage path
@@ -19,7 +20,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	// Copy file to destination
 	err = Copy(storagePath, localPath, dry)
 	if err != nil {
-		return err
+		return errors.New("failed to copy file")
 	}
 
 	return nil

@@ -4,21 +4,17 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/exp/slog"
 )
 
 // Gets a file path relative to the root
 func GetRelativePath(rootDir string, filePath string) (string, error) {
 	absRootDir, err := filepath.Abs(rootDir)
 	if err != nil {
-		slog.Error("Failed to get absolute path for root dir", slog.String("path", filePath))
 		return "", err
 	}
 
 	absFilePath, err := filepath.Abs(filePath)
 	if err != nil {
-		slog.Error("Failed to get absolute path", slog.String("path", filePath))
 		return "", err
 	}
 

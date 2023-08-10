@@ -5,10 +5,12 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/log"
 	"dvs/internal/storage"
+	"fmt"
+	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/spf13/cobra"
+	"golang.org/x/exp/slices"
 )
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
@@ -30,24 +32,42 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Add each path to storage
+	// Queue file paths
+	var filesToAdd []string
 	for _, path := range args {
-		// if the path is a glob, get all files that match the glob
-		// otherwise, add the file
-		if strings.Contains(path, "*") {
-			files, err := filepath.Glob(path)
-			if err != nil {
-				return err
+		globMatches, err := filepath.Glob(path)
+		// If the path is a glob pattern, add all matches
+		// Otherwise, add the path itself
+		if err == nil {
+			if !slices.Contains(globMatches, path) {
+				log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
 			}
 
-			for _, file := range files {
-				storage.Add(file, conf.StorageDir, gitDir, dry)
-			}
+			for _, match := range globMatches {
+				fileStat, err := os.Stat(match)
+				if err != nil {
+					log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
+					continue
+				}
 
-			continue
+				// Skip directories
+				if fileStat.IsDir() {
+					log.RawLog(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
+					continue
+				}
+
+				// Add the file to the queue
+				filesToAdd = append(filesToAdd, match)
+			}
 		} else {
-			storage.Add(path, conf.StorageDir, gitDir, dry)
+			filesToAdd = append(filesToAdd, path)
 		}
+	}
+
+	// Add each file to storage
+	for i, file := range filesToAdd {
+		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
+		storage.Add(file, conf.StorageDir, gitDir, dry)
 	}
 
 	return nil
@@ -58,7 +78,10 @@ func getAddCmd() *cobra.Command {
 		Use:   "add <file> <another-file> <glob-pattern> ...",
 		Short: "Adds file(s) to storage",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  runAddCmd,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runAddCmd,
 	}
 
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")

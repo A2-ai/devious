@@ -6,6 +6,9 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/meta"
 	"dvs/internal/storage"
+	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -36,28 +39,45 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	var filesToGet []string
 
-	// If no arguments are provided, get all files in the current directory
-	if len(args) == 0 {
-		if recurse {
-			// Get all files in the current directory and subdirectories
-			filesToGet, err = meta.GetAllMetaFiles(".")
-			if err != nil {
-				return err
+	// Parse each path
+	for _, path := range args {
+		// If the path is a directory, get all files in the directory
+		if pathInfo, err := os.Stat(path); err == nil && pathInfo.IsDir() {
+			var metaFiles []string
+			if recurse {
+				// Get all files in the current directory and subdirectories
+				metaFiles, err = meta.GetAllMetaFiles(path)
+				if err != nil {
+					return err
+				}
+			} else {
+				// Get all files in the current directory
+				metaFiles, err = meta.GetMetaFiles(path)
+				if err != nil {
+					return err
+				}
+				if len(metaFiles) == 0 {
+					absPath, _ := filepath.Abs(path)
+					log.RawLog(log.ColorYellow("⚠"), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
+				}
 			}
+			filesToGet = append(filesToGet, metaFiles...)
 		} else {
-			// Get all files in the current directory
-			filesToGet, err = meta.GetMetaFiles(".")
-			if err != nil {
-				return err
-			}
+			filesToGet = append(filesToGet, path)
 		}
-	} else {
-		filesToGet = args
 	}
 
-	// Get each file from storage
-	for _, path := range filesToGet {
-		storage.Get(path, conf.StorageDir, gitDir, dry)
+	// Get the queued files
+	for i, file := range filesToGet {
+		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
+
+		err = storage.Get(file, conf.StorageDir, gitDir, dry)
+		if err != nil {
+			log.RawLog(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+		} else {
+			log.OverwritePreviousLine()
+			log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
+		}
 	}
 
 	return nil
@@ -68,7 +88,11 @@ func getGetCmd() *cobra.Command {
 		Use:   "get <file> <another-file> ...",
 		Short: "Gets file(s) from storage",
 		Long:  `Gets file(s) from storage. If no arguments are provided, get all files in the current directory.`,
-		RunE:  runGetCmd,
+		Args:  cobra.MinimumNArgs(1),
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runGetCmd,
 	}
 
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")

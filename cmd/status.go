@@ -10,12 +10,9 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
-	log.RawLog(color.New(color.Bold).Sprint("👺\n"))
-
 	var metaPaths []string
 
 	// If no arguments are provided, get the status of all files in the current git repository
@@ -54,14 +51,15 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
-			return err
+			log.RawLog(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			continue
 		}
 
 		// Get file info
 		metadata, err := meta.Load(path)
 		if err != nil {
-			slog.Warn("File not in devious", slog.String("path", path))
-			return err
+			log.RawLog(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			continue
 		}
 
 		// Determine file tag based on file status
@@ -85,7 +83,11 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 	// Print overview
 	log.RawLog(color.New(color.Bold).Sprint("\ntotals"))
-	log.RawLog(colorFilePulled.Sprint(numFilesPulled), "up to date", colorFileOutdated.Sprint(numFilesOutdated), "out of date", colorFileNotPulled.Sprint(numFilesNotPulled), "not present", "\n")
+	log.RawLog(
+		colorFilePulled.Sprint(numFilesPulled), "up to date ",
+		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
+		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
+	)
 
 	return nil
 }
@@ -94,7 +96,10 @@ func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status [file]",
 		Short: "Gets the status of devious files in the current git repository, or a specific file if specified",
-		RunE:  runStatusCmd,
+		PreRun: func(cmd *cobra.Command, args []string) {
+			log.PrintLogo()
+		},
+		RunE: runStatusCmd,
 	}
 
 	return cmd
