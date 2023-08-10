@@ -2,6 +2,7 @@ package storage
 
 import (
 	"dvs/internal/config"
+	"dvs/internal/log"
 	"os"
 	"path/filepath"
 
@@ -41,7 +42,7 @@ func Init(rootDir string, storageDir string) error {
 		if err != nil {
 			slog.Error("Failed to read storage directory", slog.String("path", storageDir))
 		} else if len(dir) > 0 {
-			slog.Warn("Storage directory isn't empty", slog.String("path", storageDir))
+			log.RawLog(log.ColorYellow("⚠"), "Storage directory isn't empty\n")
 		}
 	}
 
@@ -52,6 +53,10 @@ func Init(rootDir string, storageDir string) error {
 	if err != nil {
 		return err
 	}
+
+	log.RawLog(log.ColorGreen("✔"), "Created config", log.ColorFile(rootDir))
+	log.RawLog(log.ColorGreen("✔"), "Initialized devious")
+	log.RawLog("    storage dir", log.ColorFile(storageDir))
 
 	return nil
 }

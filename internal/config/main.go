@@ -56,7 +56,5 @@ func Write(config Config, dir string) error {
 		return err
 	}
 
-	slog.Info("Wrote config", slog.String("dir", dir))
-
 	return nil
 }
