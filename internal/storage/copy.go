@@ -20,7 +20,7 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 	wp.bytes += uint64(n)
 
 	log.OverwritePreviousLine()
-	log.RawLog("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
+	log.Print("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
 
 	return n, nil
 }
@@ -68,7 +68,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 		defer dst.Close()
 
-		log.RawLog()
+		log.Print()
 
 		// Copy the file
 		_, err := io.Copy(dst, src)
@@ -77,10 +77,10 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 
 		log.OverwritePreviousLine()
-		log.RawLog("    Writing file...", log.ColorGreen("✔"))
+		log.Print("    Writing file...", log.ColorGreen("✔"))
 	}
 
-	log.RawLog("    Cleaning up...")
+	log.Print("    Cleaning up...")
 
 	return nil
 }

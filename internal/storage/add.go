@@ -14,13 +14,13 @@ import (
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	log.RawLog("    Generating hash...")
+	log.Print("    Generating hash...")
 	fileHash, err := file.GetFileHash(localPath)
 	if err != nil {
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("    Generating hash...", log.ColorGreen("✔"))
+	log.Print("    Generating hash...", log.ColorGreen("✔"))
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
@@ -30,7 +30,7 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("    Cleaning up...", log.ColorGreen("✔"))
+	log.Print("    Cleaning up...", log.ColorGreen("✔"))
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
@@ -53,13 +53,13 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	}
 
 	// Add file to gitignore
-	log.RawLog("    Adding file to gitignore...")
+	log.Print("    Adding file to gitignore...")
 	err = git.AddIgnoreEntry(gitDir, localPath, dry)
 	if err != nil {
 		return fileHash, err
 	}
 	log.OverwritePreviousLine()
-	log.RawLog("    Adding gitignore entry...", log.ColorGreen("✔\n"))
+	log.Print("    Adding gitignore entry...", log.ColorGreen("✔\n"))
 
 	return fileHash, nil
 }

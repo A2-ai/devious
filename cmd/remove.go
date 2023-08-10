@@ -31,11 +31,11 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 
 	// Remove each path from storage
 	for i, path := range args {
-		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(args)), " ", log.ColorFile(path))
+		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(args)), " ", log.ColorFile(path))
 
 		err = storage.Remove(path, conf, gitDir, dry)
 		if err != nil {
-			log.RawLog(log.ColorRed("    ✘"), "File is not tracked in devious\n")
+			log.Print(log.ColorRed("    ✘"), "File is not tracked in devious\n")
 		}
 	}
 

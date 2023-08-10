@@ -14,7 +14,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 	storageDir, err := filepath.Abs(storageDir)
 	if err != nil {
 		if jsonLog == nil {
-			log.RawLog(log.ColorRed("✘"), "Failed to convert destination to absolute path", log.ColorFile(storageDir))
+			log.Print(log.ColorRed("✘"), "Failed to convert destination to absolute path", log.ColorFile(storageDir))
 		} else {
 			jsonLog.Issues = append(jsonLog.Issues, log.JsonIssue{
 				Severity: "error",
@@ -33,7 +33,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 		err = os.MkdirAll(storageDir, defaultDirPermissions)
 		if err != nil {
 			if jsonLog == nil {
-				log.RawLog(log.ColorRed("✘"), "Failed to create storage directory", log.ColorFile(storageDir))
+				log.Print(log.ColorRed("✘"), "Failed to create storage directory", log.ColorFile(storageDir))
 			} else {
 				jsonLog.Issues = append(jsonLog.Issues, log.JsonIssue{
 					Severity: "error",
@@ -46,7 +46,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 		}
 
 		if jsonLog == nil {
-			log.RawLog(log.ColorGreen("✔"), "Created storage directory")
+			log.Print(log.ColorGreen("✔"), "Created storage directory")
 		} else {
 			jsonLog.Actions = append(jsonLog.Actions, log.JsonAction{
 				Action: "create storage directory",
@@ -57,7 +57,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 		// Ensure destination is a directory
 		if !fileInfo.IsDir() {
 			if jsonLog == nil {
-				log.RawLog(log.ColorRed("✘"), "Destination isn't a directory", log.ColorFile(storageDir))
+				log.Print(log.ColorRed("✘"), "Destination isn't a directory", log.ColorFile(storageDir))
 			} else {
 				jsonLog.Issues = append(jsonLog.Issues, log.JsonIssue{
 					Severity: "error",
@@ -73,7 +73,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 		dir, err := os.ReadDir(storageDir)
 		if err != nil {
 			if jsonLog == nil {
-				log.RawLog(log.ColorRed("✘"), "Failed to read storage directory", log.ColorFile(storageDir))
+				log.Print(log.ColorRed("✘"), "Failed to read storage directory", log.ColorFile(storageDir))
 			} else {
 				jsonLog.Issues = append(jsonLog.Issues, log.JsonIssue{
 					Severity: "error",
@@ -83,7 +83,7 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 			}
 		} else if len(dir) > 0 {
 			if jsonLog == nil {
-				log.RawLog(log.ColorYellow("⚠"), "Storage directory isn't empty\n")
+				log.Print(log.ColorYellow("⚠"), "Storage directory isn't empty\n")
 			} else {
 				jsonLog.Issues = append(jsonLog.Issues, log.JsonIssue{
 					Severity: "warning",
@@ -103,8 +103,8 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 	}
 
 	if jsonLog == nil {
-		log.RawLog(log.ColorGreen("✔"), "Wrote config", log.ColorFile(filepath.Join(rootDir, config.ConfigFileName)))
-		log.RawLog("    storage dir", log.ColorFile(storageDir))
+		log.Print(log.ColorGreen("✔"), "Wrote config", log.ColorFile(filepath.Join(rootDir, config.ConfigFileName)))
+		log.Print("    storage dir", log.ColorFile(storageDir))
 	} else {
 		jsonLog.Actions = append(jsonLog.Actions, log.JsonAction{
 			Action: "write config",

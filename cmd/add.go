@@ -40,19 +40,19 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		// Otherwise, add the path itself
 		if err == nil {
 			if !slices.Contains(globMatches, path) {
-				log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
+				log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
 			}
 
 			for _, match := range globMatches {
 				fileStat, err := os.Stat(match)
 				if err != nil {
-					log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
+					log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
 					continue
 				}
 
 				// Skip directories
 				if fileStat.IsDir() {
-					log.RawLog(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
+					log.Print(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
 					continue
 				}
 
@@ -66,7 +66,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 	// Add each file to storage
 	for i, file := range filesToAdd {
-		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
+		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
 		storage.Add(file, conf.StorageDir, gitDir, dry)
 	}
 

@@ -13,16 +13,16 @@ var ColorYellow = color.New(color.FgYellow).Sprint
 var ColorFaint = color.New(color.Faint).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
-func RawLog(args ...any) {
+func Print(args ...any) {
 	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
 }
 
 func PrintLogo() {
-	RawLog("👺 Devious\n")
+	Print("👺 Devious\n")
 }
 
 func ThrowNotInitialized() {
-	RawLog(ColorRed("✘"), "Devious is not initialized, run", ColorFaint("dvs init <storage-path>"), "to initialize")
+	Print(ColorRed("✘"), "Devious is not initialized, run", ColorFaint("dvs init <storage-path>"), "to initialize")
 	os.Exit(0)
 }
 

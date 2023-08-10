@@ -43,7 +43,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	numFilesNotPulled := 0
 
 	// Print info about each file
-	log.RawLog(color.New(color.Bold).Sprint("file info "),
+	log.Print(color.New(color.Bold).Sprint("file info "),
 		colorFilePulled.Sprint("●"), "up to date ",
 		colorFileOutdated.Sprint("●"), "out of date ",
 		colorFileNotPulled.Sprint("●"), "not present ",
@@ -51,14 +51,14 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
-			log.RawLog(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			log.Print(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
 			continue
 		}
 
 		// Get file info
 		metadata, err := meta.Load(path)
 		if err != nil {
-			log.RawLog(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			log.Print(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
 			continue
 		}
 
@@ -78,12 +78,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Print file info
-		log.RawLog("   ", fileStatus, colorFaintBold.Sprint(relPath), " ", color.New(color.Faint).Sprint(humanize.Bytes(metadata.FileSize)))
+		log.Print("   ", fileStatus, colorFaintBold.Sprint(relPath), " ", color.New(color.Faint).Sprint(humanize.Bytes(metadata.FileSize)))
 	}
 
 	// Print overview
-	log.RawLog(color.New(color.Bold).Sprint("\ntotals"))
-	log.RawLog(
+	log.Print(color.New(color.Bold).Sprint("\ntotals"))
+	log.Print(
 		colorFilePulled.Sprint(numFilesPulled), "up to date ",
 		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
 		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
