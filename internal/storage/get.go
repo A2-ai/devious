@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"dvs/internal/log"
 	"dvs/internal/meta"
 	"errors"
 	"path/filepath"
@@ -23,8 +22,6 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	if err != nil {
 		return errors.New("failed to copy file")
 	}
-	log.OverwritePreviousLine()
-	log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
 
 	return nil
 }

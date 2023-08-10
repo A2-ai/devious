@@ -78,7 +78,10 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 			err = storage.Get(file, conf.StorageDir, gitDir, dry)
 			if err != nil {
-				slog.Error("Failed to get file", slog.String("path", file), slog.String("error", err.Error()))
+				log.RawLog(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+			} else {
+				log.OverwritePreviousLine()
+				log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
 			}
 		}
 	}
