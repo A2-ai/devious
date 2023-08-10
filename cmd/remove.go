@@ -35,7 +35,7 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 
 		err = storage.Remove(path, conf, gitDir, dry)
 		if err != nil {
-			log.RawLog("File is not tracked in devious", log.ColorRed("✘"))
+			log.RawLog(log.ColorRed("    ✘"), "File is not tracked in devious\n")
 		}
 	}
 
