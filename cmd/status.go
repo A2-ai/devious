@@ -32,7 +32,6 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create colors
-	colorFaintBold := color.New(color.Faint, color.Bold)
 	colorFilePulled := color.New(color.FgGreen, color.Bold)
 	colorFileOutdated := color.New(color.FgHiYellow, color.Bold)
 	colorFileNotPulled := color.New(color.FgRed, color.Bold)
@@ -78,7 +77,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Print file info
-		log.Print("   ", fileStatus, colorFaintBold.Sprint(relPath), " ", color.New(color.Faint).Sprint(humanize.Bytes(metadata.FileSize)))
+		log.Print("   ", fileStatus, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
 	}
 
 	// Print overview
