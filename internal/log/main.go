@@ -26,9 +26,8 @@ func ConfigureGlobalLogger(level slog.Level) {
 }
 
 func ThrowNotInitialized() {
-	slog.Error("Devious is not initialized")
-	slog.Error("Run `dvs init <storage-path>` to initialize")
-	os.Exit(1)
+	RawLog(ColorRed("✘"), "Devious is not initialized, run", ColorFaint("dvs init <storage-path>"), "to initialize")
+	os.Exit(0)
 }
 
 func RawLog(args ...any) {
