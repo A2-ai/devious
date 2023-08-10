@@ -45,7 +45,14 @@ func Init(rootDir string, storageDir string, jsonLog *log.JsonLog) error {
 			return err
 		}
 
-		log.RawLog(log.ColorGreen("✔"), "Created storage directory")
+		if jsonLog == nil {
+			log.RawLog(log.ColorGreen("✔"), "Created storage directory")
+		} else {
+			jsonLog.Actions = append(jsonLog.Actions, log.JsonAction{
+				Action: "create storage directory",
+				Path:   storageDir,
+			})
+		}
 	} else {
 		// Ensure destination is a directory
 		if !fileInfo.IsDir() {
