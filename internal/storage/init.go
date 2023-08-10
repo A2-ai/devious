@@ -22,14 +22,14 @@ func Init(rootDir string, storageDir string) error {
 	// Check storage dir permissions, and create if it doesn't exist
 	fileInfo, err := os.Stat(storageDir)
 	if err != nil {
-		slog.Info("Creating storage directory", slog.String("path", storageDir), slog.String("permissions", defaultDirPermissions.String()))
-
 		// Create storage dir and necessary parents
 		err = os.MkdirAll(storageDir, defaultDirPermissions)
 		if err != nil {
 			slog.Error("Failed to create storage directory", slog.String("path", storageDir))
 			return err
 		}
+
+		log.RawLog(log.ColorGreen("✔"), "Created storage directory")
 	} else {
 		// Ensure destination is a directory
 		if !fileInfo.IsDir() {
@@ -54,8 +54,7 @@ func Init(rootDir string, storageDir string) error {
 		return err
 	}
 
-	log.RawLog(log.ColorGreen("✔"), "Created config", log.ColorFile(rootDir))
-	log.RawLog(log.ColorGreen("✔"), "Initialized devious")
+	log.RawLog(log.ColorGreen("✔"), "Wrote config", log.ColorFile(filepath.Join(rootDir, config.ConfigFileName)))
 	log.RawLog("    storage dir", log.ColorFile(storageDir))
 
 	return nil
