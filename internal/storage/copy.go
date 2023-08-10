@@ -36,7 +36,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Open source file
 	srcFile, err := os.Open(srcPath)
 	if err != nil {
-		slog.Error("Failed to open file", slog.String("path", srcPath))
 		return err
 	}
 	defer srcFile.Close()
@@ -44,7 +43,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Get file size
 	srcStat, err := srcFile.Stat()
 	if err != nil {
-		slog.Error("Failed to get file info", slog.String("path", srcPath))
 		return err
 	}
 	srcSize := uint64(srcStat.Size())
@@ -58,7 +56,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	// Ensure destination exists
 	err = os.MkdirAll(filepath.Dir(destPath), 0755)
 	if err != nil {
-		slog.Error("Failed to create directory", slog.String("path", filepath.Dir(destPath)))
 		return err
 	}
 
@@ -67,7 +64,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		// Create destination file
 		dst, err = os.Create(destPath)
 		if err != nil {
-			slog.Error("Failed to create copy destination file", slog.String("path", destPath))
 			return err
 		}
 		defer dst.Close()
@@ -77,7 +73,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		// Copy the file
 		_, err := io.Copy(dst, src)
 		if err != nil {
-			slog.Error("Failed to copy file", slog.String("path", srcPath))
 			return err
 		}
 

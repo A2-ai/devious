@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
 )
 
 func runGetCmd(cmd *cobra.Command, args []string) error {
@@ -42,11 +41,6 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// Parse each path
 	for _, path := range args {
-		if path == ".." {
-			slog.Warn("Skipping path", slog.String("path", path))
-			continue
-		}
-
 		// If the path is a directory, get all files in the directory
 		if pathInfo, err := os.Stat(path); err == nil && pathInfo.IsDir() {
 			var metaFiles []string
@@ -64,7 +58,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 				}
 				if len(metaFiles) == 0 {
 					absPath, _ := filepath.Abs(path)
-					slog.Warn("No devious files found in directory", slog.String("path", absPath))
+					log.RawLog(log.ColorYellow("⚠"), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
 				}
 			}
 			filesToGet = append(filesToGet, metaFiles...)

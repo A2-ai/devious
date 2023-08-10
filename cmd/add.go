@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slog"
+	"golang.org/x/exp/slices"
 )
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
@@ -39,10 +39,20 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		// If the path is a glob pattern, add all matches
 		// Otherwise, add the path itself
 		if err == nil {
+			if !slices.Contains(globMatches, path) {
+				log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
+			}
+
 			for _, match := range globMatches {
+				fileStat, err := os.Stat(match)
+				if err != nil {
+					log.RawLog(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
+					continue
+				}
+
 				// Skip directories
-				if fileStat, _ := os.Stat(match); fileStat.IsDir() {
-					slog.Warn("Skipping directory", slog.String("path", match))
+				if fileStat.IsDir() {
+					log.RawLog(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
 					continue
 				}
 
