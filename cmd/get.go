@@ -71,18 +71,18 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 		} else {
 			filesToGet = append(filesToGet, path)
 		}
+	}
 
-		// Get the queued files
-		for i, file := range filesToGet {
-			log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
+	// Get the queued files
+	for i, file := range filesToGet {
+		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
 
-			err = storage.Get(file, conf.StorageDir, gitDir, dry)
-			if err != nil {
-				log.RawLog(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
-			} else {
-				log.OverwritePreviousLine()
-				log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
-			}
+		err = storage.Get(file, conf.StorageDir, gitDir, dry)
+		if err != nil {
+			log.RawLog(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+		} else {
+			log.OverwritePreviousLine()
+			log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
 		}
 	}
 
