@@ -1,11 +1,9 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
+project_name: dvs
+
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
-    - go generate ./...
+
 builds:
   - env:
       - CGO_ENABLED=0
@@ -26,20 +24,37 @@ archives:
       {{- if .Arm }}v{{ .Arm }}{{ end }}
     # use zip for windows archives
     format_overrides:
-    - goos: windows
-      format: zip
+      - goos: windows
+        format: zip
+
 checksum:
-  name_template: 'checksums.txt'
-snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  name_template: "checksums.txt"
+
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
-# The lines beneath this are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+release:
+  prerelease: "true"
+  footer: |
+    ## Installation
+    ### Linux
+    ```
+    sudo wget https://github.com/A2-ai/devious/releases/download/{{ .Tag }}/dvs_Linux_x86_64.tar.gz -O /tmp/dvs.tar.gz
+    sudo tar xzf /tmp/qvm.tar.gz qvm
+    sudo mv qvm /usr/local/bin/qvm
+    sudo chmod +x /usr/local/bin/qvm
+    ```
+
+    ### Linux (User) 
+    Assumes `~/bin` is available in your PATH
+
+    ```
+    wget https://github.com/A2-ai/devious/releases/download/{{ .Tag }}/dvs_Linux_x86_64.tar.gz -O /tmp/dvs.tar.gz
+    tar xzf /tmp/qvm.tar.gz qvm
+    mv qvm ~/bin/qvm
+    chmod +x ~/bin/qvm
+    ```
