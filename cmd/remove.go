@@ -20,7 +20,8 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 	// Load the conf
 	conf, err := config.Read(gitDir)
 	if err != nil {
-		log.ThrowNotInitialized()
+		log.PrintNotInitialized()
+		log.DumpAndExit(0)
 	}
 
 	// Get flags

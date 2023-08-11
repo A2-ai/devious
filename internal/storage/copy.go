@@ -19,10 +19,8 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 	n := len(p)
 	wp.bytes += uint64(n)
 
-	if log.JsonLogger == nil {
-		log.OverwritePreviousLine()
-		log.Print("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
-	}
+	log.OverwritePreviousLine()
+	log.Print("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
 
 	return n, nil
 }
@@ -78,15 +76,12 @@ func Copy(srcPath string, destPath string, dry bool) error {
 			return err
 		}
 
-		if log.JsonLogger == nil {
-			log.OverwritePreviousLine()
-			log.Print("    Writing file...", log.ColorGreen("✔"))
-		} else {
-			log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
-				Action: "wrote file",
-				Path:   destPath,
-			})
-		}
+		log.OverwritePreviousLine()
+		log.Print("    Writing file...", log.ColorGreen("✔"))
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "wrote file",
+			Path:   destPath,
+		})
 	}
 
 	log.Print("    Cleaning up...")

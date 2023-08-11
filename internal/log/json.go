@@ -28,10 +28,13 @@ type JsonLog struct {
 	Issues  []JsonIssue         `json:"issues"`
 }
 
-var JsonLogger *JsonLog
+var JsonLogger *JsonLog = &JsonLog{
+	Files: make(map[string]JsonFile),
+}
+var JsonLogging bool = false
 
 func Dump() error {
-	if JsonLogger == nil {
+	if !JsonLogging {
 		return nil
 	}
 
@@ -44,4 +47,13 @@ func Dump() error {
 	fmt.Print("\n")
 
 	return nil
+}
+
+func DumpAndExit(code int) {
+	err := Dump()
+	if err != nil {
+		fmt.Println("Failed to dump JSON log:", err)
+	}
+
+	os.Exit(code)
 }

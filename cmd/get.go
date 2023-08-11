@@ -23,7 +23,8 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	// Load the conf
 	conf, err := config.Read(gitDir)
 	if err != nil {
-		log.ThrowNotInitialized()
+		log.PrintNotInitialized()
+		log.DumpAndExit(0)
 	}
 
 	// Get flags
@@ -74,6 +75,11 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 		err = storage.Get(file, conf.StorageDir, gitDir, dry)
 		if err != nil {
 			log.Print(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to get file",
+				Location: file,
+			})
 		} else {
 			log.OverwritePreviousLine()
 			log.Print("    Cleaning up...", log.ColorGreen("✔\n"))

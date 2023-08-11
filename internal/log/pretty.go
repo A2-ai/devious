@@ -14,7 +14,7 @@ var ColorFaint = color.New(color.Faint).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
 func Print(args ...any) {
-	if JsonLogger != nil {
+	if JsonLogging {
 		return
 	}
 
@@ -25,13 +25,16 @@ func PrintLogo() {
 	Print("👺 Devious\n")
 }
 
-func ThrowNotInitialized() {
+func PrintNotInitialized() {
 	Print(ColorRed("✘"), "Devious is not initialized, run", ColorFaint("dvs init <storage-path>"), "to initialize")
-	os.Exit(0)
+	JsonLogger.Issues = append(JsonLogger.Issues, JsonIssue{
+		Severity: "error",
+		Message:  "devious is not initialized",
+	})
 }
 
 func OverwritePreviousLine() {
-	if JsonLogger != nil {
+	if JsonLogging {
 		return
 	}
 

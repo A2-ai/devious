@@ -15,9 +15,7 @@ func getRootCmd() *cobra.Command {
 		Short: "👺 Devious\nA file linker that enables you to work with large files while keeping them under version control.\nSee https://github.com/A2-ai/devious for more information.",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if json {
-				log.JsonLogger = &log.JsonLog{
-					Files: make(map[string]log.JsonFile),
-				}
+				log.JsonLogging = true
 			}
 		},
 	}
@@ -36,9 +34,10 @@ func getRootCmd() *cobra.Command {
 }
 
 func Execute() {
-	defer log.Dump()
-
 	err := getRootCmd().Execute()
+
+	log.Dump()
+
 	if err != nil {
 		os.Exit(1)
 	}

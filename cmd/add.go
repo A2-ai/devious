@@ -14,22 +14,29 @@ import (
 )
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
+	// Get flags
+	dry, err := cmd.Flags().GetBool("dry")
+	if err != nil {
+		return err
+	}
+
 	// Get git dir
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
-		return err
+		log.Print(log.ColorRed("✘"), "Couldn't find a parent git repository")
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "error",
+			Message:  "couldn't find a parent git repository",
+			Location: ".",
+		})
+		log.DumpAndExit(0)
 	}
 
 	// Load the conf
 	conf, err := config.Read(gitDir)
 	if err != nil {
-		log.ThrowNotInitialized()
-	}
-
-	// Get flags
-	dry, err := cmd.Flags().GetBool("dry")
-	if err != nil {
-		return err
+		log.PrintNotInitialized()
+		log.DumpAndExit(0)
 	}
 
 	// Queue file paths
@@ -86,9 +93,13 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
 
 		_, err := storage.Add(file, conf.StorageDir, gitDir, dry)
-
 		if err != nil {
-			log.Print(log.ColorRed("✗"), log.ColorFile(file), "\n")
+			log.Print(log.ColorRed("    ✗"), "Failed to add file", log.ColorFaint(err.Error()))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "error adding to storage",
+				Location: file,
+			})
 			return err
 		}
 	}
