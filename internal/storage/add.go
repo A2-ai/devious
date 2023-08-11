@@ -6,11 +6,13 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/meta"
 	"os"
+	"os/user"
 	"path/filepath"
+	"time"
 )
 
 // Adds a file to storage, returning the file hash
-func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
+func Add(localPath string, storageDir string, gitDir string, message string, dry bool) (hash string, err error) {
 	// Create file hash
 	log.Print("    Generating hash...")
 
@@ -56,10 +58,27 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 		fileSize = uint64(fileInfo.Size())
 	}
 
+	// Get user
+	user, err := user.Current()
+	var userName string
+	if err != nil {
+		log.Print(log.ColorYellow("⚠"), "Failed to get current user", log.ColorFaint(err.Error()))
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "failed to get current user",
+			Location: localPath,
+		})
+	} else {
+		userName = user.Username
+	}
+
 	// Create + write metadata file
 	metadata := meta.Metadata{
-		FileHash: fileHash,
-		FileSize: fileSize,
+		FileHash:  fileHash,
+		FileSize:  fileSize,
+		Timestamp: time.Now(),
+		User:      userName,
+		Message:   message,
 	}
 	err = meta.Save(metadata, localPath, dry)
 	if err != nil {

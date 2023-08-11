@@ -31,6 +31,7 @@ func TestGetNoLongerInStorage(t *testing.T) {
 		filepath.Join(tempDir, "test.txt"),
 		tempDir,
 		tempDir,
+		"test message",
 		false,
 	)
 	if err != nil {

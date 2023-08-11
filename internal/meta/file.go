@@ -3,7 +3,16 @@ package meta
 import (
 	"encoding/json"
 	"os"
+	"time"
 )
+
+type Metadata struct {
+	FileHash  string    `yaml:"file-hash"`
+	FileSize  uint64    `yaml:"file-size"`
+	Timestamp time.Time `yaml:"timestamp"`
+	Message   string    `yaml:"message"`
+	User      string    `yaml:"user"`
+}
 
 // Creates a metadata file
 func Save(metadata Metadata, path string, dry bool) (err error) {
