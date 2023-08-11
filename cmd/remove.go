@@ -44,6 +44,11 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 				Message:  "failed to remove from storage",
 				Location: path,
 			})
+		} else {
+			log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+				Action: "removed file",
+				Path:   path,
+			})
 		}
 	}
 
