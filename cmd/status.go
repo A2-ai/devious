@@ -6,6 +6,7 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/meta"
 	"os"
+	"time"
 
 	"github.com/dustin/go-humanize"
 	"github.com/fatih/color"
@@ -106,7 +107,13 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Print file info
-		log.Print("   ", fileLight, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
+		log.Print("   ", fileLight,
+			log.ColorFile(relPath), " ",
+			log.ColorFaint(humanize.Bytes(metadata.FileSize)),
+			log.ColorFaint(metadata.Timestamp.Format(time.DateTime)),
+			log.ColorFaint(metadata.User),
+			log.ColorFaint(metadata.Message),
+		)
 		jsonLogger.Files = append(jsonLogger.Files, jsonFileResult{
 			Path:     relPath,
 			Status:   fileStatus,

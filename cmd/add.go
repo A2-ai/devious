@@ -22,6 +22,11 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	message, err := cmd.Flags().GetString("message")
+	if err != nil {
+		return err
+	}
+
 	// Get git dir
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
@@ -94,7 +99,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	for i, file := range filesToAdd {
 		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
 
-		_, err := storage.Add(file, conf.StorageDir, gitDir, dry)
+		_, err := storage.Add(file, conf.StorageDir, gitDir, message, dry)
 		if err != nil {
 			log.Print(log.ColorRed("    ✗"), "Failed to add file", log.ColorFaint(err.Error()))
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
@@ -122,6 +127,7 @@ func getAddCmd() *cobra.Command {
 
 	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")
 	cmd.Flags().BoolP("dry", "d", false, "run without actually adding files")
+	cmd.Flags().StringP("message", "m", "", "add a message to the file's metadata")
 
 	return cmd
 }

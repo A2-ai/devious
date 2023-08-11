@@ -8,11 +8,6 @@ import (
 
 var FileExtension = ".dvsmeta"
 
-type Metadata struct {
-	FileHash string `yaml:"file-hash"`
-	FileSize uint64 `yaml:"file-size"`
-}
-
 // Gets a list of all meta file paths in the directory
 func GetMetaFiles(dir string) (metaFiles []string, err error) {
 	metaFiles = make([]string, 0)
