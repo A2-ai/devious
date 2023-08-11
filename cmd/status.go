@@ -49,9 +49,10 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create colors
-	colorFilePulled := color.New(color.FgGreen, color.Bold)
-	colorFileOutdated := color.New(color.FgHiYellow, color.Bold)
-	colorFileNotPulled := color.New(color.FgRed, color.Bold)
+	colorFilePulled := color.New(color.FgGreen, color.Bold).Sprint
+	colorFileOutdated := color.New(color.FgHiYellow, color.Bold).Sprint
+	colorFileNotPulled := color.New(color.FgRed, color.Bold).Sprint
+	colorFileLoading := color.New(color.FgBlue, color.Bold).Sprint
 
 	// Track number of files
 	numFilesPulled := 0
@@ -59,10 +60,11 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	numFilesNotPulled := 0
 
 	// Print info about each file
-	log.Print(color.New(color.Bold).Sprint("file info "),
-		colorFilePulled.Sprint("●"), "up to date ",
-		colorFileOutdated.Sprint("●"), "out of date ",
-		colorFileNotPulled.Sprint("●"), "not present ",
+	log.Print(log.ColorBold("file info "),
+		colorFilePulled("●"), "up to date ",
+		colorFileOutdated("●"), "out of date ",
+		colorFileNotPulled("●"), "not present ",
+		colorFileLoading("●"), "getting info ",
 	)
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
@@ -76,6 +78,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 			continue
 		}
+
+		// Print file before getting info
+		log.Print("   ", colorFileLoading("●"), log.ColorFile(relPath))
 
 		// Get file info
 		metadata, err := meta.Load(path)
@@ -96,15 +101,15 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		_, statErr := os.Stat(path)
 		fileHash, hashErr := file.GetFileHash(path)
 		if statErr == nil && hashErr == nil && fileHash == metadata.FileHash {
-			fileLight = colorFilePulled.Sprint("●")
+			fileLight = colorFilePulled("●")
 			fileStatus = "up to date"
 			numFilesPulled++
 		} else if statErr == nil {
-			fileLight = colorFileOutdated.Sprint("●")
+			fileLight = colorFileOutdated("●")
 			fileStatus = "out of date"
 			numFilesOutdated++
 		} else {
-			fileLight = colorFileNotPulled.Sprint("●")
+			fileLight = colorFileNotPulled("●")
 			fileStatus = "not present"
 			numFilesNotPulled++
 		}
@@ -116,6 +121,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Print file info
+		log.OverwritePreviousLine()
 		log.Print("   ", fileLight,
 			log.ColorFile(relPath), "",
 			log.ColorFaint(humanize.Bytes(metadata.FileSize)), "",
@@ -137,9 +143,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	// Print overview
 	log.Print(color.New(color.Bold).Sprint("\ntotals"))
 	log.Print(
-		colorFilePulled.Sprint(numFilesPulled), "up to date ",
-		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
-		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
+		colorFilePulled(numFilesPulled), "up to date ",
+		colorFileOutdated(numFilesOutdated), "out of date ",
+		colorFileNotPulled(numFilesNotPulled), "not present ",
 	)
 
 	log.Dump(jsonLogger)
