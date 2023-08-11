@@ -51,6 +51,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
 			log.Print(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to get relative path",
+				Location: path,
+			})
+
 			continue
 		}
 
@@ -58,6 +64,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		metadata, err := meta.Load(path)
 		if err != nil {
 			log.Print(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "file not in devious",
+				Location: relPath,
+			})
+
 			continue
 		}
 
@@ -78,6 +90,10 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 		// Print file info
 		log.Print("   ", fileStatus, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
+		log.JsonLogger.Files[relPath] = log.JsonFile{
+			Action: "status",
+			Status: fileStatus,
+		}
 	}
 
 	// Print overview

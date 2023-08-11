@@ -12,7 +12,8 @@ type JsonAction struct {
 }
 
 type JsonFile struct {
-	Path string `json:"path"`
+	Action string `json:"action"`
+	Status string `json:"status"`
 }
 
 type JsonIssue struct {
