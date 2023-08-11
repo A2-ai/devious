@@ -15,10 +15,13 @@ import (
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
 	type jsonFileResult struct {
-		Path     string `json:"path"`
-		Status   string `json:"status"`
-		FileSize uint64 `json:"fileSize"`
-		FileHash string `json:"fileHash"`
+		Path      string `json:"path"`
+		Status    string `json:"status"`
+		FileSize  uint64 `json:"fileSize"`
+		FileHash  string `json:"fileHash"`
+		Timestamp string `json:"timestamp"`
+		User      string `json:"user"`
+		Message   string `json:"message"`
 	}
 
 	type jsonResult struct {
@@ -121,10 +124,13 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			log.ColorFaint(metadata.Message),
 		)
 		jsonLogger.Files = append(jsonLogger.Files, jsonFileResult{
-			Path:     relPath,
-			Status:   fileStatus,
-			FileSize: metadata.FileSize,
-			FileHash: metadata.FileHash,
+			Path:      relPath,
+			Status:    fileStatus,
+			FileSize:  metadata.FileSize,
+			FileHash:  metadata.FileHash,
+			Timestamp: timestamp,
+			User:      metadata.User,
+			Message:   metadata.Message,
 		})
 	}
 
