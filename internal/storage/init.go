@@ -49,7 +49,7 @@ func Init(rootDir string, storageDir string) error {
 			log.Print(log.ColorGreen("✔"), "Created storage directory")
 		} else {
 			log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
-				Action: "create storage directory",
+				Action: "created storage directory",
 				Path:   storageDir,
 			})
 		}
@@ -107,7 +107,7 @@ func Init(rootDir string, storageDir string) error {
 		log.Print("    storage dir", log.ColorFile(storageDir))
 	} else {
 		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
-			Action: "write config",
+			Action: "wrote config",
 			Path:   filepath.Join(rootDir, config.ConfigFileName),
 		})
 	}
