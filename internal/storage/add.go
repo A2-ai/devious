@@ -7,20 +7,24 @@ import (
 	"dvs/internal/meta"
 	"os"
 	"path/filepath"
-
-	"golang.org/x/exp/slog"
 )
 
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	log.RawLog("    Generating hash...")
+	log.Print("    Generating hash...")
+
 	fileHash, err := file.GetFileHash(localPath)
 	if err != nil {
 		return fileHash, err
 	}
+
 	log.OverwritePreviousLine()
-	log.RawLog("    Generating hash...", log.ColorGreen("✔"))
+	log.Print("    Generating hash...", log.ColorGreen("✔"))
+	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+		Action: "generated hash",
+		Path:   localPath,
+	})
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
@@ -29,14 +33,24 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	if err != nil {
 		return fileHash, err
 	}
+
 	log.OverwritePreviousLine()
-	log.RawLog("    Cleaning up...", log.ColorGreen("✔"))
+	log.Print("    Cleaning up...", log.ColorGreen("✔"))
+	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+		Action: "copied file",
+		Path:   localPath,
+	})
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
 	var fileSize uint64
 	if err != nil {
-		slog.Warn("Failed to get file info", slog.String("path", localPath))
+		log.Print(log.ColorYellow("⚠"), "Failed to get file info", log.ColorFaint(err.Error()))
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "failed to get file info",
+			Location: localPath,
+		})
 		fileSize = 0
 	} else {
 		fileSize = uint64(fileInfo.Size())
@@ -53,13 +67,19 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	}
 
 	// Add file to gitignore
-	log.RawLog("    Adding file to gitignore...")
+	log.Print("    Adding gitignore entry...")
+
 	err = git.AddIgnoreEntry(gitDir, localPath, dry)
 	if err != nil {
 		return fileHash, err
 	}
+
 	log.OverwritePreviousLine()
-	log.RawLog("    Adding gitignore entry...", log.ColorGreen("✔\n"))
+	log.Print("    Adding gitignore entry...", log.ColorGreen("✔\n"))
+	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+		Action: "added gitignore entry",
+		Path:   localPath,
+	})
 
 	return fileHash, nil
 }

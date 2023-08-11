@@ -14,6 +14,8 @@ import (
 )
 
 func runGetCmd(cmd *cobra.Command, args []string) error {
+	defer log.Dump(log.JsonLogger)
+
 	// Get git dir
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
@@ -23,7 +25,8 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	// Load the conf
 	conf, err := config.Read(gitDir)
 	if err != nil {
-		log.ThrowNotInitialized()
+		log.PrintNotInitialized()
+		log.DumpAndExit(0)
 	}
 
 	// Get flags
@@ -58,7 +61,12 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 				}
 				if len(metaFiles) == 0 {
 					absPath, _ := filepath.Abs(path)
-					log.RawLog(log.ColorYellow("⚠"), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
+					log.Print(log.ColorYellow("⚠"), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
+					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+						Severity: "warning",
+						Message:  "no devious files found in directory",
+						Location: absPath,
+					})
 				}
 			}
 			filesToGet = append(filesToGet, metaFiles...)
@@ -69,14 +77,19 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 	// Get the queued files
 	for i, file := range filesToGet {
-		log.RawLog(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
+		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
 
 		err = storage.Get(file, conf.StorageDir, gitDir, dry)
 		if err != nil {
-			log.RawLog(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+			log.Print(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to get file",
+				Location: file,
+			})
 		} else {
 			log.OverwritePreviousLine()
-			log.RawLog("    Cleaning up...", log.ColorGreen("✔\n"))
+			log.Print("    Cleaning up...", log.ColorGreen("✔\n"))
 		}
 	}
 

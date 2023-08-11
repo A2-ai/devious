@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/dustin/go-humanize"
-	"golang.org/x/exp/slog"
 )
 
 type WriteProgress struct {
@@ -20,7 +19,7 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 	wp.bytes += uint64(n)
 
 	log.OverwritePreviousLine()
-	log.RawLog("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
+	log.Print("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
 
 	return n, nil
 }
@@ -29,7 +28,6 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 func Copy(srcPath string, destPath string, dry bool) error {
 	// Ignore .. and . paths
 	if srcPath == ".." || srcPath == "." {
-		slog.Error("Invalid source path", slog.String("path", srcPath))
 		return os.ErrInvalid
 	}
 
@@ -68,7 +66,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 		defer dst.Close()
 
-		log.RawLog()
+		log.Print()
 
 		// Copy the file
 		_, err := io.Copy(dst, src)
@@ -77,10 +75,14 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 
 		log.OverwritePreviousLine()
-		log.RawLog("    Writing file...", log.ColorGreen("✔"))
+		log.Print("    Writing file...", log.ColorGreen("✔"))
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "wrote file",
+			Path:   destPath,
+		})
 	}
 
-	log.RawLog("    Cleaning up...")
+	log.Print("    Cleaning up...")
 
 	return nil
 }

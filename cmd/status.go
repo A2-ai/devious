@@ -13,6 +13,19 @@ import (
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
+	type jsonFileResult struct {
+		Path     string `json:"path"`
+		Status   string `json:"status"`
+		FileSize uint64 `json:"fileSize"`
+		FileHash string `json:"fileHash"`
+	}
+
+	type jsonResult struct {
+		Files  []jsonFileResult `json:"files"`
+		Errors []log.JsonIssue  `json:"errors"`
+	}
+
+	jsonLogger := jsonResult{}
 	var metaPaths []string
 
 	// If no arguments are provided, get the status of all files in the current git repository
@@ -32,7 +45,6 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create colors
-	colorFaintBold := color.New(color.Faint, color.Bold)
 	colorFilePulled := color.New(color.FgGreen, color.Bold)
 	colorFileOutdated := color.New(color.FgHiYellow, color.Bold)
 	colorFileNotPulled := color.New(color.FgRed, color.Bold)
@@ -43,7 +55,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	numFilesNotPulled := 0
 
 	// Print info about each file
-	log.RawLog(color.New(color.Bold).Sprint("file info "),
+	log.Print(color.New(color.Bold).Sprint("file info "),
 		colorFilePulled.Sprint("●"), "up to date ",
 		colorFileOutdated.Sprint("●"), "out of date ",
 		colorFileNotPulled.Sprint("●"), "not present ",
@@ -51,43 +63,67 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
-			log.RawLog(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			log.Print(log.ColorRed("\n✘"), "Failed to get relative path", log.ColorFaint(err.Error()))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to get relative path",
+				Location: path,
+			})
+
 			continue
 		}
 
 		// Get file info
 		metadata, err := meta.Load(path)
 		if err != nil {
-			log.RawLog(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			log.Print(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "file not in devious",
+				Location: relPath,
+			})
+
 			continue
 		}
 
 		// Determine file tag based on file status
+		var fileLight string
 		var fileStatus string
 		_, statErr := os.Stat(path)
 		fileHash, hashErr := file.GetFileHash(path)
 		if statErr == nil && hashErr == nil && fileHash == metadata.FileHash {
-			fileStatus = colorFilePulled.Sprint("●")
+			fileLight = colorFilePulled.Sprint("●")
+			fileStatus = "up to date"
 			numFilesPulled++
 		} else if statErr == nil {
-			fileStatus = colorFileOutdated.Sprint("●")
+			fileLight = colorFileOutdated.Sprint("●")
+			fileStatus = "out of date"
 			numFilesOutdated++
 		} else {
-			fileStatus = colorFileNotPulled.Sprint("●")
+			fileLight = colorFileNotPulled.Sprint("●")
+			fileStatus = "not present"
 			numFilesNotPulled++
 		}
 
 		// Print file info
-		log.RawLog("   ", fileStatus, colorFaintBold.Sprint(relPath), " ", color.New(color.Faint).Sprint(humanize.Bytes(metadata.FileSize)))
+		log.Print("   ", fileLight, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
+		jsonLogger.Files = append(jsonLogger.Files, jsonFileResult{
+			Path:     relPath,
+			Status:   fileStatus,
+			FileSize: metadata.FileSize,
+			FileHash: metadata.FileHash,
+		})
 	}
 
 	// Print overview
-	log.RawLog(color.New(color.Bold).Sprint("\ntotals"))
-	log.RawLog(
+	log.Print(color.New(color.Bold).Sprint("\ntotals"))
+	log.Print(
 		colorFilePulled.Sprint(numFilesPulled), "up to date ",
 		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
 		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
 	)
+
+	log.Dump(jsonLogger)
 
 	return nil
 }
@@ -95,7 +131,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "status [file]",
-		Short: "Gets the status of devious files in the current git repository, or a specific file if specified",
+		Short: "Gets the status of files tracked by devious",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},

@@ -4,24 +4,33 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/log"
 	"dvs/internal/storage"
-	"os"
 
 	"github.com/spf13/cobra"
 )
 
-func runInitCmd(cmd *cobra.Command, args []string) error {
+func getInitRunner(cmd *cobra.Command, args []string) error {
+	defer log.Dump(log.JsonLogger)
+
 	// Get git root
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
-		os.Exit(1)
-		return err
+		log.Print(log.ColorRed("✘"), "Failed to get git root", log.ColorFaint(err.Error()))
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "error",
+			Message:  "failed to get git root",
+		})
+		log.DumpAndExit(1)
 	}
 
 	// Initialize
 	err = storage.Init(gitDir, args[0])
 	if err != nil {
-		os.Exit(1)
-		return err
+		log.Print(log.ColorRed("✘"), "Failed to initialize devious", log.ColorFaint(err.Error()))
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "error",
+			Message:  "failed to initialize devious",
+		})
+		log.DumpAndExit(1)
 	}
 
 	return nil
@@ -36,7 +45,7 @@ func getInitCmd() *cobra.Command {
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},
-		RunE: runInitCmd,
+		RunE: getInitRunner,
 	}
 
 	return cmd
