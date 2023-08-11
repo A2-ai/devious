@@ -22,7 +22,7 @@ func Print(args ...any) {
 }
 
 func PrintLogo() {
-	Print("👺 Devious\n")
+	Print("🌀 Devious\n")
 }
 
 func PrintNotInitialized() {
