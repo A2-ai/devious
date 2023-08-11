@@ -41,18 +41,35 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		if err == nil {
 			if !slices.Contains(globMatches, path) {
 				log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
+				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+					Severity: "warning",
+					Message:  fmt.Sprintf("Skipping invalid path %s", path),
+					Location: path,
+				})
 			}
 
 			for _, match := range globMatches {
 				fileStat, err := os.Stat(match)
 				if err != nil {
 					log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
+					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+						Severity: "warning",
+						Message:  "skipped invalid path",
+						Location: match,
+					})
+
 					continue
 				}
 
 				// Skip directories
 				if fileStat.IsDir() {
 					log.Print(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
+					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+						Severity: "warning",
+						Message:  "skipped directory",
+						Location: match,
+					})
+
 					continue
 				}
 
@@ -67,7 +84,13 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Add each file to storage
 	for i, file := range filesToAdd {
 		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
-		storage.Add(file, conf.StorageDir, gitDir, dry)
+
+		_, err := storage.Add(file, conf.StorageDir, gitDir, dry)
+
+		if err != nil {
+			log.Print(log.ColorRed("✗"), log.ColorFile(file), "\n")
+			return err
+		}
 	}
 
 	return nil
