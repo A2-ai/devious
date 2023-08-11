@@ -7,8 +7,6 @@ import (
 	"dvs/internal/meta"
 	"os"
 	"path/filepath"
-
-	"golang.org/x/exp/slog"
 )
 
 // Remove a file from storage
@@ -33,7 +31,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 			log.Print("    Removing file from storage...", log.ColorRed("✘ not present"))
 		}
 	} else {
-		slog.Info("Dry run: removed file from storage", slog.String("path", storagePath))
+		log.Print("    Removing file from storage...", log.ColorFaint("skipped (dry run)"))
 	}
 
 	// Remove path from gitignore

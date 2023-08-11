@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/exp/slog"
 )
 
 func AddIgnoreEntry(gitDir string, path string, dry bool) error {
@@ -19,7 +17,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Open the gitignore file, creating one if it doesn't exist
 	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		slog.Error("Failed to open gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 	defer ignoreFile.Close()
@@ -31,7 +28,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Check if the file is already in the gitignore file
 	fileBytes, err := io.ReadAll(ignoreFile)
 	if err != nil {
-		slog.Error("Failed to read gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 	if strings.Contains(string(fileBytes), ignoreEntry) {
@@ -41,7 +37,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	// Add the file to the gitignore file
 	_, err = ignoreFile.WriteString("\n\n# Devious entry\n" + ignoreEntry)
 	if err != nil {
-		slog.Error("Failed to write to gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 
@@ -63,7 +58,6 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	}
 	ignoreFile, err := os.OpenFile(ignoreFilePath, os.O_RDWR, 0644)
 	if err != nil {
-		slog.Error("Failed to open gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 	defer ignoreFile.Close()
@@ -72,7 +66,6 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	ignoreBytes, err := io.ReadAll(ignoreFile)
 	ignoreFile.Seek(0, 0)
 	if err != nil {
-		slog.Error("Failed to read gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
 	ignoreContents := strings.Split(string(ignoreBytes), "\n")
@@ -80,7 +73,6 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 		if line == ignoreEntry {
 			err := removeLines(ignoreFile, i-1, 3)
 			if err != nil {
-				slog.Error("Failed to remove lines from gitignore file", slog.String("error", err.Error()))
 				return err
 			}
 		}

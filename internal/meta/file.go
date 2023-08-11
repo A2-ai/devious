@@ -3,8 +3,6 @@ package meta
 import (
 	"encoding/json"
 	"os"
-
-	"golang.org/x/exp/slog"
 )
 
 // Creates a metadata file
@@ -16,20 +14,17 @@ func Save(metadata Metadata, path string, dry bool) (err error) {
 
 	metadataFile, err = os.Create(path + FileExtension)
 	if err != nil {
-		slog.Error("Failed to create metadata file", slog.String("path", path))
 		return err
 	}
 	defer metadataFile.Close()
 
 	jsonBytes, err := json.MarshalIndent(metadata, "", "  ")
 	if err != nil {
-		slog.Error("Failed to encode metadata", slog.String("path", path))
 		return err
 	}
 
 	_, err = metadataFile.Write(jsonBytes)
 	if err != nil {
-		slog.Error("Failed to write metadata", slog.String("path", path))
 		return err
 	}
 

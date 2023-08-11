@@ -36,7 +36,12 @@ func runRemoveCmd(cmd *cobra.Command, args []string) error {
 
 		err = storage.Remove(path, conf, gitDir, dry)
 		if err != nil {
-			log.Print(log.ColorRed("    ✘"), "File is not tracked in devious\n")
+			log.Print(log.ColorRed("    ✗"), "Failed to remove file", log.ColorFaint(err.Error()))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to remove from storage",
+				Location: path,
+			})
 		}
 	}
 

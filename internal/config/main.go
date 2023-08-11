@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v3"
 )
 
@@ -35,7 +34,6 @@ func Write(config Config, dir string) error {
 	// Create config file
 	dvsFile, err := os.Create(filepath.Join(dir, ConfigFileName))
 	if err != nil {
-		slog.Error("Failed to create config file", slog.String("dir", dir))
 		return err
 	}
 	defer dvsFile.Close()
@@ -43,14 +41,12 @@ func Write(config Config, dir string) error {
 	// Convert config to YAML
 	configYaml, err := yaml.Marshal(config)
 	if err != nil {
-		slog.Error("Failed to convert config to YAML", slog.String("dir", dir))
 		return err
 	}
 
 	// Write the default config to the file as YAML
 	_, err = dvsFile.Write([]byte(configYaml))
 	if err != nil {
-		slog.Error("Failed to write config", slog.String("dir", dir))
 		return err
 	}
 

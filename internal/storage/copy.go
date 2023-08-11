@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/dustin/go-humanize"
-	"golang.org/x/exp/slog"
 )
 
 type WriteProgress struct {
@@ -29,7 +28,6 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 func Copy(srcPath string, destPath string, dry bool) error {
 	// Ignore .. and . paths
 	if srcPath == ".." || srcPath == "." {
-		slog.Error("Invalid source path", slog.String("path", srcPath))
 		return os.ErrInvalid
 	}
 
