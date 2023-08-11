@@ -10,30 +10,17 @@ import (
 )
 
 func getInitRunner(cmd *cobra.Command, args []string) error {
-	var jsonLog *log.JsonLog
-	json, err := cmd.Flags().GetBool("json")
-	if err != nil {
-		return err
-	}
-	if json {
-		jsonLog = &log.JsonLog{}
-	}
-
 	// Get git root
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
-		log.Dump(jsonLog)
 		os.Exit(1)
 	}
 
 	// Initialize
-	err = storage.Init(gitDir, args[0], jsonLog)
+	err = storage.Init(gitDir, args[0])
 	if err != nil {
-		log.Dump(jsonLog)
 		os.Exit(1)
 	}
-
-	log.Dump(jsonLog)
 
 	return nil
 }

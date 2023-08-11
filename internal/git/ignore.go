@@ -25,7 +25,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	defer ignoreFile.Close()
 
 	if dry {
-		slog.Debug("Dry run: added file to gitignore", slog.String("git-dir", gitDir), slog.String("file", path))
 		return nil
 	}
 
@@ -36,7 +35,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 		return err
 	}
 	if strings.Contains(string(fileBytes), ignoreEntry) {
-		slog.Debug("Path already in gitignore file, not adding", slog.String("git-dir", gitDir), slog.String("file", path))
 		return nil
 	}
 
@@ -46,8 +44,6 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 		slog.Error("Failed to write to gitignore file", slog.String("git-dir", gitDir))
 		return err
 	}
-
-	slog.Debug("Adding file to gitignore", slog.String("git-dir", gitDir), slog.String("file", path))
 
 	return err
 }
@@ -63,7 +59,6 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	// if the gitignore file doesn't exist, there's nothing to do
 	ignoreFilePath := filepath.Join(gitDir, ".gitignore")
 	if _, err := os.Stat(ignoreFilePath); os.IsNotExist(err) {
-		slog.Debug("gitignore file does not exist, nothing to do", slog.String("git-dir", gitDir))
 		return nil
 	}
 	ignoreFile, err := os.OpenFile(ignoreFilePath, os.O_RDWR, 0644)
@@ -92,11 +87,8 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	}
 
 	if dry {
-		slog.Debug("Dry run: removed gitignore entry", slog.String("git-dir", gitDir), slog.String("file", path))
 		return nil
 	}
-
-	slog.Debug("Removed gitignore entry", slog.String("git-dir", gitDir), slog.String("file", path))
 
 	return nil
 }

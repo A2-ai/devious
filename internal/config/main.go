@@ -28,8 +28,6 @@ func Read(rootDir string) (Config, error) {
 		return Config{}, err
 	}
 
-	slog.Debug("Loaded config", slog.String("storage-dir", config.StorageDir))
-
 	return config, nil
 }
 

@@ -53,7 +53,6 @@ func TestInitNoParent(t *testing.T) {
 	err = Init(
 		tempDir,
 		filepath.Join(tempDir, "nested1/nested2"),
-		nil,
 	)
 	if err != nil {
 		t.Error("Function returned error", err)
@@ -77,14 +76,12 @@ func TestInitAlreadyExists(t *testing.T) {
 	err = Init(
 		tempDir,
 		filepath.Join(tempDir, "storage"),
-		nil,
 	)
 
 	// Run function again
 	err = Init(
 		tempDir,
 		filepath.Join(tempDir, "storage"),
-		nil,
 	)
 	if err != nil {
 		t.Error("Function returned error", err)

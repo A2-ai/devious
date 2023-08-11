@@ -53,8 +53,6 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 		}
 		log.OverwritePreviousLine()
 		log.Print("    Removing metadata file...", log.ColorGreen("✔\n"))
-	} else {
-		slog.Debug("Dry run: removed metadata file", slog.String("path", path))
 	}
 
 	return nil

@@ -14,13 +14,24 @@ import (
 // Adds a file to storage, returning the file hash
 func Add(localPath string, storageDir string, gitDir string, dry bool) (hash string, err error) {
 	// Create file hash
-	log.Print("    Generating hash...")
+	if log.JsonLogger == nil {
+		log.Print("    Generating hash...")
+	}
+
 	fileHash, err := file.GetFileHash(localPath)
 	if err != nil {
 		return fileHash, err
 	}
-	log.OverwritePreviousLine()
-	log.Print("    Generating hash...", log.ColorGreen("✔"))
+
+	if log.JsonLogger == nil {
+		log.OverwritePreviousLine()
+		log.Print("    Generating hash...", log.ColorGreen("✔"))
+	} else {
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "generated hash",
+			Path:   localPath,
+		})
+	}
 
 	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
 
@@ -29,8 +40,16 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	if err != nil {
 		return fileHash, err
 	}
-	log.OverwritePreviousLine()
-	log.Print("    Cleaning up...", log.ColorGreen("✔"))
+
+	if log.JsonLogger == nil {
+		log.OverwritePreviousLine()
+		log.Print("    Cleaning up...", log.ColorGreen("✔"))
+	} else {
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "copied file",
+			Path:   localPath,
+		})
+	}
 
 	// Get file size
 	fileInfo, err := os.Stat(localPath)
@@ -53,10 +72,28 @@ func Add(localPath string, storageDir string, gitDir string, dry bool) (hash str
 	}
 
 	// Add file to gitignore
-	log.Print("    Adding file to gitignore...")
+	if log.JsonLogger == nil {
+		log.Print("    Adding gitignore entry...")
+	} else {
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "add gitignore entry",
+			Path:   localPath,
+		})
+	}
+
 	err = git.AddIgnoreEntry(gitDir, localPath, dry)
 	if err != nil {
 		return fileHash, err
+	}
+
+	if log.JsonLogger == nil {
+		log.OverwritePreviousLine()
+		log.Print("    Adding gitignore entry...", log.ColorGreen("✔"))
+	} else {
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "add gitignore entry",
+			Path:   localPath,
+		})
 	}
 	log.OverwritePreviousLine()
 	log.Print("    Adding gitignore entry...", log.ColorGreen("✔\n"))

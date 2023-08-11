@@ -11,11 +11,8 @@ import (
 func Save(metadata Metadata, path string, dry bool) (err error) {
 	var metadataFile *os.File
 	if dry {
-		slog.Debug("Dry run: creating metadata file", slog.String("path", path))
 		return nil
 	}
-
-	slog.Debug("Creating metadata file", slog.String("path", path))
 
 	metadataFile, err = os.Create(path + FileExtension)
 	if err != nil {

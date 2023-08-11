@@ -14,6 +14,10 @@ var ColorFaint = color.New(color.Faint).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
 func Print(args ...any) {
+	if JsonLogger != nil {
+		return
+	}
+
 	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
 }
 
@@ -27,5 +31,9 @@ func ThrowNotInitialized() {
 }
 
 func OverwritePreviousLine() {
+	if JsonLogger != nil {
+		return
+	}
+
 	os.Stdout.Write([]byte("\033[1A\033[2K"))
 }
