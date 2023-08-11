@@ -14,6 +14,8 @@ import (
 )
 
 func runGetCmd(cmd *cobra.Command, args []string) error {
+	defer log.Dump(log.JsonLogger)
+
 	// Get git dir
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {

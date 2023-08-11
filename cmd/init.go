@@ -9,6 +9,8 @@ import (
 )
 
 func getInitRunner(cmd *cobra.Command, args []string) error {
+	defer log.Dump(log.JsonLogger)
+
 	// Get git root
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {

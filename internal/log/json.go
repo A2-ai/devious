@@ -12,7 +12,6 @@ type JsonAction struct {
 }
 
 type JsonFile struct {
-	Action string `json:"action"`
 	Status string `json:"status"`
 }
 
@@ -23,22 +22,19 @@ type JsonIssue struct {
 }
 
 type JsonLog struct {
-	Actions []JsonAction        `json:"actions"`
-	Files   map[string]JsonFile `json:"files"`
-	Issues  []JsonIssue         `json:"issues"`
+	Actions []JsonAction `json:"actions"`
+	Issues  []JsonIssue  `json:"issues"`
 }
 
-var JsonLogger *JsonLog = &JsonLog{
-	Files: make(map[string]JsonFile),
-}
+var JsonLogger *JsonLog = &JsonLog{}
 var JsonLogging bool = false
 
-func Dump() error {
+func Dump(s interface{}) error {
 	if !JsonLogging {
 		return nil
 	}
 
-	jsonBytes, err := json.MarshalIndent(JsonLogger, "", "    ")
+	jsonBytes, err := json.MarshalIndent(s, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -50,7 +46,7 @@ func Dump() error {
 }
 
 func DumpAndExit(code int) {
-	err := Dump()
+	err := Dump(JsonLogger)
 	if err != nil {
 		fmt.Println("Failed to dump JSON log:", err)
 	}

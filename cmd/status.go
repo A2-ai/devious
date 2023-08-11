@@ -13,6 +13,19 @@ import (
 )
 
 func runStatusCmd(cmd *cobra.Command, args []string) error {
+	type jsonFileResult struct {
+		Path     string `json:"path"`
+		Status   string `json:"status"`
+		FileSize uint64 `json:"fileSize"`
+		FileHash string `json:"fileHash"`
+	}
+
+	type jsonResult struct {
+		Files  []jsonFileResult `json:"files"`
+		Errors []log.JsonIssue  `json:"errors"`
+	}
+
+	jsonLogger := jsonResult{}
 	var metaPaths []string
 
 	// If no arguments are provided, get the status of all files in the current git repository
@@ -74,26 +87,32 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		}
 
 		// Determine file tag based on file status
+		var fileLight string
 		var fileStatus string
 		_, statErr := os.Stat(path)
 		fileHash, hashErr := file.GetFileHash(path)
 		if statErr == nil && hashErr == nil && fileHash == metadata.FileHash {
-			fileStatus = colorFilePulled.Sprint("●")
+			fileLight = colorFilePulled.Sprint("●")
+			fileStatus = "up to date"
 			numFilesPulled++
 		} else if statErr == nil {
-			fileStatus = colorFileOutdated.Sprint("●")
+			fileLight = colorFileOutdated.Sprint("●")
+			fileStatus = "out of date"
 			numFilesOutdated++
 		} else {
-			fileStatus = colorFileNotPulled.Sprint("●")
+			fileLight = colorFileNotPulled.Sprint("●")
+			fileStatus = "not present"
 			numFilesNotPulled++
 		}
 
 		// Print file info
-		log.Print("   ", fileStatus, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
-		log.JsonLogger.Files[relPath] = log.JsonFile{
-			Action: "status",
-			Status: fileStatus,
-		}
+		log.Print("   ", fileLight, log.ColorFile(relPath), " ", log.ColorFaint(humanize.Bytes(metadata.FileSize)))
+		jsonLogger.Files = append(jsonLogger.Files, jsonFileResult{
+			Path:     relPath,
+			Status:   fileStatus,
+			FileSize: metadata.FileSize,
+			FileHash: metadata.FileHash,
+		})
 	}
 
 	// Print overview
@@ -103,6 +122,8 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
 		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
 	)
+
+	log.Dump(jsonLogger)
 
 	return nil
 }

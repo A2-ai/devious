@@ -14,6 +14,8 @@ import (
 )
 
 func runAddCmd(cmd *cobra.Command, args []string) error {
+	defer log.Dump(log.JsonLogger)
+
 	// Get flags
 	dry, err := cmd.Flags().GetBool("dry")
 	if err != nil {
