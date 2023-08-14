@@ -6,20 +6,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/dustin/go-humanize"
+	"github.com/schollz/progressbar/v3"
 )
 
 type WriteProgress struct {
-	bytes uint64
-	total string
+	bytes int64
+	bar   *progressbar.ProgressBar
 }
 
 func (wp *WriteProgress) Write(p []byte) (int, error) {
 	n := len(p)
-	wp.bytes += uint64(n)
+	wp.bytes += int64(n)
 
-	log.OverwritePreviousLine()
-	log.Print("    Writing file... ", humanize.Bytes(wp.bytes), "out of", wp.total)
+	wp.bar.Set64(wp.bytes)
 
 	return n, nil
 }
@@ -43,12 +42,12 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	if err != nil {
 		return err
 	}
-	srcSize := uint64(srcStat.Size())
-	srcSizeHuman := humanize.Bytes(srcSize)
+	srcSize := srcStat.Size()
 
 	// Wrap source file in progress reader
+	bar := progressbar.DefaultBytes(srcSize, "    Writing file...")
 	src := io.TeeReader(srcFile, &WriteProgress{
-		total: srcSizeHuman,
+		bar: bar,
 	})
 
 	// Ensure destination exists
@@ -66,8 +65,6 @@ func Copy(srcPath string, destPath string, dry bool) error {
 		}
 		defer dst.Close()
 
-		log.Print()
-
 		// Copy the file
 		_, err := io.Copy(dst, src)
 		if err != nil {
@@ -84,5 +81,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 
 	log.Print("    Cleaning up...")
 
-	return nil
+	// Close the file again so we can catch any errors
+	// https://www.joeshaw.org/dont-defer-close-on-writable-files/
+	return dst.Close()
 }
