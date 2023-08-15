@@ -21,7 +21,16 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	storagePath := filepath.Join(storageDir, metadata.FileHash) + FileExtension
 
 	// Get local file's hash
-	localHash, _ := file.GetFileHash(localPath)
+	log.Print("    Calculating local hash...")
+
+	localHash, err := file.GetFileHash(localPath)
+
+	log.OverwritePreviousLine()
+	if err != nil {
+		log.Print("    Calculating local hash...", log.ColorRed("✘"))
+	} else {
+		log.Print("    Calculating local hash...", log.ColorGreen("✔"))
+	}
 
 	// Copy file to destination
 	// if the destination already exists and hash matched, skip copying
