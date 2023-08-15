@@ -48,7 +48,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 		log.OverwritePreviousLine()
 		log.Print("    Cleaning up...", log.ColorGreen("✔\n"))
 	} else {
-		log.Print(log.ColorGreen("    ✔"), "File already up to date\n")
+		log.Print("    Copying...", log.ColorGreen("✔ file already up to date\n"))
 	}
 
 	return nil
