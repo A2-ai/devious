@@ -37,6 +37,12 @@ func TestGetNoLongerInStorage(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Remove file locally manually
+	err = os.Remove(filepath.Join(tempDir, "test.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	// Remove file from storage manually
 	err = os.Remove(filepath.Join(tempDir, hash) + FileExtension)
 	if err != nil {
