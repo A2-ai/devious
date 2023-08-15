@@ -12,13 +12,16 @@ func getRootCmd() *cobra.Command {
 
 	cmd := &cobra.Command{
 		Use:   "dvs",
-		Short: "🌀 Devious\nA file linker that enables you to work with large files while keeping them under version control.\nSee https://github.com/A2-ai/devious for more information.",
+		Short: "🌀 Devious\nA file linker that allows you to version large files under Git.\nSee https://github.com/A2-ai/devious for more information.",
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if json {
 				log.JsonLogging = true
 			}
 		},
 	}
+
+	// Disable completion command
+	cmd.CompletionOptions.DisableDefaultCmd = true
 
 	// Add global flags
 	cmd.PersistentFlags().BoolVarP(&json, "json", "j", false, "log in JSON format")

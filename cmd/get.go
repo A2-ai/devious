@@ -95,9 +95,8 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 func getGetCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get <file> <another-file> ...",
+		Use:   "get <path> [another-path] ...",
 		Short: "Gets file(s) from storage",
-		Long:  `Gets file(s) from storage. If no arguments are provided, get all files in the current directory.`,
 		Args:  cobra.MinimumNArgs(1),
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()

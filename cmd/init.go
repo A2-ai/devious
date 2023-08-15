@@ -39,7 +39,7 @@ func getInitRunner(cmd *cobra.Command, args []string) error {
 func getInitCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init <storage-dir>",
-		Short: "Initializes devious in the current git repository with the provided storage directory",
+		Short: "Initializes devious with the provided storage directory",
 		Long:  "Initializes devious in the current git repository with the provided storage directory. The storage directory should be a location accessible by all users of the repository.",
 		Args:  cobra.ExactArgs(1),
 		PreRun: func(cmd *cobra.Command, args []string) {

@@ -144,8 +144,9 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 func getAddCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "add <file> <another-file> <glob-pattern> ...",
+		Use:   "add <glob> [another-glob] ...",
 		Short: "Adds file(s) to storage",
+		Long:  "Adds file(s) to storage.\nAccepts one or more globs, each representing a file or set of files to be tracked. Ignores files outside of current git repository.\n\nExample: " + log.ColorFaint("dvs add *.png subdir/*.csv") + "\nWill add all PNG files in the current directory and all CSV files in the subdir directory.",
 		Args:  cobra.MinimumNArgs(1),
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
