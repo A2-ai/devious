@@ -7,11 +7,11 @@ import (
 )
 
 type Metadata struct {
-	FileHash  string    `yaml:"file-hash"`
-	FileSize  uint64    `yaml:"file-size"`
-	Timestamp time.Time `yaml:"timestamp"`
-	Message   string    `yaml:"message"`
-	User      string    `yaml:"user"`
+	FileHash  string    `json:"blake3_checksum"`
+	FileSize  uint64    `json:"file_size_bytes"`
+	Timestamp time.Time `json:"timestamp"`
+	Message   string    `json:"message"`
+	User      string    `json:"user"`
 }
 
 // Creates a metadata file
