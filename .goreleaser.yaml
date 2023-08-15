@@ -39,18 +39,3 @@ changelog:
 
 release:
   prerelease: auto
-  footer: |
-    ## Installation
-    ### Linux
-    ```
-    sudo wget https://github.com/A2-ai/devious/releases/download/{{ .Tag }}/dvs_Linux_x86_64.tar.gz -O /tmp/dvs.tar.gz
-    sudo tar xzf /tmp/dvs.tar.gz dvs
-    sudo mv dvs /usr/local/bin/dvs
-    sudo chmod +x /usr/local/bin/dvs
-    ```
-
-    ### Linux (User)
-    This will download and run a script that adds ~/.local/bin to your PATH and installs dvs there.
-    ```
-    curl -o- https://raw.githubusercontent.com/A2-ai/devious/main/scripts/install_user.sh | bash -s https://github.com/A2-ai/devious/releases/download/{{ .Tag }}/dvs_Linux_x86_64.tar.gz
-    ```
