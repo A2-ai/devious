@@ -61,7 +61,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 				}
 				if len(metaFiles) == 0 {
 					absPath, _ := filepath.Abs(path)
-					log.Print(log.ColorYellow("⚠"), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
+					log.Print(log.ColorBold(log.ColorYellow("!")), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
 					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 						Severity: "warning",
 						Message:  "no devious files found in directory",
@@ -87,9 +87,6 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 				Message:  "failed to get file",
 				Location: file,
 			})
-		} else {
-			log.OverwritePreviousLine()
-			log.Print("    Cleaning up...", log.ColorGreen("✔\n"))
 		}
 	}
 

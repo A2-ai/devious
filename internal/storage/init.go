@@ -67,7 +67,7 @@ func Init(rootDir string, storageDir string) error {
 				Location: storageDir,
 			})
 		} else if len(dir) > 0 {
-			log.Print(log.ColorYellow("⚠"), "Storage directory isn't empty\n")
+			log.Print(log.ColorBold(log.ColorYellow("!")), "Storage directory isn't empty\n")
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 				Severity: "warning",
 				Message:  "storage directory not empty",

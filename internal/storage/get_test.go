@@ -6,7 +6,6 @@ import (
 	"testing"
 )
 
-// Gets a file from storage
 func TestGetNoLongerInStorage(t *testing.T) {
 	// Create temp directory
 	tempDir, err := os.MkdirTemp(".", "temp")
@@ -54,5 +53,76 @@ func TestGetNoLongerInStorage(t *testing.T) {
 	)
 	if err == nil {
 		t.Error("Function did not return error")
+	}
+}
+
+func TestGetAgainAfterLocalMod(t *testing.T) {
+	// Create temp directory
+	tempDir, err := os.MkdirTemp(".", "temp")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() {
+		err = os.RemoveAll(tempDir)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}()
+
+	// Create test file
+	err = os.WriteFile(filepath.Join(tempDir, "test.txt"), []byte("test"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Add file to storage
+	_, err = Add(
+		filepath.Join(tempDir, "test.txt"),
+		tempDir,
+		tempDir,
+		"test message",
+		false,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Get from storage
+	err = Get(
+		filepath.Join(tempDir, "test.txt"),
+		tempDir,
+		tempDir,
+		false,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Modify the file locally
+	err = os.WriteFile(filepath.Join(tempDir, "test.txt"), []byte("test2"), 0644)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Get from storage again
+	// File should return to original state
+	err = Get(
+		filepath.Join(tempDir, "test.txt"),
+		tempDir,
+		tempDir,
+		false,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Check file contents
+	data, err := os.ReadFile(filepath.Join(tempDir, "test.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(data) != "test" {
+		t.Error("File contents did not match")
 	}
 }
