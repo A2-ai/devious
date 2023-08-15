@@ -1,8 +1,10 @@
 package storage
 
 import (
+	"dvs/internal/log"
 	"dvs/internal/meta"
 	"errors"
+	"os"
 	"path/filepath"
 )
 
@@ -18,9 +20,18 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	storagePath := filepath.Join(storageDir, metadata.FileHash) + FileExtension
 
 	// Copy file to destination
-	err = Copy(storagePath, localPath, dry)
-	if err != nil {
-		return errors.New("failed to copy file")
+	// if the destination already exists, skip copying
+	_, err = os.Stat(storagePath)
+	if os.IsNotExist(err) {
+		err = Copy(storagePath, localPath, dry)
+		if err != nil {
+			return errors.New("failed to copy file")
+		}
+
+		log.OverwritePreviousLine()
+		log.Print("    Cleaning up...", log.ColorGreen("✔\n"))
+	} else {
+		log.Print(log.ColorBold(log.ColorYellow("    !")), "File already exists, not copying\n")
 	}
 
 	return nil

@@ -87,9 +87,6 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 				Message:  "failed to get file",
 				Location: file,
 			})
-		} else {
-			log.OverwritePreviousLine()
-			log.Print("    Cleaning up...", log.ColorGreen("✔\n"))
 		}
 	}
 

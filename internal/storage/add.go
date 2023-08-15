@@ -45,6 +45,8 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 			Action: "copied file",
 			Path:   localPath,
 		})
+	} else {
+		log.Print(log.ColorBold(log.ColorYellow("    !")), "File already exists, not copying")
 	}
 
 	// Get file size
