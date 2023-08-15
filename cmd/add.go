@@ -54,7 +54,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 		// Otherwise, add the path itself
 		if err == nil {
 			if !slices.Contains(globMatches, path) {
-				log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(path), "\n")
+				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(path), "\n")
 				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 					Severity: "warning",
 					Message:  fmt.Sprintf("Skipping invalid path %s", path),
@@ -65,7 +65,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			for _, match := range globMatches {
 				fileStat, err := os.Stat(match)
 				if err != nil {
-					log.Print(log.ColorYellow("⚠"), "Skipping invalid path", log.ColorFile(match), "\n")
+					log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(match), "\n")
 					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 						Severity: "warning",
 						Message:  "skipped invalid path",
@@ -77,7 +77,7 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 				// Skip directories
 				if fileStat.IsDir() {
-					log.Print(log.ColorYellow("⚠"), "Skipping directory", log.ColorFile(match), "\n")
+					log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping directory", log.ColorFile(match), "\n")
 					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 						Severity: "warning",
 						Message:  "skipped directory",
