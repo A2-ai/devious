@@ -39,7 +39,7 @@ func Dump(s interface{}) error {
 		return err
 	}
 
-	os.Stdout.Write(jsonBytes)
+	logOut.Write(jsonBytes)
 	fmt.Print("\n")
 
 	return nil
