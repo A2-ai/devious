@@ -49,12 +49,8 @@ release:
     sudo chmod +x /usr/local/bin/dvs
     ```
 
-    ### Linux (User) 
-    Assumes `~/bin` is available in your PATH
-
+    ### Linux (User)
+    This will download and run a script that adds ~/.local/bin to your PATH and installs dvs there.
     ```
-    wget https://github.com/A2-ai/devious/releases/download/{{ .Tag }}/dvs_Linux_x86_64.tar.gz -O ~/dvs.tar.gz
-    tar xzf ~/dvs.tar.gz dvs
-    mv dvs ~/.local/bin/dvs
-    chmod +x ~/.local/bin/dvs
+    curl -o- https://raw.githubusercontent.com/A2-ai/devious/main/scripts/install_user.sh | bash
     ```
