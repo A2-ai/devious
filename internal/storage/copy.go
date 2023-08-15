@@ -18,7 +18,9 @@ func (wp *WriteProgress) Write(p []byte) (int, error) {
 	n := len(p)
 	wp.bytes += int64(n)
 
-	wp.bar.Set64(wp.bytes)
+	if wp.bar != nil {
+		wp.bar.Set64(wp.bytes)
+	}
 
 	return n, nil
 }
@@ -45,7 +47,10 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	srcSize := srcStat.Size()
 
 	// Wrap source file in progress reader
-	bar := progressbar.DefaultBytes(srcSize, "    Writing file...")
+	var bar *progressbar.ProgressBar
+	if !log.JsonLogging {
+		bar = progressbar.DefaultBytes(srcSize, "    Writing file...")
+	}
 	src := io.TeeReader(srcFile, &WriteProgress{
 		bar: bar,
 	})

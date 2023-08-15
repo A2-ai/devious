@@ -1,7 +1,9 @@
 package log
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/fatih/color"
@@ -13,12 +15,27 @@ var ColorYellow = color.New(color.FgYellow).Sprint
 var ColorFaint = color.New(color.Faint).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
 
+var logOut io.Writer = os.Stdout
+
+func CaptureOutput(f func() error) (string, error) {
+	var buf bytes.Buffer
+
+	logOut = &buf
+	err := f()
+	logOut = os.Stdout
+	if err != nil {
+		return buf.String(), err
+	}
+
+	return buf.String(), nil
+}
+
 func Print(args ...any) {
 	if JsonLogging {
 		return
 	}
 
-	os.Stdout.Write([]byte(fmt.Sprintln(args...)))
+	logOut.Write([]byte(fmt.Sprintln(args...)))
 }
 
 func PrintLogo() {
@@ -38,5 +55,5 @@ func OverwritePreviousLine() {
 		return
 	}
 
-	os.Stdout.Write([]byte("\033[1A\033[2K"))
+	logOut.Write([]byte("\033[1A\033[2K"))
 }
