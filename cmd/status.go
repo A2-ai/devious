@@ -53,7 +53,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	colorFileOutdated := color.New(color.FgHiYellow, color.Bold).Sprint
 	colorFileNotPulled := color.New(color.FgRed, color.Bold).Sprint
 	iconPulled := colorFilePulled("✔")
-	iconOutdated := colorFileOutdated("◆")
+	iconOutdated := colorFileOutdated("!")
 	iconNotPulled := colorFileNotPulled("✘")
 
 	// Track number of files
