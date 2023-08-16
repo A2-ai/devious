@@ -28,6 +28,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 			log.OverwritePreviousLine()
 			log.Print("    Removing file from storage...", log.ColorGreen("✔"))
 		} else {
+			log.OverwritePreviousLine()
 			log.Print("    Removing file from storage...", log.ColorRed("✘ not present"))
 		}
 	} else {
