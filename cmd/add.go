@@ -51,8 +51,8 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	// Queue file paths
 	var queuedPaths []string
 	for _, glob := range args {
-		// Strip meta file extension
-		glob = strings.TrimSuffix(glob, meta.FileExtension)
+		// Remove meta file extension
+		glob = strings.ReplaceAll(glob, meta.FileExtension, "")
 
 		// Skip if already queued
 		if slices.Contains(queuedPaths, glob) {
