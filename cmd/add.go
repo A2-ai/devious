@@ -4,6 +4,7 @@ import (
 	"dvs/internal/config"
 	"dvs/internal/git"
 	"dvs/internal/log"
+	"dvs/internal/meta"
 	"dvs/internal/storage"
 	"fmt"
 	"os"
@@ -71,36 +72,39 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			})
 		}
 
-		for _, match := range globMatches {
+		for _, path := range globMatches {
+			// Strip meta file extension if present
+			path = strings.TrimSuffix(path, meta.FileExtension)
+
 			// Ensure file is inside of the git repo
-			absPath, err := filepath.Abs(match)
+			absPath, err := filepath.Abs(path)
 			if err != nil {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(match), "\n")
+				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(path), "\n")
 				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 					Severity: "warning",
 					Message:  "skipped invalid path",
-					Location: match,
+					Location: path,
 				})
 				continue
 			}
 			if strings.TrimPrefix(absPath, gitDir) == absPath {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping file outside of git repository", log.ColorFile(match), "\n")
+				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping file outside of git repository", log.ColorFile(path), "\n")
 				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 					Severity: "warning",
 					Message:  "skipped file outside of git repository",
-					Location: match,
+					Location: path,
 				})
 				continue
 			}
 
 			// Check if file exists
-			fileStat, err := os.Stat(match)
+			fileStat, err := os.Stat(path)
 			if err != nil {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(match), "\n")
+				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(path), "\n")
 				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 					Severity: "warning",
 					Message:  "skipped invalid path",
-					Location: match,
+					Location: path,
 				})
 
 				continue
@@ -108,18 +112,18 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 
 			// Skip directories
 			if fileStat.IsDir() {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping directory", log.ColorFile(match), "\n")
+				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping directory", log.ColorFile(path), "\n")
 				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 					Severity: "warning",
 					Message:  "skipped directory",
-					Location: match,
+					Location: path,
 				})
 
 				continue
 			}
 
 			// Add the file to the queue
-			filesToAdd = append(filesToAdd, match)
+			filesToAdd = append(filesToAdd, path)
 		}
 	}
 
