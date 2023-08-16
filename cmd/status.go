@@ -49,9 +49,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Create colors
-	colorFilePulled := color.New(color.FgGreen, color.Bold)
-	colorFileOutdated := color.New(color.FgHiYellow, color.Bold)
-	colorFileNotPulled := color.New(color.FgRed, color.Bold)
+	colorFilePulled := color.New(color.FgGreen, color.Bold).Sprint
+	colorFileOutdated := color.New(color.FgHiYellow, color.Bold).Sprint
+	colorFileNotPulled := color.New(color.FgRed, color.Bold).Sprint
+	iconPulled := colorFilePulled("✔")
+	iconOutdated := colorFileOutdated("!")
+	iconNotPulled := colorFileNotPulled("✘")
 
 	// Track number of files
 	numFilesPulled := 0
@@ -60,9 +63,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 	// Print info about each file
 	log.Print(color.New(color.Bold).Sprint("file info "),
-		colorFilePulled.Sprint("●"), "up to date ",
-		colorFileOutdated.Sprint("●"), "out of date ",
-		colorFileNotPulled.Sprint("●"), "not present ",
+		iconPulled, "up to date ",
+		iconOutdated, "out of date ",
+		iconNotPulled, "not present ",
 	)
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
@@ -96,15 +99,15 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		_, statErr := os.Stat(path)
 		fileHash, hashErr := file.GetFileHash(path)
 		if statErr == nil && hashErr == nil && fileHash == metadata.FileHash {
-			fileLight = colorFilePulled.Sprint("●")
+			fileLight = iconPulled
 			fileStatus = "up to date"
 			numFilesPulled++
 		} else if statErr == nil {
-			fileLight = colorFileOutdated.Sprint("●")
+			fileLight = iconOutdated
 			fileStatus = "out of date"
 			numFilesOutdated++
 		} else {
-			fileLight = colorFileNotPulled.Sprint("●")
+			fileLight = iconNotPulled
 			fileStatus = "not present"
 			numFilesNotPulled++
 		}
@@ -137,9 +140,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	// Print overview
 	log.Print(color.New(color.Bold).Sprint("\ntotals"))
 	log.Print(
-		colorFilePulled.Sprint(numFilesPulled), "up to date ",
-		colorFileOutdated.Sprint(numFilesOutdated), "out of date ",
-		colorFileNotPulled.Sprint(numFilesNotPulled), "not present ",
+		colorFilePulled(numFilesPulled), "up to date ",
+		colorFileOutdated(numFilesOutdated), "out of date ",
+		colorFileNotPulled(numFilesNotPulled), "not present ",
 	)
 
 	log.Dump(jsonLogger)
