@@ -10,7 +10,7 @@ if [ -z "$INSTALL_URL" ]; then
 fi
 
 # Create the user bin directory and add it to the PATH if it doesn't exist
-mkdir ~/$INSTALL_DIR && echo 'export PATH="$HOME/'$INSTALL_DIR':$PATH"' | tee -a ~/.bashrc ~/.profile
+mkdir ~/$INSTALL_DIR && (echo 'export PATH="$HOME/'$INSTALL_DIR':$PATH"' | tee -a ~/.bashrc ~/.profile) && source ~/.bashrc
 
 # Download and extract the binary
 cd ~/$INSTALL_DIR
