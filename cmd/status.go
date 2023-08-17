@@ -164,9 +164,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "status [path]",
+		Use:   "status [glob] [another-glob]",
 		Short: "Gets the status of files tracked by devious",
-		Long:  "Gets the status of files tracked by devious. If path(s) are provided, only those files will be checked. Otherwise, all files in the current git repository will be checked.",
+		Long:  "Gets the status of files tracked by devious. If glob(s) are provided, only those globs will be checked. Otherwise, all files in the current git repository will be checked.",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},
