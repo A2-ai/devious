@@ -5,8 +5,9 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
+
+	"golang.org/x/exp/slices"
 )
 
 var FileExtension = ".dvsmeta"
