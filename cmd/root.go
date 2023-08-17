@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "dev"
+
 func getRootCmd() *cobra.Command {
 	var json bool
 
@@ -19,6 +21,10 @@ func getRootCmd() *cobra.Command {
 			}
 		},
 	}
+
+	// Version
+	cmd.Version = Version
+	cmd.SetVersionTemplate("🌀 Devious {{.Version}}\n")
 
 	// Disable completion command
 	cmd.CompletionOptions.DisableDefaultCmd = true
