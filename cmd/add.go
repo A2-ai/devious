@@ -4,6 +4,7 @@ import (
 	"dvs/internal/config"
 	"dvs/internal/git"
 	"dvs/internal/log"
+	"dvs/internal/meta"
 	"dvs/internal/storage"
 	"fmt"
 	"os"
@@ -48,84 +49,69 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Queue file paths
-	var filesToAdd []string
-	for _, path := range args {
-		globMatches, err := filepath.Glob(path)
+	var queuedPaths []string
+	for _, glob := range args {
+		// Remove meta file extension
+		glob = strings.ReplaceAll(glob, meta.FileExtension, "")
 
+		// Skip if already queued
+		if slices.Contains(queuedPaths, glob) {
+			continue
+		}
+
+		// Ensure file is inside of the git repo
+		absPath, err := filepath.Abs(glob)
 		if err != nil {
-			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(path), "\n")
+			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(glob), "\n")
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 				Severity: "warning",
-				Message:  fmt.Sprintf("Skipping invalid path %s", path),
-				Location: path,
+				Message:  "skipped invalid path",
+				Location: glob,
+			})
+			continue
+		}
+		if strings.TrimPrefix(absPath, gitDir) == absPath {
+			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping file outside of git repository", log.ColorFile(glob), "\n")
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "warning",
+				Message:  "skipped file outside of git repository",
+				Location: glob,
 			})
 			continue
 		}
 
-		if !slices.Contains(globMatches, path) {
-			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(path), "\n")
+		// Check if file exists
+		fileStat, err := os.Stat(glob)
+		if err != nil {
+			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(glob), "\n")
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 				Severity: "warning",
-				Message:  fmt.Sprintf("Skipping invalid path %s", path),
-				Location: path,
+				Message:  "skipped invalid path",
+				Location: glob,
 			})
+
+			continue
 		}
 
-		for _, match := range globMatches {
-			// Ensure file is inside of the git repo
-			absPath, err := filepath.Abs(match)
-			if err != nil {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(match), "\n")
-				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-					Severity: "warning",
-					Message:  "skipped invalid path",
-					Location: match,
-				})
-				continue
-			}
-			if strings.TrimPrefix(absPath, gitDir) == absPath {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping file outside of git repository", log.ColorFile(match), "\n")
-				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-					Severity: "warning",
-					Message:  "skipped file outside of git repository",
-					Location: match,
-				})
-				continue
-			}
+		// Skip directories
+		if fileStat.IsDir() {
+			log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping directory", log.ColorFile(glob), "\n")
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "warning",
+				Message:  "skipped directory",
+				Location: glob,
+			})
 
-			// Check if file exists
-			fileStat, err := os.Stat(match)
-			if err != nil {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping invalid path", log.ColorFile(match), "\n")
-				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-					Severity: "warning",
-					Message:  "skipped invalid path",
-					Location: match,
-				})
-
-				continue
-			}
-
-			// Skip directories
-			if fileStat.IsDir() {
-				log.Print(log.ColorBold(log.ColorYellow("!")), "Skipping directory", log.ColorFile(match), "\n")
-				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-					Severity: "warning",
-					Message:  "skipped directory",
-					Location: match,
-				})
-
-				continue
-			}
-
-			// Add the file to the queue
-			filesToAdd = append(filesToAdd, match)
+			continue
 		}
+
+		// Add the file to the queue
+		queuedPaths = append(queuedPaths, glob)
 	}
 
 	// Add each file to storage
-	for i, file := range filesToAdd {
-		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToAdd)), " ", log.ColorFile(file))
+	for i, file := range queuedPaths {
+		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(queuedPaths)), " ", log.ColorFile(file))
 
 		_, err := storage.Add(file, conf.StorageDir, gitDir, message, dry)
 		if err != nil {
@@ -137,6 +123,16 @@ func runAddCmd(cmd *cobra.Command, args []string) error {
 			})
 			return err
 		}
+	}
+
+	// Warn if no files were queued
+	if len(queuedPaths) == 0 {
+		log.Print(log.ColorBold(log.ColorYellow("!")), "No files were queued")
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "no files were queued",
+			Location: ".",
+		})
 	}
 
 	return nil

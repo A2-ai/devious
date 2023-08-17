@@ -45,7 +45,8 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		metaPaths = args
+		// Get meta files from globs
+		metaPaths = meta.ParseGlobs(args)
 	}
 
 	// Create colors
@@ -62,11 +63,20 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	numFilesNotPulled := 0
 
 	// Print info about each file
-	log.Print(color.New(color.Bold).Sprint("file info "),
-		iconPulled, "up to date ",
-		iconOutdated, "out of date ",
-		iconNotPulled, "not present ",
-	)
+	if len(metaPaths) == 0 {
+		log.Print(log.ColorBold(log.ColorYellow("!")), "No files were queued")
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "no files queued",
+			Location: ".",
+		})
+	} else {
+		log.Print(color.New(color.Bold).Sprint("file info "),
+			iconPulled, "up to date ",
+			iconOutdated, "out of date ",
+			iconNotPulled, "not present ",
+		)
+	}
 	for _, path := range metaPaths {
 		relPath, err := git.GetRelativePath(".", path)
 		if err != nil {
@@ -83,7 +93,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		// Get file info
 		metadata, err := meta.Load(path)
 		if err != nil {
-			log.Print(log.ColorRed("\n✘"), "File not in devious", log.ColorFile(relPath))
+			log.Print(log.ColorRed("    ✘"), "File not in devious", log.ColorFile(relPath))
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 				Severity: "error",
 				Message:  "file not in devious",
@@ -138,12 +148,14 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Print overview
-	log.Print(color.New(color.Bold).Sprint("\ntotals"))
-	log.Print(
-		colorFilePulled(numFilesPulled), "up to date ",
-		colorFileOutdated(numFilesOutdated), "out of date ",
-		colorFileNotPulled(numFilesNotPulled), "not present ",
-	)
+	if len(metaPaths) > 0 {
+		log.Print(color.New(color.Bold).Sprint("\ntotals"))
+		log.Print(
+			colorFilePulled(numFilesPulled), "up to date ",
+			colorFileOutdated(numFilesOutdated), "out of date ",
+			colorFileNotPulled(numFilesNotPulled), "not present ",
+		)
+	}
 
 	log.Dump(jsonLogger)
 
@@ -152,9 +164,9 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 
 func getStatusCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "status [path]",
+		Use:   "status [glob] [another-glob]",
 		Short: "Gets the status of files tracked by devious",
-		Long:  "Gets the status of files tracked by devious. If path(s) are provided, only those files will be checked. Otherwise, all files in the current git repository will be checked.",
+		Long:  "Gets the status of files tracked by devious. If glob(s) are provided, only those globs will be checked. Otherwise, all files in the current git repository will be checked.",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},

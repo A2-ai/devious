@@ -13,7 +13,9 @@ import (
 func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	/// Get metadata of specified file
 	metadata, err := meta.Load(localPath)
-	if err != nil {
+	if os.IsNotExist(err) {
+		return errors.New("no metadata")
+	} else if err != nil {
 		return errors.New("failed to load metadata")
 	}
 

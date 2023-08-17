@@ -7,8 +7,6 @@ import (
 	"dvs/internal/meta"
 	"dvs/internal/storage"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -30,64 +28,37 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get flags
-	recurse, err := cmd.Flags().GetBool("recurse")
-	if err != nil {
-		return err
-	}
-
 	dry, err := cmd.Flags().GetBool("dry")
 	if err != nil {
 		return err
 	}
 
-	var filesToGet []string
-
-	// Parse each path
-	for _, path := range args {
-		// If the path is a directory, get all files in the directory
-		if pathInfo, err := os.Stat(path); err == nil && pathInfo.IsDir() {
-			var metaFiles []string
-			if recurse {
-				// Get all files in the current directory and subdirectories
-				metaFiles, err = meta.GetAllMetaFiles(path)
-				if err != nil {
-					return err
-				}
-			} else {
-				// Get all files in the current directory
-				metaFiles, err = meta.GetMetaFiles(path)
-				if err != nil {
-					return err
-				}
-				if len(metaFiles) == 0 {
-					absPath, _ := filepath.Abs(path)
-					log.Print(log.ColorBold(log.ColorYellow("!")), "No devious files found in directory, skipping", log.ColorFile(absPath), "\n")
-					log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-						Severity: "warning",
-						Message:  "no devious files found in directory",
-						Location: absPath,
-					})
-				}
-			}
-			filesToGet = append(filesToGet, metaFiles...)
-		} else {
-			filesToGet = append(filesToGet, path)
-		}
-	}
+	// Parse each glob
+	queuedPaths := meta.ParseGlobs(args)
 
 	// Get the queued files
-	for i, file := range filesToGet {
-		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(filesToGet)), " ", log.ColorFile(file))
+	for i, path := range queuedPaths {
+		log.Print(fmt.Sprint(i+1)+"/"+fmt.Sprint(len(queuedPaths)), " ", log.ColorFile(path))
 
-		err = storage.Get(file, conf.StorageDir, gitDir, dry)
+		err = storage.Get(path, conf.StorageDir, gitDir, dry)
 		if err != nil {
 			log.Print(log.ColorRed("    ✘"), "Failed to get file", log.ColorFaint(err.Error()), "\n")
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
 				Severity: "error",
 				Message:  "failed to get file",
-				Location: file,
+				Location: path,
 			})
 		}
+	}
+
+	// Warn if no files were queued
+	if len(queuedPaths) == 0 {
+		log.Print(log.ColorBold(log.ColorYellow("!")), "No files were queued")
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "no files were queued",
+			Location: ".",
+		})
 	}
 
 	return nil
@@ -95,7 +66,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 
 func getGetCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get <path> [another-path] ...",
+		Use:   "get <glob> [another-glob] ...",
 		Short: "Gets file(s) from storage",
 		Args:  cobra.MinimumNArgs(1),
 		PreRun: func(cmd *cobra.Command, args []string) {
@@ -104,7 +75,6 @@ func getGetCmd() *cobra.Command {
 		RunE: runGetCmd,
 	}
 
-	cmd.Flags().BoolP("recurse", "r", false, "include subdirectories")
 	cmd.Flags().BoolP("dry", "d", false, "run without actually getting files")
 
 	return cmd

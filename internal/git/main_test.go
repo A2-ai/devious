@@ -38,8 +38,8 @@ func TestGetRelativePath(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if relativePath != "/subdir" && relativePath != "\\subdir" {
-		t.Error("Expected relative path to be /subdir or \\subdir")
+	if relativePath != "subdir" {
+		t.Error("Expected relative path to be subdir")
 	}
 }
 
