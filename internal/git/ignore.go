@@ -13,6 +13,7 @@ func AddIgnoreEntry(gitDir string, path string, dry bool) error {
 	if err != nil {
 		return err
 	}
+	ignoreEntry = "/" + ignoreEntry // Add leading slash
 
 	// Open the gitignore file, creating one if it doesn't exist
 	ignoreFile, err := os.OpenFile(filepath.Join(gitDir, ".gitignore"), os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
@@ -49,6 +50,7 @@ func RemoveIgnoreEntry(gitDir string, path string, dry bool) error {
 	if err != nil {
 		return err
 	}
+	ignoreEntry = "/" + ignoreEntry // Add leading slash
 
 	// Open the gitignore file
 	// if the gitignore file doesn't exist, there's nothing to do

@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Gets a file path relative to the root
+// Gets a file path relative to the provided root directory stripped of leading slashes
 func GetRelativePath(rootDir string, filePath string) (string, error) {
 	absRootDir, err := filepath.Abs(rootDir)
 	if err != nil {
@@ -18,7 +18,10 @@ func GetRelativePath(rootDir string, filePath string) (string, error) {
 		return "", err
 	}
 
-	return strings.TrimPrefix(absFilePath, absRootDir), nil
+	relPath := strings.TrimPrefix(absFilePath, absRootDir)
+	relPathNoSlash := strings.TrimPrefix(relPath, "/")
+
+	return relPathNoSlash, nil
 }
 
 // Checks if the supplied path
