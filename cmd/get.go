@@ -7,11 +7,8 @@ import (
 	"dvs/internal/meta"
 	"dvs/internal/storage"
 	"fmt"
-	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
-	"golang.org/x/exp/slices"
 )
 
 func runGetCmd(cmd *cobra.Command, args []string) error {
@@ -37,24 +34,7 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parse each glob
-	var queuedPaths []string
-	for _, glob := range args {
-		// Strip meta file extension
-		glob = strings.TrimSuffix(glob, meta.FileExtension)
-
-		// Skip if already queued
-		if slices.Contains(queuedPaths, glob) {
-			continue
-		}
-
-		// Skip directories
-		if s, err := os.Stat(glob); err == nil && s.IsDir() {
-			continue
-		}
-
-		// Add to queue
-		queuedPaths = append(queuedPaths, glob)
-	}
+	queuedPaths := meta.ParseGlobs(args)
 
 	// Get the queued files
 	for i, path := range queuedPaths {
