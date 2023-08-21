@@ -30,18 +30,9 @@ If you want to update a file after changing it, you can simply run `dvs add <glo
 ### Getting files
 You can get file(s) by running
 ```
-dvs get <path> <another-path>
+dvs get <glob> [another-glob]
 ```
-
-You can get all files in a directory wirth
-```
-dvs get <dir>
-```
-
-The `--recurse` flag will also get all files in all subdirectories.
-```
-dvs get -r <dir>
-```
+`dvs get` works the same way as `dvs add`, using globs, but instead of adding files to the storage location, it will retrieve them and place them in the current directory.
 
 
 ### Listing tracked files
