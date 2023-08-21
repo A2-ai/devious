@@ -24,7 +24,7 @@ func getRootCmd() *cobra.Command {
 
 	// Version
 	cmd.Version = Version
-	cmd.SetVersionTemplate("🌀 Devious {{.Version}}\n")
+	cmd.SetVersionTemplate("{{.Version}}\n")
 
 	// Disable completion command
 	cmd.CompletionOptions.DisableDefaultCmd = true
