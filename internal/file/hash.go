@@ -22,5 +22,15 @@ func GetFileHash(path string) (hash string, err error) {
 
 	// Hash file contents
 	hash = fmt.Sprintf("%x", blake3.Sum256(fileContents))
+	if err != nil {
+		return "", err
+	}
+
+	// Cache the hash so we don't have to hash the file again
+	err = WriteHashToCache(path, hash)
+	if err != nil {
+		return "", err
+	}
+
 	return hash, nil
 }

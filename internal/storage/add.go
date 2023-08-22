@@ -5,6 +5,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/log"
 	"dvs/internal/meta"
+	"dvs/internal/utils"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -16,13 +17,16 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 	// Get file hash
 	log.Print("    Getting hash...")
 
+	startTime := time.Now()
 	fileHash, err := file.GetFileHash(localPath)
+	endTime := time.Now()
+
 	if err != nil {
 		return fileHash, err
 	}
 
 	log.OverwritePreviousLine()
-	log.Print("    Getting hash...", log.ColorGreen("✔"))
+	log.Print("    Getting hash...", log.ColorGreen("✔ in ", utils.FormatDuration(endTime.Sub(startTime))))
 	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
 		Action: "got hash",
 		Path:   localPath,
@@ -89,23 +93,6 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 	err = meta.Save(metadata, localPath, dry)
 	if err != nil {
 		return fileHash, err
-	}
-
-	// Cache the file hash
-	err = file.WriteHashToCache(localPath, fileHash)
-	if err != nil {
-		log.Print("    Caching hash...", log.ColorYellow(log.ColorBold("! "), err.Error()))
-		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
-			Severity: "warning",
-			Message:  "failed to cache hash",
-			Location: localPath,
-		})
-	} else {
-		log.Print("    Caching hash...", log.ColorGreen("✔"))
-		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
-			Action: "cached hash",
-			Path:   localPath,
-		})
 	}
 
 	// Add file to gitignore
