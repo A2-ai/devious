@@ -91,6 +91,23 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 		return fileHash, err
 	}
 
+	// Cache the file hash
+	err = file.WriteHashToCache(localPath, fileHash)
+	if err != nil {
+		log.Print("    Caching hash...", log.ColorYellow(log.ColorBold("! "), err.Error()))
+		log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+			Severity: "warning",
+			Message:  "failed to cache hash",
+			Location: localPath,
+		})
+	} else {
+		log.Print("    Caching hash...", log.ColorGreen("✔"))
+		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
+			Action: "cached hash",
+			Path:   localPath,
+		})
+	}
+
 	// Add file to gitignore
 	log.Print("    Adding gitignore entry...")
 
