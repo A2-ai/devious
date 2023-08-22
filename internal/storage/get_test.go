@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 )
 
 func TestGetNoLongerInStorage(t *testing.T) {
@@ -104,6 +105,9 @@ func TestGetAgainAfterLocalMod(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Wait a bit to ensure modification time is different
+	time.Sleep(time.Millisecond)
+
 	// Modify the file locally
 	err = os.WriteFile(filepath.Join(tempDir, "test.txt"), []byte("test2"), 0644)
 	if err != nil {
@@ -129,6 +133,6 @@ func TestGetAgainAfterLocalMod(t *testing.T) {
 	}
 
 	if string(data) != "test" {
-		t.Error("File contents did not match")
+		t.Error("File contents did not match, should have been test but got", string(data))
 	}
 }

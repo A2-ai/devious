@@ -5,6 +5,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/log"
 	"dvs/internal/meta"
+	"dvs/internal/utils"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -16,13 +17,16 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 	// Get file hash
 	log.Print("    Getting hash...")
 
+	startTime := time.Now()
 	fileHash, err := file.GetFileHash(localPath)
+	endTime := time.Now()
+
 	if err != nil {
 		return fileHash, err
 	}
 
 	log.OverwritePreviousLine()
-	log.Print("    Getting hash...", log.ColorGreen("✔"))
+	log.Print("    Getting hash...", log.ColorGreen("✔ in ", utils.FormatDuration(endTime.Sub(startTime))))
 	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
 		Action: "got hash",
 		Path:   localPath,

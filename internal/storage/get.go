@@ -4,9 +4,11 @@ import (
 	"dvs/internal/file"
 	"dvs/internal/log"
 	"dvs/internal/meta"
+	"dvs/internal/utils"
 	"errors"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 // Gets a file from storage
@@ -27,15 +29,17 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	var localHash string
 	if err == nil {
 		// Get local file's hash
-		log.Print("    Calculating local hash...")
+		log.Print("    Getting local hash...")
 
+		startTime := time.Now()
 		localHash, err = file.GetFileHash(localPath)
+		endTime := time.Now()
 
 		log.OverwritePreviousLine()
 		if err != nil {
-			log.Print("    Calculating local hash...", log.ColorBold(log.ColorYellow("!")))
+			log.Print("    Getting local hash...", log.ColorBold(log.ColorYellow("!")))
 		} else {
-			log.Print("    Calculating local hash...", log.ColorGreen("✔"))
+			log.Print("    Getting local hash...", log.ColorGreen("✔ in ", utils.FormatDuration(endTime.Sub(startTime))))
 		}
 	}
 
