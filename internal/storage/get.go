@@ -6,6 +6,7 @@ import (
 	"dvs/internal/meta"
 	"dvs/internal/utils"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"time"
@@ -48,7 +49,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	if os.IsNotExist(err) || metadata.FileHash == "" || localHash == "" || metadata.FileHash != localHash {
 		err = Copy(storagePath, localPath, dry)
 		if err != nil {
-			return errors.New("failed to copy file")
+			return errors.New(fmt.Sprint("failed to copy file:", err))
 		}
 
 		log.OverwritePreviousLine()

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 )
 
-var defaultDirPermissions = os.FileMode(0766)
+var defaultDirPermissions = os.FileMode(0776)
 
 func Init(rootDir string, storageDir string) error {
 	// Get storage directory as absolute path

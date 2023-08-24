@@ -56,7 +56,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	})
 
 	// Ensure destination exists
-	err = os.MkdirAll(filepath.Dir(destPath), 0755)
+	err = os.MkdirAll(filepath.Dir(destPath), defaultDirPermissions)
 	if err != nil {
 		return err
 	}
