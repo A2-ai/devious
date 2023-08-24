@@ -7,8 +7,6 @@ import (
 	"path/filepath"
 )
 
-var defaultDirPermissions = os.FileMode(0776)
-
 func Init(rootDir string, storageDir string) error {
 	// Get storage directory as absolute path
 	storageDir, err := filepath.Abs(storageDir)
@@ -27,7 +25,7 @@ func Init(rootDir string, storageDir string) error {
 	fileInfo, err := os.Stat(storageDir)
 	if err != nil {
 		// Create storage dir and necessary parents
-		err = os.MkdirAll(storageDir, defaultDirPermissions)
+		err = os.MkdirAll(storageDir, storageDirPermissions)
 		if err != nil {
 			log.Print(log.ColorRed("✘"), "Failed to create storage directory", log.ColorFile(storageDir))
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
@@ -39,12 +37,27 @@ func Init(rootDir string, storageDir string) error {
 			return err
 		}
 
-		log.Print(log.ColorGreen("✔"), "Created storage directory")
+		// Set storage dir permissions
+		err = os.Chmod(storageDir, storageDirPermissions)
+		if err != nil {
+			log.Print(log.ColorRed("✘"), "Failed to set storage directory permissions", log.ColorFile(storageDir))
+			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+				Severity: "error",
+				Message:  "failed to set storage directory permissions",
+				Location: storageDir,
+			})
+
+			return err
+		}
+
+		log.Print(log.ColorGreen("✔"), "Created storage directory", log.ColorFile(storageDir))
 		log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
 			Action: "created storage directory",
 			Path:   storageDir,
 		})
 	} else {
+		log.Print(log.ColorGreen("✔"), "Storage directory already exists", log.ColorFile(storageDir))
+
 		// Ensure destination is a directory
 		if !fileInfo.IsDir() {
 			log.Print(log.ColorRed("✘"), "Destination isn't a directory", log.ColorFile(storageDir))
@@ -85,7 +98,6 @@ func Init(rootDir string, storageDir string) error {
 	}
 
 	log.Print(log.ColorGreen("✔"), "Wrote config", log.ColorFile(filepath.Join(rootDir, config.ConfigFileName)))
-	log.Print("    storage dir", log.ColorFile(storageDir))
 	log.JsonLogger.Actions = append(log.JsonLogger.Actions, log.JsonAction{
 		Action: "wrote config",
 		Path:   filepath.Join(rootDir, config.ConfigFileName),

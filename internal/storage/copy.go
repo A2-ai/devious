@@ -56,7 +56,7 @@ func Copy(srcPath string, destPath string, dry bool) error {
 	})
 
 	// Ensure destination exists
-	err = os.MkdirAll(filepath.Dir(destPath), defaultDirPermissions)
+	err = os.MkdirAll(filepath.Dir(destPath), storageDirPermissions)
 	if err != nil {
 		return err
 	}
@@ -69,6 +69,12 @@ func Copy(srcPath string, destPath string, dry bool) error {
 			return err
 		}
 		defer dst.Close()
+
+		// Set destination file permissions
+		err = os.Chmod(destPath, storageFilePermissions)
+		if err != nil {
+			return err
+		}
 
 		// Copy the file
 		_, err := io.Copy(dst, src)
