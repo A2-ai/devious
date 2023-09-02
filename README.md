@@ -3,6 +3,8 @@ A file linker that allows you to version large or sensitive files under Git.
 
 Instead of tracking the file itself, which can result in bloated and sluggish to sync repositories, Devious has Git track a metadata file containing a reference to a particular version of a file. This allows you to version large files under Git without tracking the file directly in your repository.
 
+`dvs` also enables a clean abstraction to track files in git that you do not want to directly check in. For example, data with sensitive or proprietary information you do not want in the repo history directly. A2-Ai manages our scientific project work in git with github, however for security and compliance reasons we check in no source data to the git repository so the data will not ever touch github. In addition, regulations such as GDPR require the ability to expire data. This becomes complicated if the data itself is checked into the repository history. Using `dvs` allows us the ability to expire the data without rewriting the repo history.
+
 ## 📦 Installation
 ### Linux (User)
 This installs the latest version of Devious to `~/.local/bin` and adds `~/.local/bin` to your PATH in `~/.profile`.
