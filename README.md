@@ -1,18 +1,18 @@
 # 🌀 Devious
-A file linker that allows you to version large files under Git.
+A file linker that allows you to version large or sensitivie files under Git.
 
-Instead of tracking the file itself, which can result in bloated and sluggish repositories, Devious has Git track a metadata file containing a reference to a particular version of a large file. This allows you to version large files under Git without bloating your repository.
+Instead of tracking the file itself, which can result in bloated and sluggish to sync repositories, Devious has Git track a metadata file containing a reference to a particular version of a file. This allows you to version large files under Git without tracking the file directly in your repository.
 
 ## 📦 Installation
 ### Linux (User)
-This installs the latest version of Devious to `~/.local/bin` and adds `~/.local/bin` to your PATH.
+This installs the latest version of Devious to `~/.local/bin` and adds `~/.local/bin` to your PATH in `~/.profile`.
 ```
 curl -o- https://raw.githubusercontent.com/A2-ai/devious/main/scripts/install_user.sh | bash
 ```
 
 ## 📚 Usage
 ### Provide a storage location
-Start by navigating to a Git repository for which you'd like to version large files. You can then initialize Devious by telling it where you want to store tracked files for the current repository. This directory should be accessible to all users of the repository.
+Start by navigating to a Git repository for which you'd like to version large files. You can then initialize Devious by telling it where you want to store tracked files for the current repository. **This directory should be accessible in a shared location to all future users of the repository.**
 ```
 dvs init <storage-path>
 ```
