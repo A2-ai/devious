@@ -1,5 +1,5 @@
 # 🌀 Devious
-A file linker that allows you to version large or sensitivie files under Git.
+A file linker that allows you to version large or sensitive files under Git.
 
 Instead of tracking the file itself, which can result in bloated and sluggish to sync repositories, Devious has Git track a metadata file containing a reference to a particular version of a file. This allows you to version large files under Git without tracking the file directly in your repository.
 
