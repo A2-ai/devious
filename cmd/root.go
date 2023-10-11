@@ -38,6 +38,7 @@ func getRootCmd() *cobra.Command {
 	cmd.AddCommand(getAddCmd())
 	cmd.AddCommand(getGetCmd())
 	cmd.AddCommand(getRemoveCmd())
+	cmd.AddCommand(getMigrateCmd())
 
 	return cmd
 }

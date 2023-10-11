@@ -8,6 +8,14 @@
       "mode": "auto",
       "program": "${workspaceFolder}",
       "args": ["status"]
+    },
+    {
+      "name": "dvs migrate",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}",
+      "args": ["migrate"]
     }
   ]
 }

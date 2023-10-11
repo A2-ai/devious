@@ -15,6 +15,9 @@ var ColorYellow = color.New(color.FgYellow).Sprint
 var ColorFaint = color.New(color.Faint).Sprint
 var ColorBold = color.New(color.Bold).Sprint
 var ColorFile = color.New(color.Faint, color.Bold).Sprint
+var IconSuccess = ColorGreen("✔")
+var IconFailure = ColorRed("✘")
+var IconWarning = ColorYellow("⚠")
 
 var logOut io.Writer = os.Stdout
 

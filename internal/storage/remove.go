@@ -17,7 +17,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 	}
 
 	// Get storage path
-	storagePath := getStoragePath(conf.StorageDir, metadata.FileHash)
+	storagePath := GetStoragePath(conf.StorageDir, metadata.FileHash)
 
 	// Remove file from storage
 	if !dry {

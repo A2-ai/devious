@@ -45,7 +45,7 @@ func TestGetNoLongerInStorage(t *testing.T) {
 	}
 
 	// Remove file from storage manually
-	err = os.Remove(getStoragePath(tempDir, hash))
+	err = os.Remove(GetStoragePath(tempDir, hash))
 	if err != nil {
 		t.Fatal(err)
 	}

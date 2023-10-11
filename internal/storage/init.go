@@ -25,7 +25,7 @@ func Init(rootDir string, storageDir string) error {
 	fileInfo, err := os.Stat(storageDir)
 	if err != nil {
 		// Create storage dir and necessary parents
-		err = os.MkdirAll(storageDir, storageDirPermissions)
+		err = os.MkdirAll(storageDir, StorageDirPermissions)
 		if err != nil {
 			log.Print(log.ColorRed("✘"), "Failed to create storage directory", log.ColorFile(storageDir))
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
@@ -38,7 +38,7 @@ func Init(rootDir string, storageDir string) error {
 		}
 
 		// Set storage dir permissions
-		err = os.Chmod(storageDir, storageDirPermissions)
+		err = os.Chmod(storageDir, StorageDirPermissions)
 		if err != nil {
 			log.Print(log.ColorRed("✘"), "Failed to set storage directory permissions", log.ColorFile(storageDir))
 			log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
