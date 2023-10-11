@@ -6,11 +6,11 @@ import (
 )
 
 var (
-	storageDirPermissions  = fs.FileMode(0777)
+	StorageDirPermissions  = fs.FileMode(0777)
 	storageFilePermissions = fs.FileMode(0666)
 )
 
-func getStoragePath(storageDir string, fileHash string) string {
+func GetStoragePath(storageDir string, fileHash string) string {
 	firstHashSegment := fileHash[:2]
 	secondHashSegment := fileHash[2:]
 	return filepath.Join(storageDir, firstHashSegment, secondHashSegment)

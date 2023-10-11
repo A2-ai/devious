@@ -22,7 +22,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	}
 
 	// Get storage path
-	storagePath := getStoragePath(storageDir, metadata.FileHash)
+	storagePath := GetStoragePath(storageDir, metadata.FileHash)
 
 	// Check if file is already present locally
 	_, err = os.Stat(localPath)

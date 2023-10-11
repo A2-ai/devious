@@ -14,6 +14,7 @@ func runMigrateModule(msg string, migrateFunc func() ([]string, error)) {
 	log.OverwritePreviousLine()
 	if err != nil {
 		log.Print(msg, log.IconFailure)
+		log.Print("  ", log.ColorRed(err))
 	} else if len(filesModified) == 0 {
 		log.Print(msg, log.IconSuccess, log.ColorGreen("already up to date"))
 	} else {

@@ -77,10 +77,10 @@ func migrateMetaFile(path string) (actionTaken bool, errs error) {
 	return actionTaken, err
 }
 
-// Migrate meta files in local storage to the latest format, returns true if anything was migrated
+// Migrates local meta files to the latest format, returning a list of files that were modified
 func MigrateMetaFiles() (filesModified []string, err error) {
-	repoDir, _ := git.GetNearestRepoDir(".")
 	// Iterate over all files in the git repository
+	repoDir, _ := git.GetNearestRepoDir(".")
 	filepath.WalkDir(repoDir, func(path string, d fs.DirEntry, _ error) error {
 		// TODO respect gitignore?
 

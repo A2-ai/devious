@@ -32,7 +32,7 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 	})
 
 	// Get storage path
-	dstPath := getStoragePath(storageDir, fileHash)
+	dstPath := GetStoragePath(storageDir, fileHash)
 
 	// Copy the file to the storage directory
 	// if the destination already exists, skip copying
