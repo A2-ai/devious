@@ -10,7 +10,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var FileExtension = ".dvsmeta"
+var FileExtension = ".dvs"
 
 // Gets a list of all meta file paths in the directory recursively
 func GetAllMetaFiles(dir string) (metaFiles []string, err error) {

@@ -6,7 +6,6 @@ import (
 	"dvs/internal/log"
 	"dvs/internal/meta"
 	"os"
-	"path/filepath"
 )
 
 // Remove a file from storage
@@ -18,7 +17,7 @@ func Remove(path string, conf config.Config, gitDir string, dry bool) error {
 	}
 
 	// Get storage path
-	storagePath := filepath.Join(conf.StorageDir, metadata.FileHash) + FileExtension
+	storagePath := getStoragePath(conf.StorageDir, metadata.FileHash)
 
 	// Remove file from storage
 	if !dry {

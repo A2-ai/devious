@@ -8,7 +8,6 @@ import (
 	"dvs/internal/utils"
 	"os"
 	"os/user"
-	"path/filepath"
 	"time"
 )
 
@@ -32,7 +31,8 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 		Path:   localPath,
 	})
 
-	dstPath := filepath.Join(storageDir, fileHash) + FileExtension
+	// Get storage path
+	dstPath := getStoragePath(storageDir, fileHash)
 
 	// Copy the file to the storage directory
 	// if the destination already exists, skip copying
