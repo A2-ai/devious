@@ -87,7 +87,7 @@ func Add(localPath string, storageDir string, gitDir string, message string, dry
 		FileHash:  fileHash,
 		FileSize:  fileSize,
 		Timestamp: time.Now(),
-		User:      userName,
+		SavedBy:   userName,
 		Message:   message,
 	}
 	err = meta.Save(metadata, localPath, dry)
