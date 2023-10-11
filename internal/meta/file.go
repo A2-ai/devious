@@ -11,7 +11,7 @@ type Metadata struct {
 	FileSize  uint64    `json:"file_size_bytes"`
 	Timestamp time.Time `json:"timestamp"`
 	Message   string    `json:"message"`
-	User      string    `json:"user"`
+	SavedBy   string    `json:"saved_by"`
 }
 
 // Creates a metadata file

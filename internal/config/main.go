@@ -11,7 +11,7 @@ type Config struct {
 	StorageDir string `yaml:"storage-dir"`
 }
 
-var ConfigFileName = ".dvs.yaml"
+var ConfigFileName = "dvs.yaml"
 
 func Read(rootDir string) (Config, error) {
 	// Read the config file

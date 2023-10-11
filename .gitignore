@@ -1,9 +1,17 @@
-# go
+# Go workspace file
 go.work
 
-# build
+# Binaries
 dvs
 
-# testing
-.dvs.yaml
-testenv/
+# Devious entry
+/testing/266-536x354.jpg
+
+# Devious entry
+/testing/10G
+
+# Devious entry
+/testing/1G
+
+# Devious entry
+/testing/571-536x354.jpg

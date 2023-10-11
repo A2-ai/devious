@@ -45,7 +45,7 @@ func TestGetNoLongerInStorage(t *testing.T) {
 	}
 
 	// Remove file from storage manually
-	err = os.Remove(filepath.Join(tempDir, hash) + FileExtension)
+	err = os.Remove(getStoragePath(tempDir, hash))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestGetAgainAfterLocalMod(t *testing.T) {
 	}
 
 	// Wait a bit to ensure modification time is different
-	time.Sleep(time.Millisecond)
+	time.Sleep(2 * time.Millisecond)
 
 	// Modify the file locally
 	err = os.WriteFile(filepath.Join(tempDir, "test.txt"), []byte("test2"), 0644)

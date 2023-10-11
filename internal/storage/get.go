@@ -8,7 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 )
 
@@ -23,7 +22,7 @@ func Get(localPath string, storageDir string, gitDir string, dry bool) error {
 	}
 
 	// Get storage path
-	storagePath := filepath.Join(storageDir, metadata.FileHash) + FileExtension
+	storagePath := getStoragePath(storageDir, metadata.FileHash)
 
 	// Check if file is already present locally
 	_, err = os.Stat(localPath)

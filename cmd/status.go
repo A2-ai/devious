@@ -20,7 +20,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		FileSize  uint64 `json:"fileSize"`
 		FileHash  string `json:"fileHash"`
 		Timestamp string `json:"timestamp"`
-		User      string `json:"user"`
+		SavedBy   string `json:"savedBy"`
 		Message   string `json:"message"`
 	}
 
@@ -133,7 +133,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			log.ColorFile(relPath), "",
 			log.ColorFaint(humanize.Bytes(metadata.FileSize)), "",
 			log.ColorFaint(timestamp), "",
-			log.ColorFaint(metadata.User), "",
+			log.ColorFaint(metadata.SavedBy), "",
 			log.ColorFaint(metadata.Message),
 		)
 		jsonLogger.Files = append(jsonLogger.Files, jsonFileResult{
@@ -142,7 +142,7 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 			FileSize:  metadata.FileSize,
 			FileHash:  metadata.FileHash,
 			Timestamp: timestamp,
-			User:      metadata.User,
+			SavedBy:   metadata.SavedBy,
 			Message:   metadata.Message,
 		})
 	}
