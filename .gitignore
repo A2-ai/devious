@@ -1,0 +1,9 @@
+# Go workspace file
+go.work
+
+# Build file
+dvs
+
+# Test environment
+dvs.yaml
+testenv/
