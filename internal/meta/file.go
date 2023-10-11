@@ -40,7 +40,7 @@ func Save(metadata Metadata, path string, dry bool) (err error) {
 	return nil
 }
 
-// Loads a metadata file
+// Loads the metadata file for a given file, erroring if it doesn't exist or if it can't be decoded
 func Load(path string) (metadata Metadata, err error) {
 	metadataFile, err := os.Open(path + FileExtension)
 	if err != nil {

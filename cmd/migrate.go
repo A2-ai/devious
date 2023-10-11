@@ -2,27 +2,40 @@ package cmd
 
 import (
 	"dvs/internal/log"
+	"dvs/internal/migrate"
+	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
+func runMigrateModule(msg string, migrateFunc func() ([]string, error)) {
+	log.Print(msg)
+	filesModified, err := migrateFunc()
+	log.OverwritePreviousLine()
+	if err != nil {
+		log.Print(msg, log.IconFailure)
+	} else if len(filesModified) == 0 {
+		log.Print(msg, log.IconSuccess, log.ColorGreen("already up to date"))
+	} else {
+		log.Print(msg, log.IconSuccess, log.ColorGreen("migrated ", fmt.Sprint(len(filesModified)), " files"))
+		for _, file := range filesModified {
+			log.Print("  ", log.ColorFile(file))
+		}
+	}
+}
+
 func runMigrateCmd(cmd *cobra.Command, args []string) {
-	log.Print("Migrating storage...")
+	runMigrateModule("Migrating local metadata...", migrate.MigrateMetaFiles)
+	runMigrateModule("Migrating files in storage...", migrate.MigrateStorageFiles)
 
-	// err := migrate()
-	// if err != nil {
-	// 	log.Error("Failed to migrate storage", err)
-	// 	return
-	// }
-
-	// log.Info("Successfully migrated storage")
+	log.Print("\nMigration complete!")
 }
 
 func getMigrateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "migrate",
-		Short: "Migrates storage to the latest format",
-		Long:  "Gets the status of files tracked by devious. If glob(s) are provided, only those globs will be checked. Otherwise, all files in the current git repository will be checked.",
+		Short: "Migrates data to the latest format",
+		Long:  "Migrates data to the latest format. This includes the meta files and the storage.",
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},
