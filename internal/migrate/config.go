@@ -5,23 +5,24 @@ import (
 	"os"
 )
 
-func MigrateConfig(dry bool) (match bool, err error) {
+func MigrateConfig(dry bool) (files []string, err error) {
 	repoDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
-		return false, err
+		return files, err
 	}
 
 	// We're done if .dvs.yaml doesn't exist at the repo root
 	_, err = os.Open(repoDir)
 	if os.IsNotExist(err) {
-		return false, nil
+		return files, nil
 	}
 
 	// Migrate te config file
+	oldPath := repoDir + "/.dvs.yaml"
 	if dry {
-		return true, nil
+		return []string{oldPath}, nil
 	}
-	os.Rename(repoDir+"/.dvs.yaml", repoDir+"/dvs.yaml")
+	os.Rename(oldPath, repoDir+"/dvs.yaml")
 
-	return true, nil
+	return []string{oldPath}, nil
 }

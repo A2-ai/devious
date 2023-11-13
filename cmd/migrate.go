@@ -31,6 +31,7 @@ func runMigrateCmd(cmd *cobra.Command, args []string) {
 		return
 	}
 
+	runMigrateModule("Migrating config...", migrate.MigrateConfig, dry)
 	runMigrateModule("Migrating local metadata...", migrate.MigrateMetaFiles, dry)
 	runMigrateModule("Migrating files in storage...", migrate.MigrateStorageFiles, dry)
 
