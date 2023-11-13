@@ -13,7 +13,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func runStatusCmd(cmd *cobra.Command, args []string) error {
+func runStatusCmd(cmd *cobra.Command, args []string) {
 	type jsonFileResult struct {
 		Path      string `json:"path"`
 		Status    string `json:"status"`
@@ -37,12 +37,14 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 		// Get git dir
 		gitDir, err := git.GetNearestRepoDir(".")
 		if err != nil {
-			return err
+			log.Print(log.IconFailure, "Failed to find a git repository", log.ColorRed(err))
+			os.Exit(1)
 		}
 
 		metaPaths, err = meta.GetAllMetaFiles(gitDir)
 		if err != nil {
-			return err
+			log.Print(log.IconFailure, "Failed to get meta files", log.ColorRed(err))
+			os.Exit(1)
 		}
 	} else {
 		// Get meta files from globs
@@ -158,8 +160,6 @@ func runStatusCmd(cmd *cobra.Command, args []string) error {
 	}
 
 	log.Dump(jsonLogger)
-
-	return nil
 }
 
 func getStatusCmd() *cobra.Command {
@@ -170,7 +170,7 @@ func getStatusCmd() *cobra.Command {
 		PreRun: func(cmd *cobra.Command, args []string) {
 			log.PrintLogo()
 		},
-		RunE: runStatusCmd,
+		Run: runStatusCmd,
 	}
 
 	return cmd

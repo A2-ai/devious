@@ -12,7 +12,7 @@ import (
 )
 
 // Attempts to migrate a metafile format from version 1 to the latest, returns true if anything was migrated
-func migrateMetaFormatV1(path string) (actionTaken bool, err error) {
+func migrateMetaFormatV1(path string) (match bool, err error) {
 	type LegacyMetadata struct {
 		FileHash  string    `json:"blake3_checksum"`
 		FileSize  uint64    `json:"file_size_bytes"`
@@ -48,10 +48,14 @@ func migrateMetaFormatV1(path string) (actionTaken bool, err error) {
 }
 
 // Migrate a single meta file to the latest format, returns true if anything was migrated
-func migrateMetaFile(path string) (actionTaken bool, errs error) {
+func migrateMetaFile(path string, dry bool) (match bool, errs error) {
 	// Ensure the file has the correct extension
 	ext := filepath.Ext(path)
 	if ext != meta.FileExtension {
+		if dry {
+			return true, nil
+		}
+
 		newPath := strings.TrimSuffix(path, ext) + meta.FileExtension
 		err := os.Rename(path, newPath)
 		if err != nil {
@@ -59,26 +63,30 @@ func migrateMetaFile(path string) (actionTaken bool, errs error) {
 		}
 
 		path = newPath
-		actionTaken = true
+		match = true
 	}
 
 	// Ensure the file has the correct content structure
 	pathNoExt := strings.TrimSuffix(path, meta.FileExtension)
 	_, err := meta.Load(pathNoExt)
 	if err != nil {
+		if dry {
+			return true, nil
+		}
+
 		_, err = migrateMetaFormatV1(path)
 		if err != nil {
 			return false, err
 		}
 
-		actionTaken = true
+		match = true
 	}
 
-	return actionTaken, err
+	return match, err
 }
 
 // Migrates local meta files to the latest format, returning a list of files that were modified
-func MigrateMetaFiles() (filesModified []string, err error) {
+func MigrateMetaFiles(dry bool) (files []string, err error) {
 	// Iterate over all files in the git repository
 	repoDir, _ := git.GetNearestRepoDir(".")
 	filepath.WalkDir(repoDir, func(path string, d fs.DirEntry, _ error) error {
@@ -86,17 +94,17 @@ func MigrateMetaFiles() (filesModified []string, err error) {
 
 		// Check if the file is a meta file of some format
 		if filepath.Ext(path) == ".dvsmeta" || filepath.Ext(path) == ".dvs" {
-			fileWasMigrated, err := migrateMetaFile(path)
+			wasOtherFormat, err := migrateMetaFile(path, dry)
 			if err != nil {
 				return err
 			}
-			if fileWasMigrated {
-				filesModified = append(filesModified, path)
+			if wasOtherFormat {
+				files = append(files, path)
 			}
 		}
 
 		return nil
 	})
 
-	return filesModified, nil
+	return files, nil
 }

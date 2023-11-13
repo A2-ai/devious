@@ -10,10 +10,14 @@ import (
 	"strings"
 )
 
-func migrateStorageFile(storageDir string, path string) (modified bool, err error) {
+func migrateStorageFile(storageDir string, path string, dry bool) (match bool, err error) {
 	// Ensure the file has the correct extension
 	ext := filepath.Ext(path)
 	if ext != "" {
+		if dry {
+			return true, nil
+		}
+
 		newPath := strings.TrimSuffix(path, ext)
 		err := os.Rename(path, newPath)
 		if err != nil {
@@ -21,11 +25,15 @@ func migrateStorageFile(storageDir string, path string) (modified bool, err erro
 		}
 
 		path = newPath
-		modified = true
+		match = true
 	}
 
 	// Ensure the file is not at the root level
 	if filepath.Dir(path) == storageDir {
+		if dry {
+			return true, nil
+		}
+
 		// Create new directory
 		newDir := storage.GetStoragePath(storageDir, filepath.Base(path))
 		err := os.MkdirAll(newDir, storage.StorageDirPermissions)
@@ -37,24 +45,24 @@ func migrateStorageFile(storageDir string, path string) (modified bool, err erro
 		newPath := storage.GetStoragePath(storageDir, filepath.Base(path))
 		err = os.Rename(path, newPath)
 
-		modified = true
+		match = true
 
 		if os.IsExist(err) {
 			// File already exists, delete the old one
 			err = os.Remove(path)
 			if err != nil {
-				return modified, err
+				return match, err
 			}
 		} else if err != nil {
-			return modified, err
+			return match, err
 		}
 	}
 
-	return modified, nil
+	return match, nil
 }
 
 // Migrates storage files to the latest format, returning a list of files that were modified
-func MigrateStorageFiles() (modifiedFiles []string, err error) {
+func MigrateStorageFiles(dry bool) (files []string, err error) {
 	repoDir, _ := git.GetNearestRepoDir(".")
 	config, err := config.Read(repoDir)
 	if err != nil {
@@ -69,13 +77,13 @@ func MigrateStorageFiles() (modifiedFiles []string, err error) {
 		}
 
 		// TODO respect gitignore?
-		modified, err := migrateStorageFile(config.StorageDir, path)
+		modified, err := migrateStorageFile(config.StorageDir, path, dry)
 		if err != nil {
 			return err
 		}
 
 		if modified {
-			modifiedFiles = append(modifiedFiles, path)
+			files = append(files, path)
 		}
 
 		return nil
@@ -84,5 +92,5 @@ func MigrateStorageFiles() (modifiedFiles []string, err error) {
 		return nil, err
 	}
 
-	return modifiedFiles, nil
+	return files, nil
 }

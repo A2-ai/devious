@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"dvs/internal"
 	"dvs/internal/log"
 	"os"
 
@@ -18,6 +19,16 @@ func getRootCmd() *cobra.Command {
 		PersistentPreRun: func(cmd *cobra.Command, args []string) {
 			if json {
 				log.JsonLogging = true
+			}
+
+			valid, msg := internal.ValidateEnvironment()
+			if !valid {
+				log.Print(msg)
+				log.JsonLogger.Issues = append(log.JsonLogger.Issues, log.JsonIssue{
+					Severity: "error",
+					Message:  msg,
+				})
+				log.DumpAndExit(1)
 			}
 		},
 	}

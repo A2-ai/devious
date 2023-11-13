@@ -17,14 +17,17 @@ func runGetCmd(cmd *cobra.Command, args []string) error {
 	// Get git dir
 	gitDir, err := git.GetNearestRepoDir(".")
 	if err != nil {
-		return err
+		log.Print(log.IconFailure, "Failed to find a git repository", log.ColorRed(err))
+		log.PrintNotInitialized()
+		log.DumpAndExit(1)
 	}
 
 	// Load the conf
 	conf, err := config.Read(gitDir)
 	if err != nil {
+		println("Failed to read config file", err.Error())
 		log.PrintNotInitialized()
-		log.DumpAndExit(0)
+		log.DumpAndExit(1)
 	}
 
 	// Get flags
