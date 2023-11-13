@@ -11,18 +11,22 @@ func MigrateConfig(dry bool) (files []string, err error) {
 		return files, err
 	}
 
+	oldPath := repoDir + "/.dvs.yaml"
+
 	// We're done if .dvs.yaml doesn't exist at the repo root
-	_, err = os.Open(repoDir)
+	_, err = os.Open(oldPath)
 	if os.IsNotExist(err) {
 		return files, nil
 	}
 
 	// Migrate te config file
-	oldPath := repoDir + "/.dvs.yaml"
 	if dry {
 		return []string{oldPath}, nil
 	}
-	os.Rename(oldPath, repoDir+"/dvs.yaml")
+	err = os.Rename(oldPath, repoDir+"/dvs.yaml")
+	if err != nil {
+		return files, err
+	}
 
 	return []string{oldPath}, nil
 }
