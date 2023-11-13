@@ -5,7 +5,6 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/storage"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
