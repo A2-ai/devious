@@ -1,9 +1,8 @@
-# Go workspace file
+# Go
 go.work
 
 # Binaries
 dvs
 
-# Testings
-testing/storage/
+# Testing environment
 testing/environment/
