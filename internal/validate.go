@@ -15,11 +15,7 @@ func ValidateEnvironment() (bool, string) {
 
 	// Ensure data is migrated
 	match, err := migrate.MigrateToLatest(true)
-	if err != nil {
-		log.Print()
-		return false, log.IconFailure + " Error validating environment " + log.ColorRed(err)
-	}
-	if match {
+	if match || err != nil {
 		return false, log.IconWarning + " Data is not migrated - run " + log.ColorFaint("dvs migrate") + " to migrate your data to the current version"
 	}
 
