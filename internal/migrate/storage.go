@@ -5,6 +5,7 @@ import (
 	"dvs/internal/git"
 	"dvs/internal/storage"
 	"io/fs"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,8 +35,10 @@ func migrateStorageFile(storageDir string, path string, dry bool) (match bool, e
 			return true, nil
 		}
 
-		// Create new directory
-		newDir := storage.GetStoragePath(storageDir, filepath.Base(path))
+		fileHash := filepath.Base(path)
+
+		// Create new directory for first segment of the filename
+		newDir := filepath.Join(storageDir, fileHash[:2])
 		err := os.MkdirAll(newDir, storage.StorageDirPermissions)
 		if err != nil {
 			return false, err
