@@ -19,7 +19,7 @@ func MigrateConfig(dry bool) (files []string, err error) {
 		return files, nil
 	}
 
-	// Migrate te config file
+	// Migrate the config file
 	if dry {
 		return []string{oldPath}, nil
 	}
