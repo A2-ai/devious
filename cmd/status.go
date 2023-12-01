@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"dvs/internal/config"
 	"dvs/internal/file"
 	"dvs/internal/git"
 	"dvs/internal/log"
@@ -39,6 +40,12 @@ func runStatusCmd(cmd *cobra.Command, args []string) {
 		if err != nil {
 			log.Print(log.IconFailure, "Failed to find a git repository", log.ColorRed(err))
 			os.Exit(1)
+		}
+
+		// Get config
+		_, err = config.Read(gitDir)
+		if err != nil {
+			log.Print(log.IconWarning, "Devious is not initialized, run", log.ColorFaint("dvs init <storage-path>"), "to initialize\n")
 		}
 
 		metaPaths, err = meta.GetAllMetaFiles(gitDir)

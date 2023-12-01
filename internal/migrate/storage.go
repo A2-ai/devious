@@ -67,7 +67,11 @@ func migrateStorageFile(storageDir string, path string, dry bool) (match bool, e
 func MigrateStorageFiles(dry bool) (files []string, err error) {
 	repoDir, _ := git.GetNearestRepoDir(".")
 	config, err := config.Read(repoDir)
-	if err != nil {
+
+	if os.IsNotExist(err) {
+		// No config file, no storage
+		return nil, nil
+	} else if err != nil {
 		return nil, err
 	}
 
