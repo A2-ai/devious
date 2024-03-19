@@ -1,0 +1,109 @@
+`dvs init <storage-directory>`
+Initializes devious in the current git repository with the provided storage directory. 
+The storage directory should be a location accessible by all users of the repository.
+
+The algorithm checks if a nearby git repo exists. 
+    if a root cannot be found, 
+        it prints in red "✘ Failed to get git root <error>" 
+        it dumps and exists 1
+    if a root is found, 
+            it collects the root.
+            it inializes a storage directory.
+            it attempts to make the storage directory an absolute path.
+                if the storage directory cannot be canonicalized, 
+                    it prints in red: "✘ Failed to convert destination to absolute path <storage-directory" 
+                    it returns error and prints in red "✘ Failed to initialize devious <error>"
+                    it dumps and exists with 1
+                if the storage directory can be canonicalized, 
+                    it checks storage directory permissions
+                    if the storage directory doesn't already exist,
+                        it attempts to create the directory with necessary parents
+                        if it is unable to create the directory, 
+                            it prints "✘ Failed to create storage directory <storage-directory>"
+                            it returns error and prints in red "✘ Failed to initialize devious <error>"
+                            it dumps and exists with 1
+                        if it is able to create the directory, 
+                            it attempts to set the storage permissions
+                            if it is unable to set the storage permissions, 
+                                it prints in red "✘ Failed to set storage directory permissions <storage-directory>" 
+                                it returns error and prints in red "✘ Failed to initialize devious <error>"
+                                it dumps and exists with 1
+                            if it is able to set the storage permissions, it prints in green "✔ Created storage directory <storage-directory>"
+                                it returns nil
+                    if the storage directory already exists, 
+                        it prints in green "✔ Storage directory already exists <storage-directory>"
+                        it checks if <storage-directory> is a directory
+                        if <storage-directory> is not a directory
+                            it prints in red ✘ Destination isn't a directory <storage-directory>"
+                            it returns error and prints in red "✘ Failed to initialize devious <error>"
+                            it dumps and exists with 1
+            it attempts to write a config with the storage directory and root directory
+                if it cannot write the config,
+                    it returns error and prints in red "✘ Failed to initialize devious <error>"
+                    it dumps and exists with 1
+                if it does write the config, 
+                    it prints in green "✔" Wrote config <filepath.Join(rootDir, config.ConfigFileName)>"
+                    it returns nil
+
+
+`dvs add <glob> [another-glob] ...`
+Adds file(s) to storage. Accepts one or more globs, each representing a file or set of files to be tracked. 
+Ignores files outside of current git repository.
+
+First, the algorithm collects flags
+    if there is an error collecting flags,
+        return error
+it collects the nearest git repository
+     if a parent git repository does't exist,
+        it prints in red "✘ Couldn't find a parent git repository"
+it reads the config
+    if it fails to read the config, 
+    it prints in red "✘ Devious is not initialized, run", and prints in faint "dvs init <storage-path> to initialize"
+    it dumps and exists with 1
+for each glob, 
+    it removes the .dvsmeta file extension
+    if the file is already queued
+        it skips it
+    if a file isn't in the git repo,
+        it prints in yellow "! Skipping invalid path <glob>\n"
+        it skips it
+    if a file doesn't exist, 
+        it prints in yellow "! Skipping invalid path <glob>\n"
+        it skips it
+    if a glob is a directory,
+        it prints in yellow "! Skipping directory <glob> \n"
+        it skips it
+it adds the file glob to a list of queued paths
+for each file glob in the list of queued paths,
+    it adds each file to storage:
+    gets the file hash:
+    if the hash is cached,
+        it returns the cached hash
+    it reads in the file bytes
+        if it can't read the file bytes,
+            it returns error
+    it hashs the file contents
+        if it can't hash the file contents,
+            it returns error
+    it caches the hash
+        if it can't cache the hash,
+            it returns error
+    it returns the hash and nil
+if no files were queued
+    it prints in yellow "! No files were queued"
+it returns nil      
+
+`dvs get <path/to/folder/file.csv.dvsmeta>`
+Gets file(s) from storage
+
+
+
+`dvs migrate`
+Migrates data to the latest format. This includes the meta files and the storage.
+
+`dvs remove <path> [another-path] ...`
+Removes file(s) from storage and devious"
+
+`dvs status [glob] [another-glob] ...`
+Gets the status of files tracked by devious. If glob(s) are provided, only those globs will be checked. 
+Otherwise, all files in the current git repository will be checked.

@@ -1,0 +1,11 @@
+cli user specifications
+
+- if they are in a git repository, the user should be able to initialize an accessible storage directory for file(s) 
+    - this will set the location to which file(s) are `added`
+- if they are in a git repository, the user should be able to `add` existing file(s) - a single command that will:
+    - make file(s) `get`-able later on by the user or any other user with access to the storage directory
+    - add file(s) to the global project .gitignore
+- if they are in a git repository and have initialized a storage directory, the user should be able to 
+  `get` file(s) they have `add`ed - a single command that will:
+    - copy the file(s) to the directory in which the dvs meta file(s) exist
+
