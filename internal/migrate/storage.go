@@ -76,7 +76,11 @@ func MigrateStorageFiles(dry bool) (files []string, err error) {
 	}
 
 	// Iterate over all files in the storage directory
-	err = filepath.WalkDir(config.StorageDir, func(path string, d fs.DirEntry, _ error) error {
+	err = filepath.WalkDir(config.StorageDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		// Don't migrate the directories
 		if d.IsDir() {
 			return nil
