@@ -1,11 +1,47 @@
-cli user specifications
+devious cli user specifications
 
-- if they are in a git repository, the user should be able to initialize an accessible storage directory for file(s) 
-    - this will set the location to which file(s) are `added`
-- if they are in a git repository, the user should be able to `add` existing file(s) - a single command that will:
-    - make file(s) `get`-able later on by the user or any other user with access to the storage directory
-    - add file(s) to the global project .gitignore
-- if they are in a git repository and have initialized a storage directory, the user should be able to 
-  `get` file(s) they have `add`ed - a single command that will:
-    - copy the file(s) to the directory in which the dvs meta file(s) exist
+- a user should be able to install devious
+
+- a user should be able to check the version of devious they have installed
+
+- a user should be able to run a single command that will give context to the tool with helpful information on usage
+
+- if they are in a git repository, a user should be able to initialize an accessible storage directory for file(s) 
+    - this will set the location to which file(s) are `add`ed
+
+- if they are in a git repository with an initialized and accessible storage directory, 
+  a user should be able to `add` existing file(s) - a single command that will:
+    - make file(s) `get`able later on by the user or any other user with access to the initialized storage directory
+    - add a line to the global project .gitignore excluding the `add`ed file
+    - NEW: for each `add`ed file, if the parent directory of the `add`ed file has a .gitignore, this command will add a 
+     line to the .gitignore to include the devious metadata file of the `add`ed file.
+        - OR: for each `add`ed file, if the parent directory of the `add`ed file has a .gitignore, this command will check if 
+          a line exists to include all devious metadata files. if one doesn't exist, it will add one.
+- this command should work with one or multiple relative/absolute file paths or globs
+
+- if they are in a git repository with an initialized and accessible storage directory, a user should be able to 
+  `get` file(s) that have been previously `add`ed by them or another repo user - a single command that will:
+    - do nothing if the file(s) already exist in the directory in which they were originally `add`ed
+    - else, copy the file(s) to the directory in which they were originally `add`ed
+- this command should work with one or multiple relative/absolute file paths or globs
+- this command should work with both the original extension of the file(s) or their metadata file extension(s)
+
+- if they are in a git repository with an initialized and accessible storage directory,
+  a user should be able to update file(s) in the storage directory with `add`
+
+- a user should be able to use a single command to track the status of all previously `add`ed files
+- a user should also be able to track the status of a one or multiple files using relative/absolute file paths or globs
+
+- a user should be able to removes file(s) from the storage directory and devious
+- this command should work with one or multiple relative/absolute file paths or globs
+- NEW: this command should work with both the original extension of the file(s) or their metadata file extension(s)
+
+- commands to `init`, `add`, `get`, `status`, and `remove` should be serializable to json with a flag
+- commands to `init`, `add`, `get`, `status`, `remove`, and `help` should have a flag for help using each respective command
+
+Questions: can I have an example of the conflicting global gitignore entries?
+
+
+
+
 
