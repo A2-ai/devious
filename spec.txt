@@ -6,6 +6,24 @@ devious cli user specifications
 
 - a user should be able to run a single command that will give context to the tool with helpful information on usage
 
+- as a user, I should be able to use dvs when working on a git-based version-control project directory.
+  - if a user attempts to use dvs in a non-git-directory, it will warn the user and not perform any operations.
+  - if a user attempts to initialize dvs in a non-git repository, it will warn and not perform any operations.
+
+- as a user, I should be able to initialize dvs in a git-based project directory. 
+  - the user must provide a target directory for shared storage
+  - as a user, I should not need to re-provide the shared storage location on subsequent commands
+  - as a user, I should be able to determine the shared storage location of a git repository that uses devious that I have just cloned
+  - the shared storage location should be captured in a metadata file at the project root for subsequent command usage
+
+- configuration for the tool should be human-readable and -editable
+
+- NEW: as a user, I should be able to specify the shared storage directory's primary group during initialization
+- the default file permissions should be user and primary group read-write and global read.
+- as a user, I can configure the permissions for files for a one-off command 
+ as a user, I can configure the permissions for files for all subsequent invocations
+
+
 - if they are in a git repository, a user should be able to initialize an accessible storage directory for file(s) 
     - this will set the location to which file(s) are `add`ed
 
