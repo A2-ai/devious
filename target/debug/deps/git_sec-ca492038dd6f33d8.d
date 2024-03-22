@@ -1,0 +1,10 @@
+/cluster-data/user-homes/jenna/Projects/devious/target/debug/deps/libgit_sec-ca492038dd6f33d8.rmeta: /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/lib.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/trust.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/permission.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/identity.rs
+
+/cluster-data/user-homes/jenna/Projects/devious/target/debug/deps/libgit_sec-ca492038dd6f33d8.rlib: /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/lib.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/trust.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/permission.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/identity.rs
+
+/cluster-data/user-homes/jenna/Projects/devious/target/debug/deps/git_sec-ca492038dd6f33d8.d: /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/lib.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/trust.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/permission.rs /cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/identity.rs
+
+/cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/lib.rs:
+/cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/trust.rs:
+/cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/permission.rs:
+/cluster-data/user-homes/jenna/.cargo/registry/src/index.crates.io-6f17d22bba15001f/git-sec-0.6.3/src/identity.rs:

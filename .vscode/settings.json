@@ -1,5 +1,10 @@
 {
     "yaml.schemas": {
         "https://json.schemastore.org/github-workflow.json": "file:///home/andriygm/projects/devious/.github/workflows/goreleaser.yml"
-    }
+    },
+    "rust-analyzer.linkedProjects": [
+        "./Cargo.toml",
+        "./Cargo.toml",
+        "./Cargo.toml"
+    ]
 }
