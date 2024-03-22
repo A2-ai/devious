@@ -11,7 +11,7 @@ use std::fs::Permissions;
 
 
 
-fn init(root_dir: PathBuf, storage_dir: PathBuf, mode: u32, gid: u32) -> Result<(), std::io::Error> { // 
+pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, gid: &u32) -> Result<(), std::io::Error> { // 
     // get storage directory as an absolute path
     let storage_dir_abs: PathBuf = match storage_dir.canonicalize() {
         Ok(storage_dir_abs) => {

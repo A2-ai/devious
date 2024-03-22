@@ -12,7 +12,7 @@ fn is_git_repo(dir: &PathBuf) -> bool {
     dir.join(".git").is_dir()
 }
 
-pub fn get_nearest_repo_dir(dir: PathBuf) -> Result<PathBuf, std::io::Error> {
+pub fn get_nearest_repo_dir(dir: &PathBuf) -> Result<PathBuf, std::io::Error> {
     let mut directory = match dir.canonicalize() {
         Ok(directory) => directory,
         Err(e) => return Err(e)
