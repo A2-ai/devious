@@ -1,4 +1,5 @@
-use std::path::{PathBuf};
+use std::path::{PathBuf, Path};
+use std::fs;
 
 fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> PathBuf {
     let abs_file_path = file_path.canonicalize().expect("no such file or directory");
@@ -12,6 +13,12 @@ fn is_git_repo(dir: &PathBuf) -> bool {
     dir.join(".git").is_dir()
 }
 
+pub fn is_directory_empty(directory: &Path) -> std::io::Result<bool> {
+    let mut entries = fs::read_dir(directory)?;
+    let first_entry = entries.next();
+    Ok(first_entry.is_none())
+}
+
 pub fn get_nearest_repo_dir(dir: &PathBuf) -> Result<PathBuf, std::io::Error> {
     let mut directory = match dir.canonicalize() {
         Ok(directory) => directory,
@@ -22,9 +29,9 @@ pub fn get_nearest_repo_dir(dir: &PathBuf) -> Result<PathBuf, std::io::Error> {
 
     while directory != PathBuf::from("/") {
         directory = match directory.parent() {
-            Some(directory) => {
+            Some(_) => {
                 if is_git_repo(&directory.to_path_buf()) {return Ok(directory.to_path_buf())}
-                else {continue;}
+                else {directory.parent().unwrap().to_path_buf()}
             }
             None => directory,
         };
