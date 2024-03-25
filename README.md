@@ -27,7 +27,7 @@ dvs add <glob> <another-glob>
 `dvs add` accepts one or more globs, each representing a file or set of files to be tracked. Ignores files outside of current git repository. For example, `dvs add *.png subdir/*.csv` will add all PNG files in the current directory and all CSV files in the `subdir` directory.
 
 ### Updating files
-If you want to update a file after changing it, you can simply run `dvs add <glob>` again. Devious will automatically update the file's reference and add the new version to the storage location.
+If you want to update a file after changing it, you can run `dvs add <glob>` again. Devious will automatically update the file's reference and add the new version to the storage location.
 
 ### Getting files
 You can get file(s) by running
