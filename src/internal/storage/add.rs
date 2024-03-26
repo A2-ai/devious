@@ -5,7 +5,7 @@ use crate::internal::storage::copy;
 
 pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, message: String) -> Result<String, std::io::Error> {
     // get file hash
-    let file_hash = match hash::get_file_hash(local_path){
+    let file_hash = match hash::hash_file_with_blake3(local_path) {
         Ok(file_hash) => {
             //json
             file_hash
@@ -50,7 +50,7 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
 
     // Create + write metadata file
 
-    
+
     // Add file to gitignore
 
 

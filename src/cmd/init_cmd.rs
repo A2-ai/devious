@@ -2,7 +2,7 @@ use crate::internal::git::repo;
 use crate::internal::storage::init;
 use std::path::PathBuf;
 
-pub fn get_init_runner(storage_dir: &PathBuf, mode: &u32, gid: &u32) -> Result<(), std::io::Error> {
+pub fn get_init_runner(storage_dir: &PathBuf, mode: &u32, group: &String) -> Result<(), std::io::Error> {
     
     // Get git root
     let git_repo = match repo::get_nearest_repo_dir(&storage_dir) {
@@ -17,10 +17,9 @@ pub fn get_init_runner(storage_dir: &PathBuf, mode: &u32, gid: &u32) -> Result<(
     };
 
     // Initialize
-    let init_run = match init::init(&git_repo, &storage_dir, &mode, &gid) {
-        Ok(init_run) => {
+    match init::init(&git_repo, &storage_dir, &mode, &group) {
+        Ok(_) => {
             // json
-            init_run
         }
         Err(e) => {
             // json
