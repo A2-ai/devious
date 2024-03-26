@@ -5,7 +5,7 @@ use std::path::PathBuf;
 pub fn get_init_runner(storage_dir: &PathBuf, mode: &u32, group: &String) -> Result<(), std::io::Error> {
     
     // Get git root
-    let git_repo = match repo::get_nearest_repo_dir(&storage_dir) {
+    let git_repo = match repo::get_nearest_repo_dir(&PathBuf::from(".")) {
         Ok(git_repo) => {
             // json
             git_repo
