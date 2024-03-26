@@ -31,7 +31,7 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
     let src_file_size = src_file_data.len();
 
     // ensure destination exists
-    match create_dir_all(dest_path) {
+    match create_dir_all(dest_path.parent().unwrap()) {
         Ok(_) => {}
         Err(e) => return Err(e),
     }
@@ -42,20 +42,13 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
         Err(e) => return Err(e),
     };
 
-    let path = dest_path.join(dest_file);
-
+    // Set destination file permissions
     let mode: u32 = 0o664;
     let permissions: Permissions = fs::Permissions::from_mode(mode);
-    fs::set_permissions(dest_file, fs::Permissions::from_mode(mode)).unwrap();
-        match fs::set_permissions(dest_path.join(dest_file), permissions) {
-            Ok(_) => {
-                // json: success
-            },
-            Err(e) => {
-                // json: fail
-                return Err(e)
-            }
-        };
+    fs::set_permissions(dest_path, permissions);
+
+    // Copy the file
+    fs::copy(src_path, dest_path);
 
     Ok(())
 }
