@@ -9,16 +9,13 @@ use std::fs::Permissions;
 use file_owner::{Group, PathExt};
 
 pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &String) -> Result<(), std::io::Error> { // 
-    // get storage directory as an absolute path (don't use canoniicalize which checks if the path exists)
-    let storage_dir_abs = normalize_path(storage_dir);
-    
-    // check storage directory permissions
-    let md = fs::metadata(&storage_dir_abs)?;
-    let permissions = md.permissions();
-    let readonly = permissions.readonly();
-    if readonly { // create storage dir
+    // get storage directory as a normalized path
+    let storage_dir_norm = normalize_path(storage_dir);
+
+    // should I use .exists or .is_dir?
+    if !storage_dir.exists() { // if storage directory doesn't exist
         // create storage dir
-        match create_dir(&storage_dir_abs) {
+        match create_dir(&storage_dir_norm) {
             Ok(_) => {
                 // json: success
             }
@@ -27,21 +24,21 @@ pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &
                 return Err(e)
             }
         };
-    }
-    else { // storage dir already exists
+    } // if
+
+    else { // else, storage directory exists
         // json: Storage directory already exists
 
-        // Ensure storage dir is a directory
-        if !storage_dir_abs.clone().is_dir() {
-            // json: fail
-            return Err(std::io::Error::other("storage dir is not a directory"));
-        }
-
-        //  Warn if storage dir is not readable
-        match repo::is_directory_empty(storage_dir_abs.as_path()) {
-            Ok(_) => {
-                // json
+        //  Warn if storage dir is empty
+        match repo::is_directory_empty(storage_dir_norm.as_path()) {
+            Ok(empty) => {
+                if empty {
+                    // json
                 println!("directory is empty")
+                }
+                else {
+                    println!("directory is not empty")
+                }
             }
             Err(e) => {
                 //json
@@ -49,6 +46,12 @@ pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &
             }
         }
     } // else
+
+    // get absolute path
+    let storage_dir_abs = match storage_dir_norm.canonicalize() {
+        Ok(path) => path,
+        Err(e) => return Err(e),
+    };
 
     // set permissions
     let permissions: Permissions = fs::Permissions::from_mode(*mode);

@@ -1,0 +1,38 @@
+use std::time::SystemTime;
+use std::path::PathBuf;
+use std::fs::File;
+use serde::{Deserialize, Serialize};
+use serde_json::Result;
+use std::fs;
+
+#[derive(Serialize, Deserialize)]
+pub struct Metadata {
+    pub file_hash: String,
+    pub file_size: u64,
+    pub time_stamp: SystemTime,
+    pub message: String,
+    pub group: String,
+    pub saved_by: String
+}
+
+// static FILE_EXTENSION: String = String::from(".dvsmeta");
+
+pub fn save(metadata: &Metadata, path: &PathBuf) -> Result<()> {
+    // compose path file/to/file.ext.dvsmeta
+    let metadata_file_path = PathBuf::from(path.display().to_string() + ".dvsmeta");
+
+    // create file
+    File::create(&metadata_file_path);
+
+    // write to json
+    let contents = serde_json::to_string(&metadata).unwrap();
+    fs::write(&metadata_file_path, contents);
+    Ok(())
+}
+
+pub fn load(path: PathBuf) -> Result<Metadata> {
+    let contents = fs::read_to_string(path).unwrap();
+    let metadata_file: Metadata = serde_json::from_str(&contents)?;
+
+    return Ok(metadata_file);
+}

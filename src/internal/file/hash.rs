@@ -1,7 +1,7 @@
 use blake3::Hasher;
 use std::path::PathBuf;
 use std::fs::File;
-use extendr_api::prelude::*;
+// use extendr_api::prelude::*;
 use std::io::Result;
 use std::io::{self, Read};
 

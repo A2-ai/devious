@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 use std::fs::{create_dir_all, File};
 use std::os::unix::fs::PermissionsExt;
-use std::io;
 use std::fs;
 use std::fs::Permissions;
 
@@ -28,7 +27,7 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
         Ok(data) => data,
         Err(e) => return Err(e),
     };
-    let src_file_size = src_file_data.len();
+    let _src_file_size = src_file_data.len();
 
     // ensure destination exists
     match create_dir_all(dest_path.parent().unwrap()) {
@@ -37,7 +36,7 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
     }
 
     // create destination file
-    let dest_file = match File::create(dest_path) {
+    match File::create(dest_path) {
         Ok(file) => file,
         Err(e) => return Err(e),
     };
@@ -45,10 +44,10 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
     // Set destination file permissions
     let mode: u32 = 0o664;
     let permissions: Permissions = fs::Permissions::from_mode(mode);
-    fs::set_permissions(dest_path, permissions);
+    fs::set_permissions(dest_path, permissions).expect("file unable to be copied, permissions denied");
 
     // Copy the file
-    fs::copy(src_path, dest_path);
+    fs::copy(src_path, dest_path).expect("file unable to be copied");
 
     Ok(())
 }

@@ -1,7 +1,7 @@
 use std::path::{PathBuf, Path};
 use std::fs;
 
-fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> Result<PathBuf, std::io::Error> {
+pub fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> Result<PathBuf, std::io::Error> {
     let abs_file_path = match file_path.canonicalize() {
         Ok(path) => path,
         Err(e) => return Err(e),
