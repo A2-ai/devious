@@ -1,12 +1,21 @@
 use std::path::{PathBuf, Path};
 use std::fs;
 
-fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> PathBuf {
-    let abs_file_path = file_path.canonicalize().expect("no such file or directory");
+fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> Result<PathBuf, std::io::Error> {
+    let abs_file_path = match file_path.canonicalize() {
+        Ok(path) => path,
+        Err(e) => return Err(e),
+    };
 
-    let abs_root_dir = root_dir.canonicalize().expect("no such file or directory");
+    let abs_root_dir = match root_dir.canonicalize() {
+        Ok(path) => path,
+        Err(e) => return Err(e),
+    };
 
-    abs_file_path.strip_prefix(abs_root_dir).expect("paths not relative").to_path_buf()
+    match abs_file_path.strip_prefix(abs_root_dir) {
+        Ok(path) => return Ok(path.to_path_buf()),
+        Err(_) => return Err(std::io::Error::other("paths not relative")),
+    }
 }
 
 fn is_git_repo(dir: &PathBuf) -> bool {

@@ -6,10 +6,12 @@ use std::fs;
 use std::fs::Permissions;
 
 pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Error> {
+    // Ignore .. and . paths
     if *src_path == PathBuf::from(r"..") || *src_path == PathBuf::from(r".") {
         return Err(std::io::Error::other("copy failed"));
     }
 
+    // Open source file
     let src_file = match File::open(src_path) {
         Ok(file) => {
             // json
@@ -21,11 +23,11 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
         }
     };
 
+    // Get file size
     let src_file_data = match src_file.metadata() {
         Ok(data) => data,
         Err(e) => return Err(e),
     };
-
     let src_file_size = src_file_data.len();
 
     // ensure destination exists
@@ -40,8 +42,11 @@ pub fn copy(src_path: &PathBuf, dest_path: &PathBuf) -> Result<(), std::io::Erro
         Err(e) => return Err(e),
     };
 
+    let path = dest_path.join(dest_file);
+
     let mode: u32 = 0o664;
     let permissions: Permissions = fs::Permissions::from_mode(mode);
+    fs::set_permissions(dest_file, fs::Permissions::from_mode(mode)).unwrap();
         match fs::set_permissions(dest_path.join(dest_file), permissions) {
             Ok(_) => {
                 // json: success
