@@ -17,7 +17,10 @@ pub fn run_add_cmd(files: &Vec<PathBuf>, message: &String) -> Result<(), std::io
     };
 
     // load the config
-    let conf = config::read(&git_dir).expect("could not open yaml");
+    let conf = match config::read(&git_dir) {
+        Ok(config) => config,
+        Err(_) => return Err(std::io::Error::other("config not readable")),
+    };
 
     let mut queued_paths: Vec<PathBuf> = Vec::new();
 
@@ -54,7 +57,7 @@ pub fn run_add_cmd(files: &Vec<PathBuf>, message: &String) -> Result<(), std::io
     
     // add each file in queued_paths to storage
     for file in &queued_paths {
-        match add::add(file, &conf.storage_dir, &git_dir, &message) {
+        match add::add(file, &conf, &git_dir, &message) {
             Ok(_) => {}
             Err(e) => return Err(e),
         };

@@ -4,7 +4,9 @@ use std::path::PathBuf;
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct Config {
-    pub storage_dir: PathBuf
+    pub storage_dir: PathBuf,
+    pub permissions: u32,
+    pub group: String
 }
 
 pub fn read(root_dir: &PathBuf) -> Result<Config, serde_yaml::Error> {

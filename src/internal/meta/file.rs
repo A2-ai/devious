@@ -11,7 +11,6 @@ pub struct Metadata {
     pub file_size: u64,
     pub time_stamp: SystemTime,
     pub message: String,
-    pub group: String,
     pub saved_by: String
 }
 

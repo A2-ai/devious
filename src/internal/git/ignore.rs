@@ -15,7 +15,7 @@ pub fn add_gitignore_entry(git_dir: &PathBuf, path: &PathBuf) -> Result<(), std:
     // open the gitignore file, creating one if it doesn't exist
     let ignore_file = git_dir.join(".gitignore");
     if !ignore_file.exists() {
-       File::create(&ignore_file).expect("gitignore cannot be created");
+       File::create(&ignore_file)?;
     }
     let contents = std::fs::read_to_string(&ignore_file).unwrap();
     if !contents.contains(&ignore_entry) {

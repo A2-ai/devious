@@ -1,15 +1,17 @@
+use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
-use std::path::Path;
 use std::time::SystemTime;
-use file_owner::PathExt;
+use file_owner::{Group, PathExt};
+use std::fs::{self, Permissions};
 
+use crate::internal::config::config::Config;
 use crate::internal::file::hash;
 use crate::internal::storage::copy;
 use crate::internal::meta::file;
 use crate::internal::git::ignore;
 
 
-pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, message: &String) -> Result<String, std::io::Error> {
+pub fn add(local_path: &PathBuf, conf: &Config, git_dir: &PathBuf, message: &String) -> Result<String, std::io::Error> {
     // get file hash
     let file_hash = match hash::hash_file_with_blake3(local_path) {
         Ok(file_hash) => {
@@ -23,7 +25,11 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
     };
 
     // get storage path
-    let dest_path = hash::get_storage_path(&storage_dir, &file_hash);
+    let storage_dir_abs = match conf.storage_dir.canonicalize() {
+        Ok(path) => path,
+        Err(e) => return Err(e),
+    };
+    let dest_path = hash::get_storage_path(&storage_dir_abs, &file_hash);
 
     // Copy the file to the storage directory
 	// if the destination already exists, skip copying
@@ -31,6 +37,7 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
         // copy
         match copy::copy(&local_path, &dest_path) {
             Ok(_) => {
+                
                 // json
              }
              Err(e) => {
@@ -44,6 +51,33 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
         // json
     }
 
+    // set permissions
+    let mode = conf.permissions;
+    let permissions: Permissions = fs::Permissions::from_mode(mode);
+    match fs::set_permissions(&dest_path, permissions) {
+        Ok(_) => {
+            // json: success
+        },
+        Err(e) => {
+            // json: fail
+            return Err(e)
+        }
+    };
+
+    // set group ownership
+    let group_name = conf.group.as_str();
+    let group = match Group::from_name(group_name) {
+        Ok(group) => {
+            // json
+            group
+        }
+        Err(_) => return Err(std::io::Error::other("group name is invalid"))
+    };
+    match dest_path.set_group(group) {
+        Ok(_) => {},
+        Err(_) => return Err(std::io::Error::other("group name is invalid"))
+    };
+
     // get file size
     let local_path_data = match local_path.metadata() {
         Ok(data) => data,
@@ -51,26 +85,14 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
     };
     let file_size = local_path_data.len();
 
-    // get user
+    // get user name
     let owner = match local_path.owner() {
         Ok(owner) => owner,
         Err(_) => return Err(std::io::Error::other("file owner not found")),
     };
-    // get user name
     let owner_name = match owner.name() {
         Ok(name) => name.unwrap(),
         Err(_) => {return Err(std::io::Error::other("file owner not found"))},
-    };
-
-    // get group 
-    let group = match local_path.group() {
-        Ok(group) => group,
-        Err(_) => return Err(std::io::Error::other("file group not found")),
-    };
-    // get group name
-    let group_name = match group.name() {
-        Ok(name) => name.unwrap(),
-        Err(_) => {return Err(std::io::Error::other("file group not found"))},
     };
 
     // create + write metadata file
@@ -79,17 +101,18 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
         file_size,
         time_stamp: SystemTime::now(),
         message: message.clone(),
-        group: group_name,
         saved_by: owner_name
     };
-
     match file::save(&metadata, &local_path) {
         Ok(_) => {},
         Err(_) => return Err(std::io::Error::other("metadata file not created"))
     };
 
     // Add file to gitignore
-    ignore::add_gitignore_entry(git_dir, local_path).expect("gitignore entry unable to be added");
+    match ignore::add_gitignore_entry(git_dir, local_path) {
+        Ok(_) => {},
+        Err(_) => return Err(std::io::Error::other("gitignore entry could not be created"))
+    };
     
     return Ok(file_hash);
 }
