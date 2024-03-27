@@ -1,4 +1,5 @@
 use std::path::PathBuf;
+use std::path::Path;
 use std::time::SystemTime;
 use file_owner::PathExt;
 
@@ -7,7 +8,8 @@ use crate::internal::storage::copy;
 use crate::internal::meta::file;
 use crate::internal::git::ignore;
 
-pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, message: String) -> Result<String, std::io::Error> {
+
+pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, message: &String) -> Result<String, std::io::Error> {
     // get file hash
     let file_hash = match hash::hash_file_with_blake3(local_path) {
         Ok(file_hash) => {
@@ -74,9 +76,9 @@ pub fn add(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf, messa
     // create + write metadata file
     let metadata = file::Metadata{
         file_hash: file_hash.clone(),
-        file_size: file_size,
+        file_size,
         time_stamp: SystemTime::now(),
-        message: message,
+        message: message.clone(),
         group: group_name,
         saved_by: owner_name
     };

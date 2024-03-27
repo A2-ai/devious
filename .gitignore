@@ -6,3 +6,10 @@ dvs
 
 # Testing environment
 testing/environment/
+
+# Devious entry
+/src/test_directory/test1.txt
+
+
+# Devious entry
+/src/test_directory/test2.txt

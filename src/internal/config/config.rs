@@ -7,12 +7,12 @@ pub struct Config {
     pub storage_dir: PathBuf
 }
 
-pub fn read(root_dir: &PathBuf) -> Result<(), serde_yaml::Error> {
+pub fn read(root_dir: &PathBuf) -> Result<Config, serde_yaml::Error> {
     // check if yaml is readable
     let yaml_contents = fs::read_to_string(root_dir.join(PathBuf::from(r"dvs.yaml"))).unwrap();
     // check if yaml is deserializable
-    serde_yaml::from_str(&yaml_contents)?;
-    Ok(())
+    let conf: Config = serde_yaml::from_str(&yaml_contents)?;
+    Ok(conf)
 } // read
 
 pub fn write(config: &Config, dir: &PathBuf) -> std::io::Result<()> {
