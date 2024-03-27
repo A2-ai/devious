@@ -1,10 +1,8 @@
 use blake3::Hasher;
 use std::path::PathBuf;
 use std::fs::File;
-// use extendr_api::prelude::*;
 use std::io::Result;
 use std::io::{self, Read};
-use std::fs;
 
 pub fn hash_file_with_blake3(file_path: &PathBuf) -> io::Result<String> {
     let file = File::open(file_path)?;

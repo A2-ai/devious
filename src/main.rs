@@ -11,8 +11,6 @@ use crate::cmd::add_cmd;
 use crate::cmd::get_cmd;
 
 
-
-
 fn main() -> io::Result<()> {
     // dvs init src/test_directory_storage --mode=0o764 --group=datascience
     let storage_dir = PathBuf::from(r"src/test_directory_storage");   
@@ -34,9 +32,9 @@ fn main() -> io::Result<()> {
     fs::remove_file(PathBuf::from("src/test_directory/test1.txt"))?;
     fs::remove_file(PathBuf::from("src/test_directory/test2.txt"))?;
 
+    // dvs get src/test_directory/test1.txt src/test_directory/test2.txt
     get_cmd::run_get_cmd(&files)?;
 
-    
     Ok(())
  }
 

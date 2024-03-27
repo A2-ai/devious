@@ -23,7 +23,7 @@ pub fn save(metadata: &Metadata, path: &PathBuf) -> Result<()> {
     // create file
     let _ = File::create(&metadata_file_path);
     // write to json
-    let contents = serde_json::to_string(&metadata).unwrap();
+    let contents = serde_json::to_string_pretty(&metadata).unwrap();
     let _ = fs::write(&metadata_file_path, contents);
     Ok(())
 }
