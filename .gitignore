@@ -11,9 +11,3 @@ testing/environment/
 debug/
 target/
 
-# Devious entry
-/src/test_directory/test1.txt
-
-
-# Devious entry
-/src/test_directory/test2.txt
