@@ -7,6 +7,9 @@ dvs
 # Testing environment
 testing/environment/
 
+# debug
+target/debug
+
 # Devious entry
 /src/test_directory/test1.txt
 
