@@ -1,1 +1,3 @@
 storage_dir: /cluster-data/user-homes/jenna/Projects/devious/src/test_directory_storage
+permissions: 500
+group: datascience

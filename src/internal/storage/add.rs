@@ -109,7 +109,7 @@ pub fn add(local_path: &PathBuf, conf: &Config, git_dir: &PathBuf, message: &Str
     };
 
     // Add file to gitignore
-    match ignore::add_gitignore_entry(git_dir, local_path) {
+    match ignore::add_gitignore_entry(local_path) {
         Ok(_) => {},
         Err(_) => return Err(std::io::Error::other("gitignore entry could not be created"))
     };

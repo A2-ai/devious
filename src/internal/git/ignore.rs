@@ -2,9 +2,10 @@ use std::{fs::{File, OpenOptions}, path::PathBuf};
 use crate::internal::git::repo;
 use std::io::prelude::*;
 
-pub fn add_gitignore_entry(git_dir: &PathBuf, path: &PathBuf) -> Result<(), std::io::Error> {
+pub fn add_gitignore_entry(path: &PathBuf) -> Result<(), std::io::Error> {
+    let dir = path.parent().unwrap().to_path_buf();
     // get relative path
-    let ignore_entry_temp = match repo::get_relative_path(git_dir, path) {
+    let ignore_entry_temp = match repo::get_relative_path(&dir, path) {
         Ok(entry) => entry,
         Err(e) => return Err(e)
     };
@@ -13,7 +14,7 @@ pub fn add_gitignore_entry(git_dir: &PathBuf, path: &PathBuf) -> Result<(), std:
     let ignore_entry = format!("/{path}");
 
     // open the gitignore file, creating one if it doesn't exist
-    let ignore_file = git_dir.join(".gitignore");
+    let ignore_file = dir.join(".gitignore");
     if !ignore_file.exists() {
        File::create(&ignore_file)?;
     }
