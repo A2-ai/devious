@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 use crate::internal::git::repo;
 use crate::internal::storage::add;
-use crate::config;
+use crate::internal::config::config;
 
-pub fn run_add_cmd(files: &Vec<PathBuf>, message: &String) -> Result<(), std::io::Error> {
+pub fn run_add_cmd(files: &Vec<String>, message: &String) -> Result<(), std::io::Error> {
    // Get git root
    let git_dir = match repo::get_nearest_repo_dir(&PathBuf::from(".")) {
         Ok(git_repo) => {
@@ -25,9 +25,8 @@ pub fn run_add_cmd(files: &Vec<PathBuf>, message: &String) -> Result<(), std::io
     let mut queued_paths: Vec<PathBuf> = Vec::new();
 
     for file_in in files {
-        let string = file_in.display().to_string();
-        let string_without_meta = string.replace(".dvsmeta", "");
-        let file = PathBuf::from(string_without_meta);
+        let file_without_meta = file_in.replace(".dvsmeta", "");
+        let file = PathBuf::from(file_without_meta);
 
         if queued_paths.contains(&file) {continue}
 
@@ -57,7 +56,7 @@ pub fn run_add_cmd(files: &Vec<PathBuf>, message: &String) -> Result<(), std::io
     
     // add each file in queued_paths to storage
     for file in &queued_paths {
-        match add::add(file, &conf, &git_dir, &message) {
+        match add::add(file, &conf, &message) {
             Ok(_) => {}
             Err(e) => return Err(e),
         };

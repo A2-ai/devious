@@ -1,4 +1,4 @@
-use crate::config::{self, Config};
+use crate::internal::config::config;
 use crate::internal::git::repo;
 use crate::internal::utils::utils::normalize_path;
 // use std::os::unix::fs::chown;
@@ -79,7 +79,7 @@ pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &
     };
 
     // write config
-    match config::write(&Config{storage_dir: storage_dir_abs.clone(), permissions: mode.clone(), group: group_name.clone()}, &root_dir) {
+    match config::write(&config::Config{storage_dir: storage_dir_abs.clone(), permissions: mode.clone(), group: group_name.clone()}, &root_dir) {
         Ok(_) => {
             // json
         }

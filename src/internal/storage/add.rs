@@ -11,7 +11,7 @@ use crate::internal::meta::file;
 use crate::internal::git::ignore;
 
 
-pub fn add(local_path: &PathBuf, conf: &Config, git_dir: &PathBuf, message: &String) -> Result<String, std::io::Error> {
+pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<String, std::io::Error> {
     // get file hash
     let file_hash = match hash::hash_file_with_blake3(local_path) {
         Ok(file_hash) => {

@@ -21,17 +21,17 @@ pub fn save(metadata: &Metadata, path: &PathBuf) -> Result<()> {
     let metadata_file_path = PathBuf::from(path.display().to_string() + ".dvsmeta");
 
     // create file
-    File::create(&metadata_file_path);
-
+    let _ = File::create(&metadata_file_path);
     // write to json
     let contents = serde_json::to_string(&metadata).unwrap();
-    fs::write(&metadata_file_path, contents);
+    let _ = fs::write(&metadata_file_path, contents);
     Ok(())
 }
 
-pub fn load(path: PathBuf) -> Result<Metadata> {
-    let contents = fs::read_to_string(path).unwrap();
-    let metadata_file: Metadata = serde_json::from_str(&contents)?;
+pub fn load(path: &PathBuf) -> Result<Metadata> {
+    let metafile_path = PathBuf::from(path.display().to_string() + ".dvsmeta");
+    let contents = fs::read_to_string(metafile_path).unwrap();
+    let metadata: Metadata = serde_json::from_str(&contents).unwrap();
 
-    return Ok(metadata_file);
+    return Ok(metadata);
 }
