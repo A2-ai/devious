@@ -25,6 +25,7 @@ pub struct JsonLog {
     pub issues: Vec<JsonIssue>
 }
 
-#[derive(Serialize, Deserialize)]
-pub struct JsonLogger(Vec<JsonLog>);
+pub static JSON_LOGGING: bool = false;
+
+
 

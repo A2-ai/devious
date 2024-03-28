@@ -2,17 +2,17 @@ use std::path::{PathBuf, Path};
 use std::fs;
 
 pub fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> Result<PathBuf, std::io::Error> {
-    let abs_file_path = match file_path.canonicalize() {
-        Ok(path) => path,
-        Err(e) => return Err(e),
-    };
+    // let abs_file_path = match file_path.canonicalize() {
+    //     Ok(path) => path,
+    //     Err(e) => return Err(e),
+    // };
 
     let abs_root_dir = match root_dir.canonicalize() {
         Ok(path) => path,
         Err(e) => return Err(e),
     };
 
-    match abs_file_path.strip_prefix(abs_root_dir) {
+    match file_path.strip_prefix(abs_root_dir) {
         Ok(path) => return Ok(path.to_path_buf()),
         Err(_) => return Err(std::io::Error::other("paths not relative")),
     }
