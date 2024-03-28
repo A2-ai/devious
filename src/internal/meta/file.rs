@@ -1,4 +1,3 @@
-use std::time::SystemTime;
 use std::path::PathBuf;
 use std::fs::File;
 use serde::{Deserialize, Serialize};
@@ -9,7 +8,7 @@ use std::fs;
 pub struct Metadata {
     pub file_hash: String,
     pub file_size: u64,
-    pub time_stamp: SystemTime,
+    pub time_stamp: String,
     pub message: String,
     pub saved_by: String
 }

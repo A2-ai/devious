@@ -1,10 +1,7 @@
 {
   "file_hash": "89f8cf7f7cb020264179262691755f9d9b6b2246cb61d9b43b057aba4cbfa1d0",
   "file_size": 25,
-  "time_stamp": {
-    "secs_since_epoch": 1711568741,
-    "nanos_since_epoch": 791489089
-  },
+  "time_stamp": "2024-03-28 10:10:22.931225398 -04:00",
   "message": "derived DA files",
   "saved_by": "jenna"
 }

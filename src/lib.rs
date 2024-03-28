@@ -1,4 +1,4 @@
-use extendr_api::prelude::*;
+use extendr_api::{prelude::*, robj};
 use extendr_api::robj::{Robj, IntoRobj};
 use std::path::PathBuf;
 
@@ -9,7 +9,7 @@ use crate::internal::storage::init;
 // initiate storage directory
 // @export
 #[extendr]
-pub fn run_init_cmd_R(storage_dir: &PathBuf, mode: &u32, group: &String) -> Robj {
+pub fn run_init_cmd_R(storage_dir: &str, mode: i32, group: &str) -> Robj {
     
     // Get git root
     let git_repo = match repo::get_nearest_repo_dir(&PathBuf::from(".")) {
@@ -24,15 +24,15 @@ pub fn run_init_cmd_R(storage_dir: &PathBuf, mode: &u32, group: &String) -> Robj
     };
 
     // Initialize
-    match init::init(&git_repo, &storage_dir, &mode, &group) {
-        Ok(_) => {
-            // json
-        }
-        Err(e) => {
-            // json
-            return Robj::from(format!("Error initializing: {}", e));
-        }
-    };
+    // match init::init(&git_repo, &storage_dir, &mode, &group) {
+    //     Ok(_) => {
+    //         // json
+    //     }
+    //     Err(e) => {
+    //         // json
+    //         return Robj::from(format!("Error initializing: {}", e));
+    //     }
+    // };
     
     let val: Result<()> = Ok(());
     return val.into_robj();

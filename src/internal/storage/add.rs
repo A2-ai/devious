@@ -1,6 +1,6 @@
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
-use std::time::SystemTime;
+use chrono::Utc;
 use file_owner::{Group, PathExt};
 use std::fs::{self, Permissions};
 
@@ -99,7 +99,7 @@ pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<Stri
     let metadata = file::Metadata{
         file_hash: file_hash.clone(),
         file_size,
-        time_stamp: SystemTime::now(),
+        time_stamp: chrono::offset::Local::now().to_string(),
         message: message.clone(),
         saved_by: owner_name
     };
