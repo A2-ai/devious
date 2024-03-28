@@ -2,8 +2,7 @@ use std::path::PathBuf;
 
 use crate::internal::config::config;
 use crate::internal::file::hash;
-use crate::internal::git::{self, repo};
-use crate::internal::log::json;
+use crate::internal::git::repo;
 use crate::internal::meta::{file, parse};
 
 #[derive(Debug)]
@@ -17,28 +16,13 @@ pub struct JsonFileResult {
     pub message: String
 }
 
-// struct JsonResult {
-//     files: Vec<JsonFileResult>,
-//     errors:Vec<json::JsonIssue>
-// }
-
-// impl JsonResult {
-//     fn add_file(&mut self, file_result: JsonFileResult) {
-//         self.files.push(file_result);
-//     }
-
-//     fn add_error(&mut self, json_issue: json::JsonIssue) {
-//         self.errors.push(json_issue);
-//     }
-// } // impl
-
 pub fn run_status_cmd(files: &Vec<String>) -> Result<Vec<JsonFileResult>, std::io::Error> {
   
     let mut json_logger: Vec<JsonFileResult> = Vec::new();
 
     let mut meta_paths: Vec<PathBuf> = Vec::new();
 
-    //iIf no arguments are provided, get the status of all files in the current git repository
+    // if no arguments are provided, get the status of all files in the current git repository
     if files.is_empty() {
         // Get git root
         let git_repo = match repo::get_nearest_repo_dir(&PathBuf::from(".")) {

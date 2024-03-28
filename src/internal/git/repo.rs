@@ -1,18 +1,18 @@
 use std::path::{PathBuf, Path};
 use std::fs;
+use path_absolutize::*;
 
 pub fn get_relative_path(root_dir: &PathBuf, file_path: &PathBuf) -> Result<PathBuf, std::io::Error> {
-    // let abs_file_path = match file_path.canonicalize() {
-    //     Ok(path) => path,
-    //     Err(e) => return Err(e),
-    // };
+    let abs_file_string = file_path.absolutize().unwrap().to_str().unwrap().to_string();
+    let abs_file_path = PathBuf::from(abs_file_string);
+    
 
     let abs_root_dir = match root_dir.canonicalize() {
         Ok(path) => path,
         Err(e) => return Err(e),
     };
 
-    match file_path.strip_prefix(abs_root_dir) {
+    match abs_file_path.strip_prefix(abs_root_dir) {
         Ok(path) => return Ok(path.to_path_buf()),
         Err(_) => return Err(std::io::Error::other("paths not relative")),
     }

@@ -30,13 +30,14 @@ fn main() -> io::Result<()> {
    //add_cmd::run_add_cmd(&files, &message)?;
 
    //fs::remove_file(PathBuf::from("src/test_directory/test1.txt"))?;
-//  fs::remove_file(PathBuf::from("src/test_directory/test2.txt"))?;
+   //  fs::remove_file(PathBuf::from("src/test_directory/test2.txt"))?;
 
    // dvs get src/test_directory/test1.txt src/test_directory/test2.txt
    //get_cmd::run_get_cmd(&files)?;
 
    let empty_vec: Vec<String> = Vec::new();
-   let vec = status_cmd::run_status_cmd(&empty_vec)?;
+   let one_path = vec![String::from("src/test_directory/test2.txt")];
+   let vec = status_cmd::run_status_cmd(&one_path)?;
    println!("{:?}", vec);
     Ok(())
  }
