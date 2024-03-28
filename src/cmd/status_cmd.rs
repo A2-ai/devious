@@ -1,11 +1,13 @@
 use std::path::PathBuf;
 
+use serde::{Serialize, Deserialize};
+
 use crate::internal::config::config;
 use crate::internal::file::hash;
 use crate::internal::git::repo;
 use crate::internal::meta::{file, parse};
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct JsonFileResult {
     pub path: PathBuf,
     pub status: String,
