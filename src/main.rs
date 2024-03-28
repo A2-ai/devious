@@ -41,6 +41,8 @@ fn main() -> io::Result<()> {
     let message = String::from("assembled data");
     add_cmd::run_add_cmd(&files, &message)?;
 
+    // todo: check permissions
+
     // remove one of the files
     fs::remove_file(&test1_path)?;
     // change one of the files
@@ -69,5 +71,8 @@ fn main() -> io::Result<()> {
     let status_string = serde_json::to_string_pretty(&status).unwrap();
     println!("new status:\n{status_string}");
 
+    fs::remove_file(&test1_path)?;
+    fs::remove_file(&test2_path)?;
+    fs::remove_file(&test3_path)?;
     Ok(())
  }
