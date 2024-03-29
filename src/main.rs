@@ -30,13 +30,13 @@ fn main() -> Result<()> {
     test2.metadata().unwrap().permissions().set_mode(0o777);
     test3.metadata().unwrap().permissions().set_mode(0o777);
 
-    let _test1_mode = test1.metadata().unwrap().permissions().mode() & 0o777;
-    let _test2_mode = test2.metadata().unwrap().permissions().mode() & 0o777;
-    let _test3_mode = test3.metadata().unwrap().permissions().mode() & 0o777;
+    // let _test1_mode = test1.metadata().unwrap().permissions().mode() & 0o777;
+    // let _test2_mode = test2.metadata().unwrap().permissions().mode() & 0o777;
+    // let _test3_mode = test3.metadata().unwrap().permissions().mode() & 0o777;
    
     // dvs init src/test_directory_storage --mode=0o764 --group=datascience
     let storage_dir = PathBuf::from(r"src/test_directory_storage");   
-    let new_mode = 0o777; 
+    let new_mode = 0o776; 
     let group = String::from("datascience");
     init_cmd::run_init_cmd(&storage_dir, &new_mode, &group)?;
 
