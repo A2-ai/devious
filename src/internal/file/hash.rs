@@ -70,17 +70,17 @@ fn maybe_memmap_file(file: &File) -> Result<Option<memmap2::Mmap>> {
     })
 }
 
-pub fn get_file_hash(path: &PathBuf) -> Result<String> {
+pub fn get_file_hash(path: &PathBuf) -> String {
     // TODO: get cache if possible
     
     let hash =match  hash_file_with_blake3(&path) {
         Ok(hash) => hash,
-        Err(_) => String::from(""),
+        Err(_) => String::from(""), // swallowing error - return empty string if not hashable
     };
     
     // TODO: cache bytes
 
-    return Ok(hash.to_string());
+    return hash.to_string();
 }
 
 pub fn get_storage_path(storage_dir: &PathBuf, file_hash: &String) -> PathBuf {

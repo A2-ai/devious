@@ -1,9 +1,8 @@
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
-use chrono::Utc;
 use file_owner::{Group, PathExt};
-use std::fs::{self, Permissions};
-
+use std::fs;
+use anyhow::{anyhow, Context, Result};
 use crate::internal::config::config::Config;
 use crate::internal::file::hash;
 use crate::internal::storage::copy;
@@ -11,90 +10,43 @@ use crate::internal::meta::file;
 use crate::internal::git::ignore;
 
 
-pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<String, std::io::Error> {
+pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<String> {
     // get file hash
-    let file_hash = match hash::hash_file_with_blake3(local_path) {
-        Ok(file_hash) => {
-            //json
-            file_hash
-        }
-        Err(e) => {
-            // json
-            return Err(e);
-        }
-    };
+    let file_hash = hash::hash_file_with_blake3(local_path).with_context(|| format!("could not hash file"))?;
 
     // get storage path
-    let storage_dir_abs = match conf.storage_dir.canonicalize() {
-        Ok(path) => path,
-        Err(e) => return Err(e),
-    };
+    let storage_dir_abs = conf.storage_dir.canonicalize().with_context(|| format!("could not find storage directory: {}", conf.storage_dir.display()))?;
     let dest_path = hash::get_storage_path(&storage_dir_abs, &file_hash);
 
-    // check if group exists
+    // check if group exists again
+    let group = Group::from_name(&conf.group).with_context(|| format!("group not found: {}", conf.group))?;
 
     // Copy the file to the storage directory
 	// if the destination already exists, skip copying
     if !dest_path.exists() {
         // copy
-        match copy::copy(&local_path, &dest_path) {
-            Ok(_) => {
-                
-                // json
-             }
-             Err(e) => {
-                //json
-                return Err(e)
-             }
-        };
-        //json
+        copy::copy(&local_path, &dest_path).with_context(|| format!("could not copy {} to storage directory: {}", local_path.display(), dest_path.display()))?;
     }
     else {
-        // json
+        println!("{} already exists in storage directory", local_path.display())
     }
 
     // set permissions
     let mode = conf.permissions;
-    let permissions: Permissions = fs::Permissions::from_mode(mode);
-    match fs::set_permissions(&dest_path, permissions) {
-        Ok(_) => {
-            // json: success
-        },
-        Err(e) => {
-            // json: fail
-            return Err(e)
-        }
-    };
+    fs::set_permissions(&dest_path, fs::Permissions::from_mode(mode)).with_context(|| format!("unable to set permissions: {}", mode))?;
 
     // set group ownership
-    let group_name = conf.group.as_str();
-    let group = match Group::from_name(group_name) {
-        Ok(group) => {
-            // json
-            group
-        }
-        Err(_) => return Err(std::io::Error::other("group name is invalid"))
-    };
-    match dest_path.set_group(group) {
-        Ok(_) => {},
-        Err(_) => return Err(std::io::Error::other("group name is invalid"))
-    };
+    dest_path.set_group(group).with_context(|| format!("unable to set group: {}", group))?;
 
     // get file size
-    let local_path_data = match local_path.metadata() {
-        Ok(data) => data,
-        Err(e) => return Err(e),
-    };
+    let local_path_data = local_path.metadata().with_context(|| format!("unable to get size of file: {}", local_path.display()))?;
     let file_size = local_path_data.len();
 
     // get user name
-    let owner = match local_path.owner() {
-        Ok(owner) => owner,
-        Err(_) => return Err(std::io::Error::other("file owner not found")),
-    };
+    let owner = local_path.owner().with_context(|| format!(""))?;
     let owner_name = match owner.name() {
         Ok(name) => name.unwrap(),
-        Err(_) => {return Err(std::io::Error::other("file owner not found"))},
+        Err(e) => {return Err(anyhow!("could not get name of file owner: {e}"))},
     };
 
     // create + write metadata file
@@ -105,16 +57,10 @@ pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<Stri
         message: message.clone(),
         saved_by: owner_name
     };
-    match file::save(&metadata, &local_path) {
-        Ok(_) => {},
-        Err(_) => return Err(std::io::Error::other("metadata file not created"))
-    };
+    file::save(&metadata, &local_path).with_context(|| format!("could not save metadata into file"))?;
 
     // Add file to gitignore
-    match ignore::add_gitignore_entry(local_path) {
-        Ok(_) => {},
-        Err(_) => return Err(std::io::Error::other("gitignore entry could not be created"))
-    };
+    ignore::add_gitignore_entry(local_path).with_context(|| format!("could not add .gitignore entry"))?;
     
     return Ok(file_hash);
 }

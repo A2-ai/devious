@@ -1,7 +1,6 @@
 use std::path::PathBuf;
-
+use anyhow::{Context, Result};
 use serde::{Serialize, Deserialize};
-
 use crate::internal::config::config;
 use crate::internal::file::hash;
 use crate::internal::git::repo;
@@ -18,37 +17,26 @@ pub struct JsonFileResult {
     pub message: String
 }
 
-pub fn run_status_cmd(files: &Vec<String>) -> Result<Vec<JsonFileResult>, std::io::Error> {
-  
+pub fn run_status_cmd(files: &Vec<String>) -> Result<Vec<JsonFileResult>> {
+    // struct for each file's status and such
     let mut json_logger: Vec<JsonFileResult> = Vec::new();
 
+    // vector of files
     let mut meta_paths: Vec<PathBuf> = Vec::new();
 
     // if no arguments are provided, get the status of all files in the current git repository
     if files.is_empty() {
         // Get git root
-        let git_repo = match repo::get_nearest_repo_dir(&PathBuf::from(".")) {
-            Ok(git_repo) => {
-                // json
-                git_repo
-            }
-            Err(e) => {
-                // json
-                return Err(e)
-            }
-        };
+        let git_dir = repo::get_nearest_repo_dir(&PathBuf::from(".")).with_context(|| "could not find git repo root - make sure you're in an active git repository")?;
 
         // get config
-        match config::read(&git_repo) {
-            Ok(config) => config,
-            Err(_) => return Err(std::io::Error::other("devious is not initialized")),
-        };
+        config::read(&git_dir)?;
 
         // get meta files
-        meta_paths = parse::get_all_meta_files(git_repo);
+       meta_paths = [meta_paths, parse::get_all_meta_files(git_dir)].concat();
     } // if doing all files
     else {
-        meta_paths = parse::parse_globs(files);
+        meta_paths = [meta_paths, parse::parse_globs(files)].concat();
     } // else specific files
 
     if meta_paths.is_empty() {return Ok(json_logger)}
@@ -60,21 +48,19 @@ pub fn run_status_cmd(files: &Vec<String>) -> Result<Vec<JsonFileResult>, std::i
         // get file info
         let metadata = file::load(&path).expect("couldn't get metadata");
         
-        // get whether file was hashable and file hash
-        let file_hash_result = hash::get_file_hash(&path);
-
-        let mut file_hash = String::from("placeholder");
-        if file_hash_result.is_ok() {file_hash = file_hash_result.unwrap()}
-        // else, file_hash_result was an error, so stick with the nonsense default value so they don't match
-
         // asign status: not-present by default
         let mut status = String::from("out-of-date");
+        // if the file path doesn't exist assign status to "not-present"
         if !path.exists() {status = String::from("not-present")}
-        else if file_hash == metadata.file_hash {
-            status = String::from("up-to-date")
+        else {
+            // get whether file was hashable and file hash
+            let file_hash = hash::get_file_hash(&path); // will return "" if not hashable, which won't match metadata.file_hash
+            if file_hash == metadata.file_hash {
+                status = String::from("up-to-date")
+            }
+            // else, the file exists, but the hash isn't up to date, so still with default: out-of-date
         }
-        // else, the file exists, but the hash isn't up to date, so still with default: out-of-date
-
+       
         // assemble info into JsonFileResult
         JsonFileResult{
             path: rel_path,

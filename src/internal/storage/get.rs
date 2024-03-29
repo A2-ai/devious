@@ -1,36 +1,27 @@
 use std::path::PathBuf;
-
+use anyhow::{Context, Result};
 use crate::internal::file::hash;
 use crate::internal::meta::file;
 use crate::internal::storage::copy;
 
 // gets a file from storage
-pub fn get(local_path: &PathBuf, storage_dir: &PathBuf, git_dir: &PathBuf) -> Result<(), std::io::Error> {
+pub fn get(local_path: &PathBuf, storage_dir: &PathBuf) -> Result<()> {
     // get metadata
-    let metadata = match file::load(&local_path) {
-        Ok(metadata) => metadata,
-        Err(_) => return Err(std::io::Error::other("failed to load metadata")),
-    };
+    let metadata = file::load(&local_path).with_context(|| format!("could not get metadata file for {}", local_path.display()))?;
 
+    // get storage data
     let storage_path = hash::get_storage_path(storage_dir, &metadata.file_hash);
 
-    // check if file is already present locally
-    let local_exists = local_path.exists();
-    let local_hash = hash::get_file_hash(&local_path)?;
+    // get hashes to compare
+    let local_hash = hash::get_file_hash(&local_path);
     let metadata_hash = metadata.file_hash;
-    let empty_string = String::from("");
 
-    if !local_exists || local_hash == empty_string || local_hash == empty_string || local_hash != metadata_hash {
-        match copy::copy(&storage_path, &local_path) {
-            Ok(_) => {}
-            Err(e) => {
-                // json: failed to copy the file
-                return Err(e)
-            }
-        };
+    // check if up-to-date file is already present locally
+    if !local_path.exists() || local_hash == String::from("") || metadata_hash == String::from("") || local_hash != metadata_hash {
+        copy::copy(&storage_path, &local_path).with_context(|| format!("could not copy {} from storage directory: {}", local_path.display(), storage_dir.display()))?;
     }
     else {
-        // json: file is already up to date
+        println!("{} already up to date", local_path.display())
     }
 
     Ok(())

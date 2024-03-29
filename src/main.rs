@@ -1,6 +1,6 @@
 use std::path::PathBuf;
-// use clap::{arg, Command, ArgAction, Arg};
-use std::io::{self, prelude::*};
+use std::io::prelude::*;
+use anyhow::Result;
 use std::fs::{self, File};
 use std::os::unix::fs::PermissionsExt;
 
@@ -11,7 +11,7 @@ use crate::cmd::add_cmd;
 use crate::cmd::get_cmd;
 use crate::cmd::status_cmd;
 
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
     // write files
     let test1_path = String::from("src/test_directory/test1.txt");
     let mut test1 = File::create(&test1_path)?;

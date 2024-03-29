@@ -4,14 +4,11 @@ use std::path::PathBuf;
 use std::fs::create_dir;
 use path_absolutize::Absolutize;
 use file_owner::Group;
-use anyhow::{Context, Result};
-use anyhow::anyhow;
-
+use anyhow::{anyhow, Context, Result};
 
 pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &String) -> Result<()> { 
     // get absolute path, but don't check if it exists yet
     let storage_dir_abs = PathBuf::from(storage_dir.absolutize().unwrap());
-
     
     // check if directory exists
     if !storage_dir_abs.exists() { // if storage directory doesn't exist
@@ -38,7 +35,7 @@ pub fn init(root_dir: &PathBuf, storage_dir: &PathBuf, mode: &u32, group_name: &
     } // else
 
     // check if group_name refers to an actual group
-    Group::from_name(group_name).with_context(|| "group not found: {group_name}")?;
+    Group::from_name(group_name).with_context(|| format!("group not found: {group_name}"))?;
    
     // write config
     config::write(
