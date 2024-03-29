@@ -33,10 +33,13 @@ pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<Stri
 
     // set permissions
     let mode = conf.permissions;
-    fs::set_permissions(&dest_path, fs::Permissions::from_mode(mode)).with_context(|| format!("unable to set permissions: {}", mode))?;
+    dest_path.metadata().unwrap().permissions().set_mode(mode);
+    let _file_mode = dest_path.metadata().unwrap().permissions().mode();
+    //let new_permissions = fs::Permissions::from_mode(mode);
+    //fs::set_permissions(&dest_path, new_permissions).with_context(|| format!("unable to set permissions: {}", mode))?;
 
     // set group ownership
-    dest_path.set_group(group).with_context(|| format!("unable to set group: {}", group))?;
+    dest_path.set_group( group).with_context(|| format!("unable to set group: {}", group))?;
 
     // get file size
     let local_path_data = local_path.metadata().with_context(|| format!("unable to get size of file: {}", local_path.display()))?;

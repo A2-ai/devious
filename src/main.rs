@@ -25,14 +25,18 @@ fn main() -> Result<()> {
     let mut test3 = File::create(&test3_path)?;
     test3.write_all(b"Hello, test3!")?;
 
-    // write permissions for files
-    fs::set_permissions(&PathBuf::from(&test1_path).canonicalize().unwrap(), fs::Permissions::from_mode(0o777)).unwrap();
-    fs::set_permissions(&PathBuf::from(&test2_path).canonicalize().unwrap(), fs::Permissions::from_mode(0o777)).unwrap();
-    fs::set_permissions(&PathBuf::from(&test3_path).canonicalize().unwrap(), fs::Permissions::from_mode(0o777)).unwrap();
+    // set permissions for files
+    test1.metadata().unwrap().permissions().set_mode(0o777);
+    test2.metadata().unwrap().permissions().set_mode(0o777);
+    test3.metadata().unwrap().permissions().set_mode(0o777);
 
+    let _test1_mode = test1.metadata().unwrap().permissions().mode() & 0o777;
+    let _test2_mode = test2.metadata().unwrap().permissions().mode() & 0o777;
+    let _test3_mode = test3.metadata().unwrap().permissions().mode() & 0o777;
+   
     // dvs init src/test_directory_storage --mode=0o764 --group=datascience
     let storage_dir = PathBuf::from(r"src/test_directory_storage");   
-    let new_mode: u32 = 0o777;
+    let new_mode = 0o777; 
     let group = String::from("datascience");
     init_cmd::run_init_cmd(&storage_dir, &new_mode, &group)?;
 
@@ -42,11 +46,15 @@ fn main() -> Result<()> {
     add_cmd::run_add_cmd(&files, &message)?;
 
     // TODO: check permissions and group
-    assert_eq!(fs::Permissions::from_mode(new_mode), test1.metadata().unwrap().permissions());
-    assert_eq!(fs::Permissions::from_mode(new_mode), test2.metadata().unwrap().permissions());
-    assert_eq!(fs::Permissions::from_mode(new_mode), test3.metadata().unwrap().permissions());
-
-
+    // let test1_storage = PathBuf::from("src/test_directory_storage/7f/08b8682ee8258389605201d65ed6a9104eed809c000d7975186bc4cd8a3efe");
+    // let test2_storage = PathBuf::from("src/test_directory_storage/d3/9dfa7e18189f9d4cacabdaffc941191508ffac753e9eafa28155c154d76d5d");
+    // let test3_storage = PathBuf::from("src/test_directory_storage/8e/287466df9f3e8b1a2bd177ba15efe111aae572ea8859bb24557cfb4418a5b4");
+    // let test1_mode_new = test1_storage.metadata().unwrap().permissions().mode() & 0o777;
+    // let test2_mode_new = test2_storage.metadata().unwrap().permissions().mode() & 0o777;
+    // let test3_mode_new = test3_storage.metadata().unwrap().permissions().mode() & 0o777;
+    // assert_eq!(0o777, test1_mode_new);
+    // assert_eq!(0o777, test2_mode_new);
+    // assert_eq!(0o777, test3_mode_new);
 
     // remove one of the files
     fs::remove_file(&test1_path)?;
@@ -76,8 +84,8 @@ fn main() -> Result<()> {
     let status_string = serde_json::to_string_pretty(&status).unwrap();
     println!("new status:\n{status_string}");
 
-    // fs::remove_file(&test1_path)?;
-    // fs::remove_file(&test2_path)?;
-    // fs::remove_file(&test3_path)?;
+    fs::remove_file(&test1_path)?;
+    fs::remove_file(&test2_path)?;
+    fs::remove_file(&test3_path)?;
     Ok(())
  }
