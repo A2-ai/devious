@@ -32,21 +32,26 @@ fn main() -> Result<()> {
 
     // dvs init src/test_directory_storage --mode=0o764 --group=datascience
     let storage_dir = PathBuf::from(r"src/test_directory_storage");   
-    let mode: u32 = 0o764;
+    let new_mode: u32 = 0o777;
     let group = String::from("datascience");
-    init_cmd::run_init_cmd(&storage_dir, &mode, &group)?;
+    init_cmd::run_init_cmd(&storage_dir, &new_mode, &group)?;
 
     // dvs add src/test_directory/test1.txt src/test_directory/test2.txt src/test_directory/test3.txt "assembled data"
     let files: Vec<String> = vec![test1_path.clone(), test2_path.clone(), test3_path.clone()];
     let message = String::from("assembled data");
     add_cmd::run_add_cmd(&files, &message)?;
 
-    // todo: check permissions
+    // TODO: check permissions and group
+    assert_eq!(fs::Permissions::from_mode(new_mode), test1.metadata().unwrap().permissions());
+    assert_eq!(fs::Permissions::from_mode(new_mode), test2.metadata().unwrap().permissions());
+    assert_eq!(fs::Permissions::from_mode(new_mode), test3.metadata().unwrap().permissions());
+
+
 
     // remove one of the files
     fs::remove_file(&test1_path)?;
     // change one of the files
-    test2.write(b"added a line")?;
+    test2.write(b"\nadded a line")?;
     // keep test3.txt the same
 
     // dvs status
@@ -71,8 +76,8 @@ fn main() -> Result<()> {
     let status_string = serde_json::to_string_pretty(&status).unwrap();
     println!("new status:\n{status_string}");
 
-    fs::remove_file(&test1_path)?;
-    fs::remove_file(&test2_path)?;
-    fs::remove_file(&test3_path)?;
+    // fs::remove_file(&test1_path)?;
+    // fs::remove_file(&test2_path)?;
+    // fs::remove_file(&test3_path)?;
     Ok(())
  }
