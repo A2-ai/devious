@@ -31,6 +31,8 @@ pub fn add(local_path: &PathBuf, conf: &Config, message: &String) -> Result<Stri
     };
     let dest_path = hash::get_storage_path(&storage_dir_abs, &file_hash);
 
+    // check if group exists
+
     // Copy the file to the storage directory
 	// if the destination already exists, skip copying
     if !dest_path.exists() {
