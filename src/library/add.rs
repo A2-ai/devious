@@ -28,8 +28,8 @@ pub struct AddedFile {
 }
 
 pub fn dvs_add(files: &Vec<String>, message: &String) -> Result<Vec<AddedFile>> {
-   // Get git root
-   let git_dir = repo::get_nearest_repo_dir(&PathBuf::from(".")).with_context(|| "could not find git repo root - make sure you're in an active git repository")?;
+    // Get git root
+    let git_dir = repo::get_nearest_repo_dir(&PathBuf::from(".")).with_context(|| "could not find git repo root - make sure you're in an active git repository")?;
 
     // load the config
     let conf = config::read(&git_dir).with_context(|| "could not load configuration file - no dvs.yaml in directory - be sure to initiate devious")?;
@@ -42,64 +42,44 @@ pub fn dvs_add(files: &Vec<String>, message: &String) -> Result<Vec<AddedFile>> 
 
         if queued_paths.contains(&file) {continue}
 
-        // ensure file is inside of the git repo
-        let abs_path = match file.canonicalize() {
-            Ok(file) => file,
-            Err(_) => { // swallowing error here because the command can still run
-                println!("skipping {} - doesn't exist", file.display());
-                continue;
-            }
-        };
-        if abs_path.strip_prefix(&git_dir).unwrap() == abs_path {
-            println!("skipping {} - outside of git repository", file.display());
-            continue;
-        }
-
-        // skip directories
-        if file.is_dir() {
-            println!("skipping {} - is a directory", file.display());
-            continue
-        }
-
-        // all checks passed, finally add file to queued_paths
         queued_paths.push(file);
     } // for
     
     // add each file in queued_paths to storage
     let added_files = queued_paths.into_iter().map(|file| {
-        add(&file, &conf, &message)
+        add(&file, &git_dir, &conf, &message)
     }).collect::<Vec<AddedFile>>();
 
     return Ok(added_files)
 } // run_add_cmd
 
-fn add(local_path: &PathBuf, conf: &config::Config, message: &String) -> AddedFile {
+fn add(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: &String) -> AddedFile {
     // set error to None by default
     let mut error: Option<String> = None;
 
     // get file hash
     let file_hash = hash::get_file_hash(&local_path);
     if file_hash.is_none() && error.is_none() {
-        error = Some(String::from("could not hash file"));
+        error = Some(String::from("hash not found"));
     }
 
     // get file size
     let file_size = get_file_size(&local_path);
     if file_size.is_none() && error.is_none() {
-        error = Some(String::from("unable to get size of file"));
+        error = Some(String::from("file size not found"));
     }
 
     // get user name
     let user_name = get_user_name(&local_path);
     if user_name.is_none() && error.is_none() {
-        error = Some(String::from("could not get name of file owner"));
+        error = Some(String::from("file owner not found"));
     }
 
     // check group
     let group: Option<Group> = match Group::from_name(&conf.group) {
         Ok(group) => Some(group),
         Err(_) => {
-            if error.is_none() {error = Some(String::from("group not found"));}
+            if error.is_none() {error = Some(String::from("group not found"))}
             None
         }
     };
@@ -108,10 +88,13 @@ fn add(local_path: &PathBuf, conf: &config::Config, message: &String) -> AddedFi
     let storage_dir_abs: Option<PathBuf> = match conf.storage_dir.canonicalize() {
         Ok(path) => Some(path),
         Err(_) => {
-            if error.is_none() {error = Some(String::from("could not find storage directory"))}
+            if error.is_none() {error = Some(String::from("storage directory not found"))}
             None
         }
     };
+
+    // last few check for errors
+    if error.is_none() {error = get_other_errors(local_path, git_dir, conf, message)}
 
     if error.is_some() {
         return AddedFile{
@@ -124,8 +107,11 @@ fn add(local_path: &PathBuf, conf: &config::Config, message: &String) -> AddedFi
     }
 
     // can safely unwrap storage_dir_abs and file_hash 
+    let storage_dir_abs_value = storage_dir_abs.unwrap();
     let file_hash_value = file_hash.clone().unwrap();
-    let dest_path = hash::get_storage_path(&storage_dir_abs.unwrap(), &file_hash_value);
+    
+    // get storage path
+    let dest_path = hash::get_storage_path(&storage_dir_abs_value, &file_hash_value);
 
     // Copy the file to the storage directory if it's not already there
     let mut outcome: Outcome = Outcome::Success;
@@ -169,6 +155,28 @@ fn add(local_path: &PathBuf, conf: &config::Config, message: &String) -> AddedFi
         error,
         size: file_size
     }
+}
+
+fn get_other_errors(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: &String) -> Option<String> {
+    // check if file exists
+    match local_path.canonicalize() {
+        Ok(local_path) => { // file exists
+            // if file is outside of git repository
+            if local_path.strip_prefix(&git_dir).unwrap() == local_path {
+                return Some(String::from("file not in git repository"));
+            }
+        }
+        Err(_) => { 
+            return Some(String::from("file not found"))
+        }
+    };
+
+    if local_path.is_dir() {
+        return Some(String::from("path is a directory"))
+    }
+
+    
+    None
 }
 
 
