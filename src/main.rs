@@ -73,7 +73,10 @@ fn main() -> Result<()> {
     let status_string = serde_json::to_string_pretty(&status).unwrap();
     println!("new status:\n{status_string}");
 
-
+    let message = String::from("assembled data third time");
+    let added_files = add::dvs_add(&vec![String::from("this/file/doesn't/exist")], &message)?;
+    let added_files_string = serde_json::to_string_pretty(&added_files).unwrap();
+    println!("new add:\n{added_files_string}");
 
 
     // delete everything

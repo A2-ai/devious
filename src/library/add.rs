@@ -57,6 +57,8 @@ fn add(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: 
     // set error to None by default
     let mut error: Option<String> = None;
 
+    if error.is_none() {error = get_preliminary_errors(local_path, git_dir, conf, message)}
+
     // get file hash
     let file_hash = hash::get_file_hash(&local_path);
     if file_hash.is_none() && error.is_none() {
@@ -93,8 +95,8 @@ fn add(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: 
         }
     };
 
-    // last few check for errors
-    if error.is_none() {error = get_other_errors(local_path, git_dir, conf, message)}
+
+    
 
     if error.is_some() {
         return AddedFile{
@@ -157,7 +159,7 @@ fn add(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: 
     }
 }
 
-fn get_other_errors(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: &String) -> Option<String> {
+fn get_preliminary_errors(local_path: &PathBuf, git_dir: &PathBuf, conf: &config::Config, message: &String) -> Option<String> {
     // check if file exists
     match local_path.canonicalize() {
         Ok(local_path) => { // file exists
