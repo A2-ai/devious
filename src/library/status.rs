@@ -1,10 +1,12 @@
 use std::path::PathBuf;
 use anyhow::{Context, Result};
 use serde::{Serialize, Deserialize};
-use crate::internal::config::config;
-use crate::internal::file::hash;
-use crate::internal::git::repo;
-use crate::internal::meta::{file, parse};
+use crate::helpers::config;
+use crate::helpers::hash;
+use crate::helpers::repo;
+use crate::helpers::file;
+use crate::helpers::parse;
+
 
 #[derive(Serialize, Deserialize, PartialEq, Debug)]
 pub struct JsonFileResult {
@@ -17,7 +19,7 @@ pub struct JsonFileResult {
     pub message: String
 }
 
-pub fn run_status_cmd(files: &Vec<String>) -> Result<Vec<JsonFileResult>> {
+pub fn dvs_status(files: &Vec<String>) -> Result<Vec<JsonFileResult>> {
     // struct for each file's status and such
     let mut json_logger: Vec<JsonFileResult> = Vec::new();
 

@@ -1,5 +1,5 @@
 use std::{fs::{File, OpenOptions}, path::PathBuf};
-use crate::internal::git::repo;
+use crate::helpers::repo;
 use std::io::prelude::*;
 use anyhow::{Context, Result};
 
