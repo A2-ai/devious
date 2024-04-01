@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Result;
 use std::io::{self, Read};
 
-pub fn hash_file_with_blake3(file_path: &PathBuf) -> io::Result<String> {
+pub fn hash_file_with_blake3(file_path: &PathBuf) -> io::Result<Option<String>> {
     let file = File::open(file_path)?;
 
     let mmap = match maybe_memmap_file(&file) {
@@ -17,10 +17,10 @@ pub fn hash_file_with_blake3(file_path: &PathBuf) -> io::Result<String> {
     };
     let mut hasher = Hasher::new();
     hasher.update_rayon(&mmap);
-    Ok(hasher.finalize().to_string())
+    Ok(Some(hasher.finalize().to_string()))
 }
 
-fn hash_file_with_blake3_direct(file_path: &PathBuf) -> io::Result<String> {
+fn hash_file_with_blake3_direct(file_path: &PathBuf) -> io::Result<Option<String>> {
     let mut file = File::open(file_path)?;
 
     let mut hasher = Hasher::new();
@@ -35,7 +35,7 @@ fn hash_file_with_blake3_direct(file_path: &PathBuf) -> io::Result<String> {
     }
 
     let hash_result = hasher.finalize();
-    Ok(hash_result.to_string())
+    Ok(Some(hash_result.to_string()))
 }
 
 // Mmap a file, if it looks like a good idea. Return None in cases where we
@@ -70,17 +70,17 @@ fn maybe_memmap_file(file: &File) -> Result<Option<memmap2::Mmap>> {
     })
 }
 
-pub fn get_file_hash(path: &PathBuf) -> String {
+pub fn get_file_hash(path: &PathBuf) -> Option<String> {
     // TODO: get cache if possible
     
     let hash =match  hash_file_with_blake3(&path) {
         Ok(hash) => hash,
-        Err(_) => String::from(""), // swallowing error - return empty string if not hashable
+        Err(_) => None, 
     };
     
     // TODO: cache bytes
 
-    return hash.to_string();
+    return hash;
 }
 
 pub fn get_storage_path(storage_dir: &PathBuf, file_hash: &String) -> PathBuf {

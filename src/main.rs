@@ -30,10 +30,6 @@ fn main() -> Result<()> {
     test2.metadata().unwrap().permissions().set_mode(0o777);
     test3.metadata().unwrap().permissions().set_mode(0o777);
 
-    // let _test1_mode = test1.metadata().unwrap().permissions().mode() & 0o777;
-    // let _test2_mode = test2.metadata().unwrap().permissions().mode() & 0o777;
-    // let _test3_mode = test3.metadata().unwrap().permissions().mode() & 0o777;
-   
     // dvs init src/test_directory_storage --mode=0o764 --group=datascience
     let storage_dir = PathBuf::from(r"src/test_directory_storage");   
     let new_mode = 0o776; 
@@ -43,18 +39,9 @@ fn main() -> Result<()> {
     // dvs add src/test_directory/test1.txt src/test_directory/test2.txt src/test_directory/test3.txt "assembled data"
     let files: Vec<String> = vec![test1_path.clone(), test2_path.clone(), test3_path.clone()];
     let message = String::from("assembled data");
-    add::dvs_add(&files, &message)?;
-
-    // TODO: check permissions and group
-    // let test1_storage = PathBuf::from("src/test_directory_storage/7f/08b8682ee8258389605201d65ed6a9104eed809c000d7975186bc4cd8a3efe");
-    // let test2_storage = PathBuf::from("src/test_directory_storage/d3/9dfa7e18189f9d4cacabdaffc941191508ffac753e9eafa28155c154d76d5d");
-    // let test3_storage = PathBuf::from("src/test_directory_storage/8e/287466df9f3e8b1a2bd177ba15efe111aae572ea8859bb24557cfb4418a5b4");
-    // let test1_mode_new = test1_storage.metadata().unwrap().permissions().mode() & 0o777;
-    // let test2_mode_new = test2_storage.metadata().unwrap().permissions().mode() & 0o777;
-    // let test3_mode_new = test3_storage.metadata().unwrap().permissions().mode() & 0o777;
-    // assert_eq!(0o777, test1_mode_new);
-    // assert_eq!(0o777, test2_mode_new);
-    // assert_eq!(0o777, test3_mode_new);
+    let added_files = add::dvs_add(&files, &message)?;
+    let added_files_string = serde_json::to_string_pretty(&added_files).unwrap();
+    println!("new add:\n{added_files_string}");
 
     // remove one of the files
     fs::remove_file(&test1_path)?;
@@ -77,15 +64,32 @@ fn main() -> Result<()> {
 
     // dvs add rc/test_directory/test2.txt "assembled data again"
     let message = String::from("assembled data again");
-    add::dvs_add(&vec![test2_path.clone()], &message)?;
+    let added_files = add::dvs_add(&files, &message)?;
+    let added_files_string = serde_json::to_string_pretty(&added_files).unwrap();
+    println!("new add:\n{added_files_string}");
 
     // dvs status src/test_directory/test1.txt src/test_directory/test2.txt src/test_directory/test3.txt 
     let status = status::dvs_status(&vec![test1_path.clone(), test2_path.clone(), test3_path.clone()])?;
     let status_string = serde_json::to_string_pretty(&status).unwrap();
     println!("new status:\n{status_string}");
 
+
+
+
+    // delete everything
     fs::remove_file(&test1_path)?;
     fs::remove_file(&test2_path)?;
     fs::remove_file(&test3_path)?;
+    fs::remove_file(PathBuf::from("src/test_directory_storage/7f/08b8682ee8258389605201d65ed6a9104eed809c000d7975186bc4cd8a3efe"))?;
+    fs::remove_file(PathBuf::from("src/test_directory_storage/8e/287466df9f3e8b1a2bd177ba15efe111aae572ea8859bb24557cfb4418a5b4"))?;
+    fs::remove_file(PathBuf::from("src/test_directory_storage/20/fa09e17c49b68fd9606fa736b03b5115059cbbbf3090d89eb50e4da044f028"))?;
+    fs::remove_file(PathBuf::from("src/test_directory_storage/d3/9dfa7e18189f9d4cacabdaffc941191508ffac753e9eafa28155c154d76d5d"))?;
+    fs:: remove_dir(PathBuf::from("src/test_directory_storage/7f"))?;
+    fs:: remove_dir(PathBuf::from("src/test_directory_storage/8e"))?;
+    fs:: remove_dir(PathBuf::from("src/test_directory_storage/20"))?;
+    fs:: remove_dir(PathBuf::from("src/test_directory_storage/d3"))?;
+    fs::remove_file(PathBuf::from("src/test_directory/.gitignore"))?;
+    fs::remove_file(PathBuf::from("dvs.yaml"))?;
+
     Ok(())
  }

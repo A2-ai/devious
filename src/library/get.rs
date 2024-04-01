@@ -42,7 +42,7 @@ pub fn get(local_path: &PathBuf, storage_dir: &PathBuf) -> Result<()> {
     let metadata_hash = metadata.file_hash;
 
     // check if up-to-date file is already present locally
-    if !local_path.exists() || local_hash == String::from("") || metadata_hash == String::from("") || local_hash != metadata_hash {
+    if !local_path.exists() || local_hash.is_none() || metadata_hash == String::from("") || local_hash.unwrap() != metadata_hash {
         copy::copy(&storage_path, &local_path).with_context(|| format!("could not copy {} from storage directory: {}", local_path.display(), storage_dir.display()))?;
     }
     else {

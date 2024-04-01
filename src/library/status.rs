@@ -56,11 +56,14 @@ pub fn dvs_status(files: &Vec<String>) -> Result<Vec<JsonFileResult>> {
         if !path.exists() {status = String::from("not-present")}
         else {
             // get whether file was hashable and file hash
-            let file_hash = hash::get_file_hash(&path); // will return "" if not hashable, which won't match metadata.file_hash
-            if file_hash == metadata.file_hash {
-                status = String::from("up-to-date")
-            }
-            // else, the file exists, but the hash isn't up to date, so still with default: out-of-date
+            match hash::get_file_hash(&path) {
+                Some(file_hash) => {
+                    if file_hash == metadata.file_hash {
+                        status = String::from("up-to-date")
+                    }
+                }
+                None => (),
+            }; 
         }
        
         // assemble info into JsonFileResult
