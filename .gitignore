@@ -6,3 +6,14 @@ dvs
 
 # Testing environment
 testing/environment/
+
+dvs.yaml
+
+abc.txt
+abc.txt.dvs
+def.txt
+def.txt.dvs
+test_items.R
+
+# Devious entry
+/abc.txt
