@@ -8,7 +8,7 @@ import (
 )
 
 type Config struct {
-	StorageDir string `yaml:"storage-dir"`
+	StorageDir string `yaml:"storage_dir"`
 }
 
 var ConfigFileName = "dvs.yaml"
