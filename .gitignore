@@ -6,3 +6,4 @@ dvs
 
 # Testing environment
 testing/environment/
+dist/

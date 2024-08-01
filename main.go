@@ -2,12 +2,12 @@ package main
 
 import (
 	"dvs/cmd"
-	"syscall"
+	"dvs/internal"
 )
 
 func main() {
 	// Clear default umask
-	syscall.Umask(0)
+	internal.ClearUmask()
 
 	cmd.Execute()
 }
