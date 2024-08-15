@@ -8,8 +8,8 @@ import (
 
 type Metadata struct {
 	FileHash  string    `json:"blake3_checksum"`
-	FileSize  uint64    `json:"file_size_bytes"`
-	Timestamp time.Time `json:"timestamp"`
+	FileSize  uint64    `json:"size"`
+	Timestamp time.Time `json:"add_time"`
 	Message   string    `json:"message"`
 	SavedBy   string    `json:"saved_by"`
 }

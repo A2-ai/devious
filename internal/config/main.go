@@ -8,7 +8,9 @@ import (
 )
 
 type Config struct {
-	StorageDir string `yaml:"storage-dir"`
+	StorageDir  string `yaml:"storage_dir"`
+	Permissions int    `yaml:"permissions"`
+	Group       string `yaml:"group"`
 }
 
 var ConfigFileName = "dvs.yaml"
@@ -37,6 +39,9 @@ func Write(config Config, dir string) error {
 		return err
 	}
 	defer dvsFile.Close()
+
+	config.Permissions = 664
+	config.Group = ""
 
 	// Convert config to YAML
 	configYaml, err := yaml.Marshal(config)
